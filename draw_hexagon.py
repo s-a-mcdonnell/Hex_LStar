@@ -11,16 +11,19 @@ SCREEN_HEIGHT = 600
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption("Draw Hexagon")
 
-# Attempt at a hexagon just for the heck of it
+# Create hexagons
 hexagon = [(20, 0), (60, 0), (80, 35), (60, 70), (20, 70), (0, 35)]
+hexagon2 = [(80, 35), (120, 35), (140, 70), (120, 105), (80, 105), (60, 70)]
+
 
 run = True
 while run:
     # Reset screen
     screen.fill((0, 0, 0))
 
-    # Draw blue hexagon
+    # Draw hexagons
     pygame.draw.polygon(screen, (5, 5, 180), hexagon)
+    pygame.draw.polygon(screen, (5, 180, 5), hexagon2)
 
     # Event handler (closing window)
     for event in pygame.event.get():
