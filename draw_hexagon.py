@@ -1,7 +1,10 @@
 class Hex:
    @staticmethod
    def create_coor(x, y):
-        return [(x, y), (x+40, y), (x+60, y+35), (x+40, y+70), (x, y+70), (x-20, y+35)]
+        # __ return [(x, y), (x+40, y), (x+60, y+35), (x+40, y+70), (x, y+70), (x-20, y+35)]
+        # Making hex smaller so that borders will be visible
+        return [(x + 3, y + 3), (x+37, y+3), (x+57, y+35), (x+37, y+67), (x, y+67), (x-17, y+35)]
+
 
     # Constructor
     # moveable is an optional parameter with a default value of true
@@ -40,8 +43,10 @@ for x in range(10):
         myHex = Hex(20 + 60*x, 35*x + 70*y)
         hex_list.append(myHex)
 
-# Update the state of one hexagon to reflect motion
+# Update the state of a few hexagons to reflect motion
 hex_matrix[1][1].state[0] = 1
+hex_matrix[2][3].state[4] = 1
+hex_matrix[5][2].state[2] = 1
 
 run = True
 while run:
