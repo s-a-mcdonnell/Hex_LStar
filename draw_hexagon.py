@@ -1,6 +1,8 @@
 class Hex:
    @staticmethod
    def create_coor(x, y):
+        x-=40
+        y-=490
         # __ return [(x, y), (x+40, y), (x+60, y+35), (x+40, y+70), (x, y+70), (x-20, y+35)]
         # Making hex smaller so that borders will be visible
         return [(x+3, y+3), (x+37, y+3), (x+57, y+35), (x+37, y+67), (x+3, y+67), (x-17, y+35)]
@@ -9,18 +11,50 @@ class Hex:
     # Constructor
     # color is an optional parameter with a default value of red
     # moveable is an optional parameter with a default value of true
-   def __init__(self, x, y, color=(255, 0, 0), moveable=True):
+   def __init__(self, x, y, matrix_index, list_index, color=(255, 0, 0), moveable=True):
        self.coordinates = Hex.create_coor(x, y)
+       self.matrix_index = matrix_index
+       self.list_index = list_index
        self.color = color
        self.movable = moveable
        self.state = [0, 0, 0, 0, 0, 0]
+
+       # Writing text to screen according to this tutorial:
+
+        # create the display surface object
+        # of specific dimension..e(X, Y).
+       # __ self.display_surface = pygame.display.set_mode((X, Y))
+       self.display_surface = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+
+        # create a font object.
+        # 1st parameter is the font file
+        # which is present in pygame.
+        # 2nd parameter is size of the font
+       font = pygame.font.Font('freesansbold.ttf', 15)
+        
+        # create a text surface object,
+        # on which text is drawn on it.
+       self.text = font.render(('(' + str(matrix_index) + ',' + str(list_index) + ')'), True, (0, 255, 0))
+        
+        # create a rectangular object for the
+        # text surface object
+       self.textRect = self.text.get_rect()
+        
+       # set the center of the rectangular object.
+       # __ self.textRect.center = (x + 30, y + 35)
+       self.textRect.center = (self.coordinates[0][0] + 10, self.coordinates[0][1] + 35)
    
    def draw(self, screen):
     if self.state[0] | self.state[1] | self.state[2] | self.state[3] | self.state[4] | self.state[5]:
        self.color = (0, 0, 255)
     else:
         self.color = (255, 0, 0)
+    
+    # Draw the hexagon
     pygame.draw.polygon(screen, self.color, self.coordinates)
+
+    # Draw text object displaying axial hex coordiantes
+    self.display_surface.blit(self.text, self.textRect)
 
 import pygame
 
@@ -36,18 +70,21 @@ pygame.display.set_caption("Draw Hexagon")
 # Create hexagons
 hex_matrix = []
 
-for x in range(10):
+for x in range(15):
     hex_list = []
     hex_matrix.append(hex_list)
 
-    for y in range(10):
-        myHex = Hex(20 + 60*x, 35*x + 70*y)
+    for y in range(16):
+        myHex = Hex(20 + 60*x, 35*x + 70*y, x, y)
         hex_list.append(myHex)
 
 # Update the state of a few hexagons to reflect motion
 hex_matrix[1][1].state[0] = 1
 hex_matrix[2][3].state[4] = 1
 hex_matrix[5][2].state[2] = 1
+hex_matrix[10][10].state[0] = 1
+hex_matrix[8][12].state[4] = 1
+hex_matrix[6][10].state[2] = 1
 
 run = True
 while run:
