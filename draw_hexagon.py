@@ -19,7 +19,7 @@ class Hex:
        self.movable = moveable
        self.state = [0, 0, 0, 0, 0, 0]
 
-       # Writing text to screen according to this tutorial:
+       # Writing text to screen according to this tutorial:https://www.geeksforgeeks.org/python-display-text-to-pygame-window/
 
         # create the display surface object
         # of specific dimension..e(X, Y).
