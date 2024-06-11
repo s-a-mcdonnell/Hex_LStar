@@ -1,6 +1,8 @@
 
-def draw_hex(screen, x, y, color):
-    hexagon = [(x, y), (x+40, y), (x+60, y+35), (x+40, y+70), (x, y+70), (x-20, y+35)]
+def create_hex(x, y):
+    return [(x, y), (x+40, y), (x+60, y+35), (x+40, y+70), (x, y+70), (x-20, y+35)]
+
+def draw_hex(screen, hexagon, color):
     pygame.draw.polygon(screen, color, hexagon)
 
 
@@ -16,9 +18,7 @@ screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption("Draw Hexagon")
 
 # Create hexagons
-# __ hexagon = [(20, 0), (60, 0), (80, 35), (60, 70), (20, 70), (0, 35)]
-# __ hexagon2 = [(80, 35), (120, 35), (140, 70), (120, 105), (80, 105), (60, 70)]
-
+hex_list = [create_hex(20, 0), create_hex(80, 35), create_hex(140, 0)]
 
 run = True
 while run:
@@ -26,9 +26,9 @@ while run:
     screen.fill((0, 0, 0))
 
     # Draw hexagons
-    draw_hex(screen, 20, 0, (5, 5, 180))
-    draw_hex(screen, 80, 35, (5, 180, 5))
-    draw_hex(screen, 140, 0, (255, 0, 0))
+    draw_hex(screen, hex_list[0], (5, 5, 180))
+    draw_hex(screen, hex_list[1], (5, 180, 5))
+    draw_hex(screen, hex_list[2], (255, 0, 0))
     # __ pygame.draw.polygon(screen, (5, 5, 180), hexagon)
     # __ pygame.draw.polygon(screen, (5, 180, 5), hexagon2)
 
