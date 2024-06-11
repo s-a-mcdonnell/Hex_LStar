@@ -1,13 +1,24 @@
 class Hex:
-   def __init__(self, x, y, color):
-       self.coordinates = create_hex(x, y)
+   @staticmethod
+   def create_coor(x, y):
+        return [(x, y), (x+40, y), (x+60, y+35), (x+40, y+70), (x, y+70), (x-20, y+35)]
+
+    # Constructor
+    # moveable is an optional parameter with a default value of true
+   def __init__(self, x, y, color, moveable=True):
+       self.coordinates = Hex.create_coor(x, y)
        self.color = color
+       self.movable = moveable
+       self.state = [0, 0, 0, 0, 0, 0]
+   
+   def draw(self, screen):
+    if self.state[0] | self.state[1] | self.state[2] | self.state[3] | self.state[4] | self.state[5]:
+       self.color = (0, 0, 255)
+    pygame.draw.polygon(screen, self.color, self.coordinates)
+        
 
-def create_hex(x, y):
-    return [(x, y), (x+40, y), (x+60, y+35), (x+40, y+70), (x, y+70), (x-20, y+35)]
-
-def draw_hex(screen, hexagon, color):
-    pygame.draw.polygon(screen, color, hexagon)
+'''def draw_hex(screen, hexagon, color):
+    pygame.draw.polygon(screen, color, hexagon)'''
 
 
 import pygame
@@ -39,6 +50,9 @@ for x in range(10):
 # __ hex_list.append(create_hex(80, 35))
 # __ hex_list.append(create_hex(140, 0))
 
+# Update the state of one hexagon to reflect motion
+hex_matrix[1][1].state[0] = 1
+
 run = True
 while run:
     # Reset screen
@@ -50,7 +64,8 @@ while run:
     b = 10
     for hex_list in hex_matrix:
         for hexagon in hex_list:
-            draw_hex(screen, hexagon.coordinates, hexagon.color)
+            hexagon.draw(screen)
+            # __ draw_hex(screen, hexagon.coordinates, hexagon.color)
             '''draw_hex(screen, hexagon.coordinates, (r, g, b))
             if r <= 245:
                 r += 10
