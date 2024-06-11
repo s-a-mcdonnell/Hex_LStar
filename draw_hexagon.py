@@ -20,11 +20,11 @@ pygame.display.set_caption("Draw Hexagon")
 # Create hexagons
 hex_matrix = []
 
-for x in range(50):
+for x in range(10):
     hex_list = []
     hex_matrix.append(hex_list)
 
-    for y in range(60):
+    for y in range(10):
         hex_list.append(create_hex(20 + 60*x, 35*x + 70*y))
 
 
@@ -55,9 +55,6 @@ while run:
                 r=0
                 g=0
                 b=0
-    # __ draw_hex(screen, hex_list[0], (5, 5, 180))
-    # __ draw_hex(screen, hex_list[1], (5, 180, 5))
-    # __ draw_hex(screen, hex_list[2], (255, 0, 0))
 
     # Event handler (closing window)
     for event in pygame.event.get():
