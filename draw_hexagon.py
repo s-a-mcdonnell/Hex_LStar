@@ -17,11 +17,6 @@ class Hex:
     else:
         self.color = (255, 0, 0)
     pygame.draw.polygon(screen, self.color, self.coordinates)
-        
-
-'''def draw_hex(screen, hexagon, color):
-    pygame.draw.polygon(screen, color, hexagon)'''
-
 
 import pygame
 
@@ -44,13 +39,6 @@ for x in range(10):
     for y in range(10):
         myHex = Hex(20 + 60*x, 35*x + 70*y)
         hex_list.append(myHex)
-        # __ hex_list.append(create_hex(20 + 60*x, 35*x + 70*y))
-
-
-# __ hex_list = []
-# __ hex_list.append(create_hex(20, 0))
-# __ hex_list.append(create_hex(80, 35))
-# __ hex_list.append(create_hex(140, 0))
 
 # Update the state of one hexagon to reflect motion
 hex_matrix[1][1].state[0] = 1
@@ -67,18 +55,6 @@ while run:
     for hex_list in hex_matrix:
         for hexagon in hex_list:
             hexagon.draw(screen)
-            # __ draw_hex(screen, hexagon.coordinates, hexagon.color)
-            '''draw_hex(screen, hexagon.coordinates, (r, g, b))
-            if r <= 245:
-                r += 10
-            elif g <= 245:
-                g += 10
-            elif b <= 245:
-                b += 10
-            else:
-                r=0
-                g=0
-                b=0'''
 
     # Event handler (closing window)
     for event in pygame.event.get():
