@@ -18,7 +18,10 @@ screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption("Draw Hexagon")
 
 # Create hexagons
-hex_list = [create_hex(20, 0), create_hex(80, 35), create_hex(140, 0)]
+hex_list = []
+hex_list.append(create_hex(20, 0))
+hex_list.append(create_hex(80, 35))
+hex_list.append(create_hex(140, 0))
 
 run = True
 while run:
@@ -29,8 +32,6 @@ while run:
     draw_hex(screen, hex_list[0], (5, 5, 180))
     draw_hex(screen, hex_list[1], (5, 180, 5))
     draw_hex(screen, hex_list[2], (255, 0, 0))
-    # __ pygame.draw.polygon(screen, (5, 5, 180), hexagon)
-    # __ pygame.draw.polygon(screen, (5, 180, 5), hexagon2)
 
     # Event handler (closing window)
     for event in pygame.event.get():
