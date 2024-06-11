@@ -1,3 +1,6 @@
+import time
+import copy
+
 class Hex:
    @staticmethod
    def create_coor(x, y):
@@ -26,28 +29,28 @@ class Hex:
 
        # Writing text to screen according to this tutorial:https://www.geeksforgeeks.org/python-display-text-to-pygame-window/
 
-        # create the display surface object
-        # of specific dimension..e(X, Y).
-       # __ self.display_surface = pygame.display.set_mode((X, Y))
-       self.display_surface = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+    #     # create the display surface object
+    #     # of specific dimension..e(X, Y).
+    #    # __ self.display_surface = pygame.display.set_mode((X, Y))
+    #    self.display_surface = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 
-        # create a font object.
-        # 1st parameter is the font file
-        # which is present in pygame.
-        # 2nd parameter is size of the font
-       font = pygame.font.Font('freesansbold.ttf', 15)
+    #     # create a font object.
+    #     # 1st parameter is the font file
+    #     # which is present in pygame.
+    #     # 2nd parameter is size of the font
+    #    font = pygame.font.Font('freesansbold.ttf', 15)
         
-        # create a text surface object,
-        # on which text is drawn on it.
-       self.text = font.render(('(' + str(matrix_index) + ',' + str(list_index) + ')'), True, (0, 255, 0))
+    #     # create a text surface object,
+    #     # on which text is drawn on it.
+    #    self.text = font.render(('(' + str(matrix_index) + ',' + str(list_index) + ')'), True, (0, 255, 0))
         
-        # create a rectangular object for the
-        # text surface object
-       self.textRect = self.text.get_rect()
+    #     # create a rectangular object for the
+    #     # text surface object
+    #    self.textRect = self.text.get_rect()
         
-       # set the center of the rectangular object.
-       # __ self.textRect.center = (x + 30, y + 35)
-       self.textRect.center = (self.coordinates[0][0] + 10, self.coordinates[0][1] + 35)
+    #    # set the center of the rectangular object.
+    #    # __ self.textRect.center = (x + 30, y + 35)
+    #    self.textRect.center = (self.coordinates[0][0] + 10, self.coordinates[0][1] + 35)
    
    def draw(self, screen):
     if self.state[0] | self.state[1] | self.state[2] | self.state[3] | self.state[4] | self.state[5]:
@@ -59,7 +62,7 @@ class Hex:
     pygame.draw.polygon(screen, self.color, self.coordinates)
 
     # Draw text object displaying axial hex coordiantes
-    self.display_surface.blit(self.text, self.textRect)
+    # self.display_surface.blit(self.text, self.textRect)
 
 import pygame
 
@@ -83,6 +86,17 @@ for x in range(15):
         myHex = Hex(x, y)
         hex_list.append(myHex)
 
+# create additiona matrix
+hex_matrix_new = []
+
+for x in range(15):
+    hex_list_new = []
+    hex_matrix_new.append(hex_list_new)
+
+    for y in range(16):
+        myHex = Hex(x, y)
+        hex_list_new.append(myHex)
+
 # Update the state of a few hexagons to reflect motion
 # __ hex_matrix[1][1].state[0] = 1
 # __ hex_matrix[2][3].state[4] = 1
@@ -94,28 +108,9 @@ hex_matrix[6][10].state[2] = 1
 
 run = True
 while run:
+
     # Reset screen
     screen.fill((0, 0, 0))
-
-    # create a new hex matrix for the future state
-
-    hex_matrix_new = []
-
-    for x in range(15):
-        hex_list = []
-        hex_matrix_new.append(hex_list)
-
-        for y in range(16):
-            myHex = Hex(x, y)
-            hex_list.append(myHex)
-
-    # update states in the new one
-    for hex_list in hex_matrix:
-        for hexagon in hex_list:
-            if hexagon.state[0] == 1:
-                hex_matrix_new[hexagon.matrix_index][hexagon.list_index - 1].state[0] == 1
-
-    hex_matrix = hex_matrix_new
 
     # Draw hexagons
     r = 10
@@ -131,6 +126,40 @@ while run:
             run = False
 
     pygame.display.update()
+
+    # update all states in new_hex
+    for hex_list_new in hex_matrix_new:
+        for hexagon in hex_list_new:
+            hexagon.state = [0,0,0,0,0,0]
+
+    # update states in the new one
+    for hex_list in hex_matrix:
+        for hexagon in hex_list:
+            #check for index out of bound stuff
+            if hexagon.state[0] != 0:
+                if (0 <= hexagon.list_index - 1 < len(hex_list)):
+                    hex_matrix_new[hexagon.matrix_index][hexagon.list_index - 1].state[0] = 1
+            if hexagon.state[1] != 0:
+                if (0 <= hexagon.matrix_index + 1 < len(hex_matrix)) and (0 <= hexagon.list_index - 1 < len(hex_list)):
+                    hex_matrix_new[hexagon.matrix_index + 1][hexagon.list_index - 1].state[1] = 1
+            if hexagon.state[2] != 0:
+                if (0 <= hexagon.matrix_index + 1 < len(hex_matrix)):
+                    hex_matrix_new[hexagon.matrix_index + 1][hexagon.list_index].state[2] = 1
+            if hexagon.state[3] != 0:
+                if(0 <= hexagon.list_index + 1 < len(hex_list)):
+                    hex_matrix_new[hexagon.matrix_index][hexagon.list_index + 1].state[3] = 1
+            if hexagon.state[4] != 0:
+                if (0 <= hexagon.matrix_index - 1 < len(hex_matrix)) and (0 <= hexagon.list_index + 1 < len(hex_list)):
+                    hex_matrix_new[hexagon.matrix_index - 1][hexagon.list_index + 1].state[4] = 1
+            if hexagon.state[5] != 0:
+                if (0 <= hexagon.matrix_index - 1 < len(hex_matrix)):
+                    hex_matrix_new[hexagon.matrix_index - 1][hexagon.list_index].state[5] = 1
+
+    # need to use the python deepcopy in order to copy the inner lists of a 2D array
+    hex_matrix = copy.deepcopy(hex_matrix_new)
+    # hex_matrix = hex_matrix_new.copy()
+
+    time.sleep(1)
 
 pygame.quit()
 
