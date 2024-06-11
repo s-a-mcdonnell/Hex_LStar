@@ -16,7 +16,7 @@ class Hex:
        self.list_index = list_index
 
        self.x = 60*matrix_index - 20
-       self.y = 35*x + 70*y - 490
+       self.y = 35*matrix_index + 70*list_index - 490
 
        self.coordinates = Hex.create_coor(self.x, self.y)
        
