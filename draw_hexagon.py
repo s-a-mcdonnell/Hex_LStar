@@ -5,7 +5,7 @@ class Hex:
 
     # Constructor
     # moveable is an optional parameter with a default value of true
-   def __init__(self, x, y, color, moveable=True):
+   def __init__(self, x, y, color=(255, 0, 0), moveable=True):
        self.coordinates = Hex.create_coor(x, y)
        self.color = color
        self.movable = moveable
@@ -14,6 +14,8 @@ class Hex:
    def draw(self, screen):
     if self.state[0] | self.state[1] | self.state[2] | self.state[3] | self.state[4] | self.state[5]:
        self.color = (0, 0, 255)
+    else:
+        self.color = (255, 0, 0)
     pygame.draw.polygon(screen, self.color, self.coordinates)
         
 
@@ -40,7 +42,7 @@ for x in range(10):
     hex_matrix.append(hex_list)
 
     for y in range(10):
-        myHex = Hex(20 + 60*x, 35*x + 70*y, (255, 0, 0))
+        myHex = Hex(20 + 60*x, 35*x + 70*y)
         hex_list.append(myHex)
         # __ hex_list.append(create_hex(20 + 60*x, 35*x + 70*y))
 
