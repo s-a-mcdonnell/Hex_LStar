@@ -79,11 +79,12 @@ for x in range(15):
         hex_list.append(myHex)
 
 # Update the state of a few hexagons to reflect motion
-hex_matrix[1][1].state[0] = 1
-hex_matrix[2][3].state[4] = 1
-hex_matrix[5][2].state[2] = 1
+# __ hex_matrix[1][1].state[0] = 1
+# __ hex_matrix[2][3].state[4] = 1
+# __ hex_matrix[5][2].state[2] = 1
 hex_matrix[10][10].state[0] = 1
-hex_matrix[8][12].state[4] = 1
+hex_matrix[4][7].state[3] = 3
+# __ hex_matrix[8][12].state[4] = 1
 hex_matrix[6][10].state[2] = 1
 
 run = True
