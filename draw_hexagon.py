@@ -97,6 +97,26 @@ while run:
     # Reset screen
     screen.fill((0, 0, 0))
 
+    # create a new hex matrix for the future state
+
+    hex_matrix_new = []
+
+    for x in range(15):
+        hex_list = []
+        hex_matrix_new.append(hex_list)
+
+        for y in range(16):
+            myHex = Hex(x, y)
+            hex_list.append(myHex)
+
+    # update states in the new one
+    for hex_list in hex_matrix:
+        for hexagon in hex_list:
+            if hexagon.state[0] == 1:
+                hex_matrix_new[hexagon.matrix_index][hexagon.list_index - 1].state[0] == 1
+
+    hex_matrix = hex_matrix_new
+
     # Draw hexagons
     r = 10
     g = 10
