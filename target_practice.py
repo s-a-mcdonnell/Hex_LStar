@@ -21,17 +21,12 @@ TAR_WIDTH = 100
 TAR_HEIGHT = 100
 target = pygame.Rect(300, 300, TAR_WIDTH, TAR_HEIGHT)
 
-# Attempt at a hexagon just for the heck of it
-hexagon = [(20, 0), (60, 0), (80, 40), (60, 80), (20, 80), (0, 40)]
-
 run = True
 while run:
     # Reset screen
     screen.fill((0, 0, 0))
 
     # Draw purple rectangle and red target
-    # And a random blue hexagon
-    pygame.draw.polygon(screen, (5, 5, 180), hexagon)
     pygame.draw.rect(screen, (255, 0, 0), target)
     pygame.draw.rect(screen, (200, 0, 200), myRect)
 
