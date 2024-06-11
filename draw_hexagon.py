@@ -3,10 +3,11 @@ class Hex:
    def create_coor(x, y):
         # __ return [(x, y), (x+40, y), (x+60, y+35), (x+40, y+70), (x, y+70), (x-20, y+35)]
         # Making hex smaller so that borders will be visible
-        return [(x + 3, y + 3), (x+37, y+3), (x+57, y+35), (x+37, y+67), (x, y+67), (x-17, y+35)]
+        return [(x+3, y+3), (x+37, y+3), (x+57, y+35), (x+37, y+67), (x+3, y+67), (x-17, y+35)]
 
 
     # Constructor
+    # color is an optional parameter with a default value of red
     # moveable is an optional parameter with a default value of true
    def __init__(self, x, y, color=(255, 0, 0), moveable=True):
        self.coordinates = Hex.create_coor(x, y)
