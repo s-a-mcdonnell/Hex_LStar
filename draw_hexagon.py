@@ -30,7 +30,7 @@ class Hex:
    
    def draw(self, screen):
     if self.occupied == False:
-        # If not occupied: white
+        # If not occupied: light blue
         self.color = (190, 240, 255)
     elif self.movable == False:
         # If occupied and not movable (wall): dark grey
