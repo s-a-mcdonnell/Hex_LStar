@@ -23,7 +23,7 @@ class Hex:
 
        self.coordinates = Hex.create_coor(self.x, self.y)
        
-        # TO DO: need to make something for occupied vs unoccupied hexes
+        # TODO: need to make something for occupied vs unoccupied hexes
 
        self.color = color
        self.movable = moveable
@@ -340,7 +340,7 @@ while run:
     hex_matrix = copy.deepcopy(hex_matrix_new)
     # hex_matrix = hex_matrix_new.copy()
 
-    # TO DO: less janky way of time to slow down the animation
+    # TODO: less janky way of time to slow down the animation
     time.sleep(1)
 
 pygame.quit()
