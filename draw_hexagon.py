@@ -14,7 +14,7 @@ class Hex:
     # Constructor
     # color is an optional parameter with a default value of red
     # moveable is an optional parameter with a default value of true
-   def __init__(self, matrix_index, list_index, color=(255, 0, 0), moveable=True):
+   def __init__(self, matrix_index, list_index, color=(255, 0, 0), moveable=True, occupied=False):
        self.matrix_index = matrix_index
        self.list_index = list_index
 
@@ -27,14 +27,17 @@ class Hex:
 
        self.color = color
        self.movable = moveable
+       self.occupied = occupied
        self.state = [0, 0, 0, 0, 0, 0]
 
    
    def draw(self, screen):
-    if self.state[0] | self.state[1] | self.state[2] | self.state[3] | self.state[4] | self.state[5]:
-       self.color = (0, 0, 255)
+    if self.occupied == False:
+        self.color = (255, 255, 255)
     elif self.movable == False:
         self.color = (20, 20, 20)
+    elif self.state[0] | self.state[1] | self.state[2] | self.state[3] | self.state[4] | self.state[5]:
+       self.color = (0, 0, 255)
     else:
         self.color = (255, 0, 0)
     
@@ -45,12 +48,19 @@ class Hex:
     # self.display_surface.blit(self.text, self.textRect)
 
     #update self hexagon
-    def update(self):
-        
+   def update(self):
         # determine the state of the current hex based on the states of the hexes around it
         future = hex_matrix_new[self.matrix_index][self.list_index]
 
         future.state = [0,0,0,0,0,0]
+        future.occupied = False
+
+        if(hex_matrix[self.matrix_index][self.list_index].movable == False):
+            future.movable = False
+            future.occupied = True
+
+        if(hex_matrix[self.matrix_index][self.list_index].occupied == True) and (str(hex_matrix[self.matrix_index][self.list_index].state) == "[0, 0, 0, 0, 0, 0]"):
+            future.occupied = True
 
         if self.movable:
 
@@ -58,6 +68,38 @@ class Hex:
             # if my upper (0) neighbor is pointing down (3) then I will move down
             if self.list_index - 1 > 0:
                 future.state[3] = hex_matrix[self.matrix_index][self.list_index - 1].state[3]
+                if future.state[3] != 0:
+                    future.occupied = True
+
+            # DOWN NEIGHBOR EFFECTS
+            if self.list_index + 1 < len(hex_list):
+                future.state[0] = hex_matrix[self.matrix_index][self.list_index + 1].state[0]
+                if future.state[0] != 0:
+                    future.occupied = True
+
+            # NORTHEAST NEIGHBOR
+            if (self.matrix_index + 1 < len(hex_matrix)) and (self.list_index - 1 > 0):
+                future.state[4] = hex_matrix[self.matrix_index + 1][self.list_index - 1].state[4]
+                if future.state[4] != 0:
+                    future.occupied = True
+
+            # NORTHWEST NEIGHBOR
+            if self.matrix_index - 1 > 0:
+                future.state[2] = hex_matrix[self.matrix_index - 1][self.list_index].state[2]
+                if future.state[2] != 0:
+                    future.occupied = True
+
+            # SOUTHEAST NEIGHBOR
+            if self.matrix_index + 1 < len(hex_matrix):
+                future.state[5] = hex_matrix[self.matrix_index + 1][self.list_index].state[5]
+                if future.state[5] != 0:
+                    future.occupied = True
+
+            # SOUTHWEST NEIGHBOR
+            if (self.matrix_index - 1 > 0) and (self.list_index + 1 < len(hex_list)):
+                future.state[1] = hex_matrix[self.matrix_index - 1][self.list_index + 1].state[1]
+                if future.state[1] != 0:
+                    future.occupied = True
 
 import pygame
 
@@ -93,10 +135,19 @@ for x in range(15):
         hex_list_new.append(myHex)
 
 # Update the state of a few hexagons to reflect motion
+hex_matrix[10][10].occupied = True
+hex_matrix[10][4].occupied = True
+hex_matrix[4][7].occupied = True
+hex_matrix[6][10].occupied = True
+hex_matrix[3][5].occupied = True
+hex_matrix[5][6].occupied = True
+hex_matrix[7][8].occupied = True
+
 hex_matrix[10][10].state[0] = 1
 hex_matrix[10][4].state[3] = 1
 hex_matrix[4][7].state[3] = 3
 hex_matrix[6][10].state[2] = 1
+hex_matrix[3][5].state[4] = 1
 hex_matrix[5][6].movable = False
 
 run = True
@@ -114,6 +165,8 @@ while run:
         for hexagon in hex_list:
             hexagon.draw(screen)
         
+            # polygon rotation tips from: https://stackoverflow.com/questions/75116101/how-to-make-rotate-polygon-on-key-in-pygame
+
             # draw an arrow on the hex if the hex is moving
             if(str(hexagon.state) != "[0, 0, 0, 0, 0, 0]"):
                 #pivot is the center of the hexagon
@@ -155,35 +208,37 @@ while run:
 
     pygame.display.update()
 
-    # update all states in new_hex
-    for hex_list_new in hex_matrix_new:
-        for hexagon in hex_list_new:
-            hexagon.state = [0,0,0,0,0,0]
-            if(hex_matrix[hexagon.matrix_index][hexagon.list_index].movable == False):
-                hexagon.movable = False
-
-    # update states in the new one
     for hex_list in hex_matrix:
         for hexagon in hex_list:
-            #check for index out of bound stuff
-            if hexagon.state[0] != 0:
-                if (0 <= hexagon.list_index - 1 < len(hex_list)):
-                    hex_matrix_new[hexagon.matrix_index][hexagon.list_index - 1].state[0] = 1
-            if hexagon.state[1] != 0:
-                if (0 <= hexagon.matrix_index + 1 < len(hex_matrix)) and (0 <= hexagon.list_index - 1 < len(hex_list)):
-                    hex_matrix_new[hexagon.matrix_index + 1][hexagon.list_index - 1].state[1] = 1
-            if hexagon.state[2] != 0:
-                if (0 <= hexagon.matrix_index + 1 < len(hex_matrix)):
-                    hex_matrix_new[hexagon.matrix_index + 1][hexagon.list_index].state[2] = 1
-            if hexagon.state[3] != 0:
-                if(0 <= hexagon.list_index + 1 < len(hex_list)):
-                    hex_matrix_new[hexagon.matrix_index][hexagon.list_index + 1].state[3] = 1
-            if hexagon.state[4] != 0:
-                if (0 <= hexagon.matrix_index - 1 < len(hex_matrix)) and (0 <= hexagon.list_index + 1 < len(hex_list)):
-                    hex_matrix_new[hexagon.matrix_index - 1][hexagon.list_index + 1].state[4] = 1
-            if hexagon.state[5] != 0:
-                if (0 <= hexagon.matrix_index - 1 < len(hex_matrix)):
-                    hex_matrix_new[hexagon.matrix_index - 1][hexagon.list_index].state[5] = 1
+            hexagon.update()
+
+    # # update all states in new_hex
+    # for hex_list_new in hex_matrix_new:
+    #     for hexagon in hex_list_new:
+    #         hexagon.state = [0,0,0,0,0,0]
+
+    # # update states in the new one
+    # for hex_list in hex_matrix:
+    #     for hexagon in hex_list:
+    #         #check for index out of bound stuff
+    #         if hexagon.state[0] != 0:
+    #             if (0 <= hexagon.list_index - 1 < len(hex_list)):
+    #                 hex_matrix_new[hexagon.matrix_index][hexagon.list_index - 1].state[0] = 1
+    #         if hexagon.state[1] != 0:
+    #             if (0 <= hexagon.matrix_index + 1 < len(hex_matrix)) and (0 <= hexagon.list_index - 1 < len(hex_list)):
+    #                 hex_matrix_new[hexagon.matrix_index + 1][hexagon.list_index - 1].state[1] = 1
+    #         if hexagon.state[2] != 0:
+    #             if (0 <= hexagon.matrix_index + 1 < len(hex_matrix)):
+    #                 hex_matrix_new[hexagon.matrix_index + 1][hexagon.list_index].state[2] = 1
+    #         if hexagon.state[3] != 0:
+    #             if(0 <= hexagon.list_index + 1 < len(hex_list)):
+    #                 hex_matrix_new[hexagon.matrix_index][hexagon.list_index + 1].state[3] = 1
+    #         if hexagon.state[4] != 0:
+    #             if (0 <= hexagon.matrix_index - 1 < len(hex_matrix)) and (0 <= hexagon.list_index + 1 < len(hex_list)):
+    #                 hex_matrix_new[hexagon.matrix_index - 1][hexagon.list_index + 1].state[4] = 1
+    #         if hexagon.state[5] != 0:
+    #             if (0 <= hexagon.matrix_index - 1 < len(hex_matrix)):
+    #                 hex_matrix_new[hexagon.matrix_index - 1][hexagon.list_index].state[5] = 1
 
     # need to use the python deepcopy in order to copy the inner lists of a 2D array
     hex_matrix = copy.deepcopy(hex_matrix_new)
