@@ -165,6 +165,19 @@ class Hex:
         elif neighbors_movable[dir] == 1:
             future.occupied = True
             future.movable = True
+   
+   # TODO: Describe
+   # TODO: Rename straight_neighbor
+   def motion_handler(self, future, straight_neighbor, neighbors_movable, neighbors_wall, dir):
+       # if my neighbor is moving toward me and is not blocked by either of two side walls, I will gain motion
+       if (not neighbors_wall[(dir+1)%6]) and (not neighbors_wall[(dir-1)%6]):
+           if straight_neighbor.state[(dir+3)%6]:
+                future.state[(dir+3)%6] = 1
+                future.occupied = True
+        
+        # handle impact of hitting occupied neighbor
+       if(self.state[dir] != 0):
+            self.hit_neighbor(future, neighbors_movable, neighbors_wall, dir)
 
    #update self hexagon
    def update(self):
@@ -192,7 +205,8 @@ class Hex:
 
             # if my upper (0) neighbor is pointing down (3) then I will move down
             if self.list_index - 1 > 0:
-                if (not neighbors_wall[1]) and (not neighbors_wall[5]):
+                self.motion_handler(future, hex_matrix[self.matrix_index][self.list_index - 1], neighbors_movable, neighbors_wall, 0)
+                '''if (not neighbors_wall[1]) and (not neighbors_wall[5]):
                     if hex_matrix[self.matrix_index][self.list_index - 1].state[3]:
                         future.state[3] = 1
                     if future.state[3] != 0:
@@ -200,12 +214,14 @@ class Hex:
                 
                 # handle impact of hitting occupied neighbor
                 if(self.state[0] != 0):
-                    self.hit_neighbor(future, neighbors_movable, neighbors_wall, 0)
+                    self.hit_neighbor(future, neighbors_movable, neighbors_wall, 0)'''
 
 
             # DOWN NEIGHBOR EFFECTS
             if self.list_index + 1 < len(hex_list):
-                # if my lower neighbor is moving toward me and is not blocked by two side walls, I will gain motion
+                self.motion_handler(future, hex_matrix[self.matrix_index][self.list_index + 1], neighbors_movable, neighbors_wall, 3)
+
+                '''# if my lower neighbor is moving toward me and is not blocked by two side walls, I will gain motion
                 if (not neighbors_wall[2]) and (not neighbors_wall[4]):
                     if hex_matrix[self.matrix_index][self.list_index + 1].state[0]:
                         future.state[0] = 1
@@ -214,12 +230,14 @@ class Hex:
               
                 # handle impact of hitting occupied neighbor
                 if (self.state[3] != 0):
-                    self.hit_neighbor(future, neighbors_movable, neighbors_wall, 3)
+                    self.hit_neighbor(future, neighbors_movable, neighbors_wall, 3)'''
     
 
             # NORTHEAST NEIGHBOR
             if (self.matrix_index + 1 < len(hex_matrix)) and (self.list_index - 1 > 0):
-                # if my neighbor is moving toward me and is not blocked by two side walls, I will gain motion
+                self.motion_handler(future, hex_matrix[self.matrix_index + 1][self.list_index - 1], neighbors_movable, neighbors_wall, 1)
+
+                '''# if my neighbor is moving toward me and is not blocked by two side walls, I will gain motion
                 if (not neighbors_wall[0]) and (not neighbors_wall[2]):
                     if hex_matrix[self.matrix_index + 1][self.list_index - 1].state[4]:
                         future.state[4] = 1
@@ -228,11 +246,13 @@ class Hex:
                 
                 # handle impact of hitting occupied neighbor
                 if (self.state[1] != 0):
-                    self.hit_neighbor(future, neighbors_movable, neighbors_wall, 1)
+                    self.hit_neighbor(future, neighbors_movable, neighbors_wall, 1)'''
 
             # NORTHWEST NEIGHBOR
             if self.matrix_index - 1 > 0:
-                # if my neighbor is moving toward me and is not blocked by two side walls, I will gain motion
+                self.motion_handler(future, hex_matrix[self.matrix_index - 1][self.list_index], neighbors_movable, neighbors_wall, 5)
+
+            '''# if my neighbor is moving toward me and is not blocked by two side walls, I will gain motion
                 if (not neighbors_wall[0]) and (not neighbors_wall[4]):
                     if hex_matrix[self.matrix_index - 1][self.list_index].state[2]:
                         future.state[2] = 1
@@ -241,11 +261,13 @@ class Hex:
                 
                 # handle impact of hitting occupied neighbor
                 if (self.state[5] != 0):
-                    self.hit_neighbor(future, neighbors_movable, neighbors_wall, 5)
+                    self.hit_neighbor(future, neighbors_movable, neighbors_wall, 5)'''
 
             # SOUTHEAST NEIGHBOR
             if self.matrix_index + 1 < len(hex_matrix):
-                # if my neighbor is moving toward me and is not blocked by two side walls, I will gain motion
+                self.motion_handler(future, hex_matrix[self.matrix_index + 1][self.list_index], neighbors_movable, neighbors_wall, 2)
+
+                '''# if my neighbor is moving toward me and is not blocked by two side walls, I will gain motion
                 if (not neighbors_wall[1]) and (not neighbors_wall[3]):
                     if hex_matrix[self.matrix_index + 1][self.list_index].state[5]:
                         future.state[5] = 1
@@ -254,11 +276,13 @@ class Hex:
                 
                 # handle impact of hitting occupied neighbor
                 if (self.state[2] != 0):
-                    self.hit_neighbor(future, neighbors_movable, neighbors_wall, 2)
+                    self.hit_neighbor(future, neighbors_movable, neighbors_wall, 2)'''
 
             # SOUTHWEST NEIGHBOR
             if (self.matrix_index - 1 > 0) and (self.list_index + 1 < len(hex_list)):
-                # if my neighbor is moving toward me and is not blocked by two side walls, I will gain motion
+                self.motion_handler(future, hex_matrix[self.matrix_index - 1][self.list_index + 1], neighbors_movable, neighbors_wall, 4)
+
+                '''# if my neighbor is moving toward me and is not blocked by two side walls, I will gain motion
                 if (not neighbors_wall[3]) and (not neighbors_wall[5]):
                     if hex_matrix[self.matrix_index - 1][self.list_index + 1].state[1]:
                         future.state[1] = 1
@@ -267,7 +291,7 @@ class Hex:
 
                 # handle impact of hitting occupied neighbor
                 if (self.state[4] != 0):
-                    self.hit_neighbor(future, neighbors_movable, neighbors_wall, 4)
+                    self.hit_neighbor(future, neighbors_movable, neighbors_wall, 4)'''
 
 
 
