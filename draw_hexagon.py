@@ -25,9 +25,16 @@ class Hex:
        self.occupied = occupied
        self.state = [0, 0, 0, 0, 0, 0]
 
+    # sets the given hex to act as a wall
    def make_wall(self):
        self.occupied = True
        self.movable = False
+
+    # sets the given hex to move in a given direction
+   def make_move(self, dir):
+       self.occupied = True
+       self.movable = True
+       self.state[dir] = 1 
 
    def draw(self, screen):
     if self.occupied == False:
@@ -335,16 +342,19 @@ for x in range(15):
         hex_list_new.append(myHex)
 
 # Update the state of a few hexagons to reflect motion
-hex_matrix[10][8].occupied = True
+#hex_matrix[10][8].occupied = True
 hex_matrix[10][4].occupied = True
 # hex_matrix[4][7].occupied = True
 # hex_matrix[6][10].occupied = True
 # hex_matrix[3][5].occupied = True
 hex_matrix[7][8].occupied = True
-hex_matrix[4][6].occupied = True
+#hex_matrix[4][6].occupied = True
 
-hex_matrix[10][8].state[5] = 1
-hex_matrix[4][6].state[3] = 1
+#hex_matrix[10][8].state[5] = 1
+hex_matrix[10][8].make_move(5)
+#hex_matrix[4][6].state[3] = 1
+hex_matrix[4][6].make_move(3)
+
 # hex_matrix[4][7].state[3] = 3
 # hex_matrix[6][10].state[2] = 1
 # hex_matrix[3][5].state[4] = 1
