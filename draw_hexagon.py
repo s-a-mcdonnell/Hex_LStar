@@ -27,7 +27,10 @@ class Hex:
        self.occupied = occupied
        self.state = [0, 0, 0, 0, 0, 0]
 
-   
+   def make_wall(self):
+       self.occupied = True
+       self.movable = False
+
    def draw(self, screen):
     if self.occupied == False:
         # If not occupied: light blue
@@ -199,6 +202,7 @@ class Hex:
             # DOWN NEIGHBOR EFFECTS
             if self.list_index + 1 < len(hex_list):
                 # if my lower neighbor is moving toward me and is not blocked by two side walls, I will gain motion
+                # TODO: This series of if-statements in the problem
                 if(neighbors_wall[2] == 0) and (neighbors_wall[4] == 0):
                     future.state[0] = hex_matrix[self.matrix_index][self.list_index + 1].state[0]
                     if future.state[0] != 0:
@@ -289,16 +293,15 @@ hex_matrix[10][4].occupied = True
 # hex_matrix[3][5].occupied = True
 hex_matrix[7][8].occupied = True
 hex_matrix[5][9].occupied = True
-hex_matrix[6][6].occupied = True
-#hex_matrix[4][7].occupied = True
 
 hex_matrix[10][8].state[5] = 1
 hex_matrix[5][9].state[0] = 1
 # hex_matrix[4][7].state[3] = 3
 # hex_matrix[6][10].state[2] = 1
 # hex_matrix[3][5].state[4] = 1
-hex_matrix[6][6].movable = False
-#hex_matrix[4][7].movable = False
+
+hex_matrix[6][6].make_wall()
+#hex_matrix[4][7].make_wall()
 
 run = True
 while run:
