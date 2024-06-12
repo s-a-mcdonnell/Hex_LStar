@@ -4,9 +4,6 @@ import copy
 class Hex:
    @staticmethod
    def create_coor(x, y):
-        # __ x-=40
-        # __ y-=490
-        # __ return [(x, y), (x+40, y), (x+60, y+35), (x+40, y+70), (x, y+70), (x-20, y+35)]
         # Making hex smaller so that borders will be visible
         return [(x+3, y+3), (x+37, y+3), (x+57, y+35), (x+37, y+67), (x+3, y+67), (x-17, y+35)]
 
@@ -23,7 +20,7 @@ class Hex:
 
        self.coordinates = Hex.create_coor(self.x, self.y)
        
-        # TO DO: need to make something for occupied vs unoccupied hexes
+        # TODO: need to make something for occupied vs unoccupied hexes
 
        self.color = color
        self.movable = moveable
@@ -33,12 +30,16 @@ class Hex:
    
    def draw(self, screen):
     if self.occupied == False:
+        # If not occupied: white
         self.color = (190, 240, 255)
     elif self.movable == False:
+        # If occupied and not movable (wall): dark grey
         self.color = (20, 20, 20)
     elif self.state[0] | self.state[1] | self.state[2] | self.state[3] | self.state[4] | self.state[5]:
+       # If moving: blue
        self.color = (0, 0, 255)
     else:
+        # If occupied and not moving (but movable): teal
         self.color = (50, 175, 175)
     
     # Draw the hexagon
@@ -47,90 +48,96 @@ class Hex:
     # Draw text object displaying axial hex coordiantes
     # self.display_surface.blit(self.text, self.textRect)
 
-
+    # returns a boolean indicating if the given hex is occupied, movable, and stationary (not currently moving)
+   def check_movable_hex(self):
+       return (str(self.state) == "[0, 0, 0, 0, 0, 0]") and self.movable and self.occupied
+       
     
    # returns a list of length six representing the six neighboring hexes of self, with 1 if the hex neighboring in that direction is movable, nonmoving, and occupied
    def check_movables(self): 
         hex_movable = [0, 0, 0, 0, 0, 0]
 
+        # Initializing hexToCheck with default value (reducing repeated memory allocation and deallocation)
+        hexToCheck = self
+
         # check upper hex (pos 0)
+        # If the upper hex exists and is occupied, moving, and stationary, flip the boolean in the array
         if self.list_index - 1 > 0:
            hexToCheck = hex_matrix[self.matrix_index][self.list_index - 1]
-           if (str(hexToCheck.state) == "[0, 0, 0, 0, 0, 0]") and hexToCheck.movable == True and hexToCheck.occupied == True:
-               hex_movable[0] = 1
+           hex_movable[0] = hexToCheck.check_movable_hex()
 
         # check northeast hex (pos 1)
         if (self.matrix_index + 1 < len(hex_matrix)) and (self.list_index - 1 > 0):
            hexToCheck = hex_matrix[self.matrix_index + 1][self.list_index - 1]
-           if (str(hexToCheck.state) == "[0, 0, 0, 0, 0, 0]") and hexToCheck.movable == True and hexToCheck.occupied == True:
-               hex_movable[1] = 1
+           hex_movable[1] = hexToCheck.check_movable_hex()
 
         # check southeast hex (pos 2)
         if self.matrix_index + 1 < len(hex_matrix):
             hexToCheck = hex_matrix[self.matrix_index + 1][self.list_index]
-            if (str(hexToCheck.state) == "[0, 0, 0, 0, 0, 0]") and hexToCheck.movable == True and hexToCheck.occupied == True:
-               hex_movable[2] = 1
+            hex_movable[2] = hexToCheck.check_movable_hex()
 
         # check down hex (pos 3)
         if self.list_index + 1 < len(hex_list):
             hexToCheck = hex_matrix[self.matrix_index][self.list_index + 1]
-            if (str(hexToCheck.state) == "[0, 0, 0, 0, 0, 0]") and hexToCheck.movable == True and hexToCheck.occupied == True:
-               hex_movable[3] = 1
+            hex_movable[3] = hexToCheck.check_movable_hex()
 
         # check southwest hex (pos 4)
         if (self.matrix_index - 1 > 0) and (self.list_index + 1 < len(hex_list)):
             hexToCheck = hex_matrix[self.matrix_index - 1][self.list_index + 1]
-            if (str(hexToCheck.state) == "[0, 0, 0, 0, 0, 0]") and hexToCheck.movable == True and hexToCheck.occupied == True:
-               hex_movable[4] = 1
+            hex_movable[4] = hexToCheck.check_movable_hex()
 
         # check northwest hex (pos 5)
         if self.matrix_index - 1 > 0:
             hexToCheck = hex_matrix[self.matrix_index - 1][self.list_index]
-            if (str(hexToCheck.state) == "[0, 0, 0, 0, 0, 0]") and hexToCheck.movable == True and hexToCheck.occupied == True:
-               hex_movable[5] = 1
+            hex_movable[5] = hexToCheck.check_movable_hex()
 
         return hex_movable
    
+    # returns a boolean indicating if the given hex is a wall (occupied and not movable)
+   def check_wall_hex(self):
+       return self.occupied and (not self.movable)
 
    # returns a list of length 6 to determine which of the neighbors around self hex are walls
    def check_walls(self):
         hex_walls = [0, 0, 0, 0, 0, 0]
 
+        # Default value of hexToCheck (not used)
+        hexToCheck = self
+
         # check upper hex (pos 0)
         if self.list_index - 1 > 0:
            hexToCheck = hex_matrix[self.matrix_index][self.list_index - 1]
-           if (hexToCheck.movable == False) and (hexToCheck.occupied == True):
-               hex_walls[0] = 1
+           hex_walls[0] = hexToCheck.check_wall_hex()
 
          # check northeast hex (pos 1)
         if (self.matrix_index + 1 < len(hex_matrix)) and (self.list_index - 1 > 0):
            hexToCheck = hex_matrix[self.matrix_index + 1][self.list_index - 1]
-           if (hexToCheck.movable == False) and (hexToCheck.occupied == True):
-               hex_walls[1] = 1
+           hex_walls[1] = hexToCheck.check_wall_hex()
+
 
         # check southeast hex (pos 2)
         if self.matrix_index + 1 < len(hex_matrix):
             hexToCheck = hex_matrix[self.matrix_index + 1][self.list_index]
-            if (hexToCheck.movable == False) and (hexToCheck.occupied == True):
-               hex_walls[2] = 1
+            hex_walls[2] = hexToCheck.check_wall_hex()
+
 
         # check down hex (pos 3)
         if self.list_index + 1 < len(hex_list):
             hexToCheck = hex_matrix[self.matrix_index][self.list_index + 1]
-            if (hexToCheck.movable == False) and (hexToCheck.occupied == True):
-               hex_walls[3] = 1
+            hex_walls[3] = hexToCheck.check_wall_hex()
+
 
         # check southwest hex (pos 4)
         if (self.matrix_index - 1 > 0) and (self.list_index + 1 < len(hex_list)):
             hexToCheck = hex_matrix[self.matrix_index - 1][self.list_index + 1]
-            if (hexToCheck.movable == False) and (hexToCheck.occupied == True):
-               hex_walls[4] = 1
+            hex_walls[4] = hexToCheck.check_wall_hex()
+
 
          # check northwest hex (pos 5)
         if self.matrix_index - 1 > 0:
             hexToCheck = hex_matrix[self.matrix_index - 1][self.list_index]
-            if (hexToCheck.movable == False) and (hexToCheck.occupied == True):
-               hex_walls[5] = 1
+            hex_walls[5] = hexToCheck.check_wall_hex()
+
 
         return hex_walls
 
@@ -146,10 +153,12 @@ class Hex:
         neighbors_movable = self.check_movables()
         neighbors_wall = self.check_walls()
 
+        # If the hex is a wall, it will remain occupied and not movable
         if(hex_matrix[self.matrix_index][self.list_index].movable == False):
             future.movable = False
             future.occupied = True
 
+        # If the hex is currently occupied and not moving, it will still be occupied in the next generation
         if(hex_matrix[self.matrix_index][self.list_index].occupied == True) and (str(hex_matrix[self.matrix_index][self.list_index].state) == "[0, 0, 0, 0, 0, 0]"):
             future.occupied = True
 
@@ -356,7 +365,7 @@ while run:
     hex_matrix = copy.deepcopy(hex_matrix_new)
     # hex_matrix = hex_matrix_new.copy()
 
-    # TO DO: less janky way of time to slow down the animation
+    # TODO: less janky way of time to slow down the animation
     time.sleep(1)
 
 pygame.quit()
