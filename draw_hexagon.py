@@ -4,9 +4,6 @@ import copy
 class Hex:
    @staticmethod
    def create_coor(x, y):
-        # __ x-=40
-        # __ y-=490
-        # __ return [(x, y), (x+40, y), (x+60, y+35), (x+40, y+70), (x, y+70), (x-20, y+35)]
         # Making hex smaller so that borders will be visible
         return [(x+3, y+3), (x+37, y+3), (x+57, y+35), (x+37, y+67), (x+3, y+67), (x-17, y+35)]
 
@@ -33,12 +30,16 @@ class Hex:
    
    def draw(self, screen):
     if self.occupied == False:
+        # If not occupied: white
         self.color = (255, 255, 255)
     elif self.movable == False:
+        # If occupied and not movable (wall): dark grey
         self.color = (20, 20, 20)
     elif self.state[0] | self.state[1] | self.state[2] | self.state[3] | self.state[4] | self.state[5]:
+       # If moving: blue
        self.color = (0, 0, 255)
     else:
+        # If occupied and not moving (but movable): teal
         self.color = (50, 175, 175)
     
     # Draw the hexagon
