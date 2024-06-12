@@ -201,10 +201,25 @@ class Hex:
             if self.list_index + 1 < len(hex_list):
                 # if my lower neighbor is moving toward me and is not blocked by two side walls, I will gain motion
                 # TODO: This series of if-statements in the problem
-                if(neighbors_wall[2] == 0) and (neighbors_wall[4] == 0):
+                if (not neighbors_wall[2]) and (not neighbors_wall[4]):
+                    # TODO: It might be better here to say if (hex_matrix[m][i+1].state[0] == True, future.state[0] = 1)
+                    # (so that if future.state[0] has been set by anything else, it doesn't get overwritten) -- Skyler
                     future.state[0] = hex_matrix[self.matrix_index][self.list_index + 1].state[0]
                     if future.state[0] != 0:
                         future.occupied = True
+                # TODO: I added this in then realized I was working on the wrong part of the code, I think -- Skyler    
+                '''elif not neighbors_wall[2]:
+                    # If there is a wall at position 4 but not at position 2
+                    future.state[1] =  self.state[0]
+                    if future.state[1] != 0:
+                        future.occupied = True
+                elif not neighbors_wall[4]:
+                    # If there is a wall at position 2 but not as position 4
+                    future.state[5] = self.state[0]
+                    print("transfer, current state[0] = " + str(self.state[0]))
+                    if future.state[5] != 0:
+                        future.occupied = True'''
+
                 # if I am moving down to my lower neighbor and it is occupied but not moving, I become occupied but not moving
                 if (self.state[3] != 0) and (neighbors_movable[3] == 1):
                     future.occupied = True
