@@ -144,12 +144,8 @@ class Hex:
 
     # handles the impacts of hitting an occupied neighbor (either a stationary object or a wall)
    def wall_bounce(self, future, neighbors_movable, neighbors_wall, dir):
-        # if I am moving toward my neighbor, and my neighbor is occupied but not moving, then I become occupied but not moving
-        if neighbors_movable[dir] == 1:
-            future.occupied = True
-            future.movable = True
         # if my neighbor is a wall, bounce, or if I have two neighors to the side in front
-        elif (neighbors_wall[dir] == 1) or ((neighbors_wall[(dir-1)%6] == 1) and (neighbors_wall[(dir+1)%6] == 1)):
+        if (neighbors_wall[dir] == 1) or ((neighbors_wall[(dir-1)%6] == 1) and (neighbors_wall[(dir+1)%6] == 1)):
             future.occupied = True
             future.movable = True
             future.state[dir] = 0
@@ -165,6 +161,10 @@ class Hex:
             future.movable = True
             future.state[dir] = 0
             future.state[(dir-1)%6] = 1
+        # if I am moving toward my neighbor, and my neighbor is occupied but not moving, then I become occupied but not moving
+        elif neighbors_movable[dir] == 1:
+            future.occupied = True
+            future.movable = True
 
    #update self hexagon
    def update(self):
