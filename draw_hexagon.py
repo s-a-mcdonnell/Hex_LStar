@@ -142,6 +142,29 @@ class Hex:
 
         return hex_walls
 
+    # TODO: Describe (handles boncing self heading in the given direction off of any walls)
+   def wall_bounce(self, future, neighbors_movable, neighbors_wall, dir):
+        # if I am moving toward my neighbor, and my neighbor is occupied but not moving, then I become occupied but not moving
+        if neighbors_movable[dir] == 1:
+            future.occupied = True
+            future.movable = True
+        # if my neighbor is a wall, bounce, or if I have two neighors to the side in front
+        elif (neighbors_wall[dir] == 1) or ((neighbors_wall[(dir-1)%6] == 1) and (neighbors_wall[(dir+1)%6] == 1)):
+            future.occupied = True
+            future.movable = True
+            future.state[dir] = 0
+            future.state[(dir+3)%6] = 1
+        # cases for individual side glancing walls
+        elif (neighbors_wall[(dir-1)%6] == 1):
+            future.occupied = True
+            future.movable = True
+            future.state[dir] = 0
+            future.state[(dir+1)%6] = 1
+        elif (neighbors_wall[(dir+1)%6] == 1):
+            future.occupied = True
+            future.movable = True
+            future.state[dir] = 0
+            future.state[(dir-1)%6] = 1
 
    #update self hexagon
    def update(self):
@@ -175,7 +198,8 @@ class Hex:
                         future.occupied = True
                 # if I am moving toward my upper neighbor, and my upper neighbor is occupied but not moving, then I become occupied but not moving
                 if(self.state[0] != 0):
-                    if neighbors_movable[0] == 1:
+                    self.wall_bounce(future, neighbors_movable, neighbors_wall, 0)
+                    '''if neighbors_movable[0] == 1:
                         future.occupied = True
                         future.movable = True
                     # if my neighbor is a wall, bounce, or if I have two neighors to the side in front
@@ -194,7 +218,7 @@ class Hex:
                         future.occupied = True
                         future.movable = True
                         future.state[0] = 0
-                        future.state[5] = 1
+                        future.state[5] = 1'''
 
 
             # DOWN NEIGHBOR EFFECTS
@@ -208,7 +232,8 @@ class Hex:
                         future.occupied = True
 
                 if (self.state[3] != 0):
-                    # if I am moving down to my lower neighbor and it is occupied but not moving, I become occupied but not moving
+                    self.wall_bounce(future, neighbors_movable, neighbors_wall, 3)
+                    '''# if I am moving down to my lower neighbor and it is occupied but not moving, I become occupied but not moving
                     if neighbors_movable[3] == 1:
                         future.occupied = True
                         future.movable = True
@@ -228,7 +253,7 @@ class Hex:
                         future.occupied = True
                         future.movable = True
                         future.state[3] = 0
-                        future.state[2] = 1
+                        future.state[2] = 1'''
 
             # NORTHEAST NEIGHBOR
             if (self.matrix_index + 1 < len(hex_matrix)) and (self.list_index - 1 > 0):
@@ -324,7 +349,7 @@ hex_matrix[4][6].state[3] = 1
 
 #hex_matrix[6][6].make_wall()
 hex_matrix[5][9].make_wall()
-hex_matrix[8][7].make_wall()
+hex_matrix[7][9].make_wall()
 
 
 run = True
