@@ -209,7 +209,7 @@ class Hex:
 
         if self.movable:
 
-            # UPPER NEIGHBOR EFFECTS
+            # UPPER NEIGHBOR EFFECTS (0)
 
             # if my upper (0) neighbor is pointing down (3) then I will move down
             if self.list_index - 1 > 0:
@@ -217,30 +217,30 @@ class Hex:
                 self.motion_handler(future, hex_matrix[self.matrix_index][self.list_index - 1], neighbors_movable, neighbors_wall, 0)
 
 
-            # DOWN NEIGHBOR EFFECTS
+            # DOWN NEIGHBOR EFFECTS (3)
             if self.list_index + 1 < len(hex_list):
                 # Call motion_handler, passing lower neighbor
                 self.motion_handler(future, hex_matrix[self.matrix_index][self.list_index + 1], neighbors_movable, neighbors_wall, 3)
     
 
-            # NORTHEAST NEIGHBOR
+            # NORTHEAST NEIGHBOR (1)
             if (self.matrix_index + 1 < len(hex_matrix)) and (self.list_index - 1 > 0):
                 # Call motion_handler, passing northeast neighbor
                 self.motion_handler(future, hex_matrix[self.matrix_index + 1][self.list_index - 1], neighbors_movable, neighbors_wall, 1)
 
-            # NORTHWEST NEIGHBOR
+            # NORTHWEST NEIGHBOR (5)
             if self.matrix_index - 1 > 0:
                 # Call motion_handler, passing northwest neighbor
                 self.motion_handler(future, hex_matrix[self.matrix_index - 1][self.list_index], neighbors_movable, neighbors_wall, 5)
 
 
-            # SOUTHEAST NEIGHBOR
+            # SOUTHEAST NEIGHBOR (2)
             if self.matrix_index + 1 < len(hex_matrix):
                 # Call motion_handler, passing southeast neighbor
                 self.motion_handler(future, hex_matrix[self.matrix_index + 1][self.list_index], neighbors_movable, neighbors_wall, 2)
 
 
-            # SOUTHWEST NEIGHBOR
+            # SOUTHWEST NEIGHBOR (4)
             if (self.matrix_index - 1 > 0) and (self.list_index + 1 < len(hex_list)):
                 # Call motion_handler, passing southwests neighbor
                 self.motion_handler(future, hex_matrix[self.matrix_index - 1][self.list_index + 1], neighbors_movable, neighbors_wall, 4)
