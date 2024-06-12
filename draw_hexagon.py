@@ -54,6 +54,9 @@ class Hex:
    def check_movables(self): 
         hex_movable = [0, 0, 0, 0, 0, 0]
 
+        # Initializing hexToCheck with default value (reducing repeated memory allocation and deallocation)
+        hexToCheck = self
+
         # check upper hex (pos 0)
         if self.list_index - 1 > 0:
            hexToCheck = hex_matrix[self.matrix_index][self.list_index - 1]
