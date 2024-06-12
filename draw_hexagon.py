@@ -70,12 +70,12 @@ class Hex:
 
         # check upper hex (pos 0)
         # If the upper hex exists and is occupied, moving, and stationary, flip the boolean in the array
-        if self.list_index - 1 > 0:
+        if self.list_index - 1 >= 0:
            hexToCheck = hex_matrix[self.matrix_index][self.list_index - 1]
            hex_movable[0] = hexToCheck.check_movable_hex()
 
         # check northeast hex (pos 1)
-        if (self.matrix_index + 1 < len(hex_matrix)) and (self.list_index - 1 > 0):
+        if (self.matrix_index + 1 < len(hex_matrix)) and (self.list_index - 1 >= 0):
            hexToCheck = hex_matrix[self.matrix_index + 1][self.list_index - 1]
            hex_movable[1] = hexToCheck.check_movable_hex()
 
@@ -90,12 +90,12 @@ class Hex:
             hex_movable[3] = hexToCheck.check_movable_hex()
 
         # check southwest hex (pos 4)
-        if (self.matrix_index - 1 > 0) and (self.list_index + 1 < len(hex_list)):
+        if (self.matrix_index - 1 >= 0) and (self.list_index + 1 < len(hex_list)):
             hexToCheck = hex_matrix[self.matrix_index - 1][self.list_index + 1]
             hex_movable[4] = hexToCheck.check_movable_hex()
 
         # check northwest hex (pos 5)
-        if self.matrix_index - 1 > 0:
+        if self.matrix_index - 1 >= 0:
             hexToCheck = hex_matrix[self.matrix_index - 1][self.list_index]
             hex_movable[5] = hexToCheck.check_movable_hex()
 
@@ -113,12 +113,12 @@ class Hex:
         hexToCheck = self
 
         # check upper hex (pos 0)
-        if self.list_index - 1 > 0:
+        if self.list_index - 1 >= 0:
            hexToCheck = hex_matrix[self.matrix_index][self.list_index - 1]
            hex_walls[0] = hexToCheck.check_wall_hex()
 
          # check northeast hex (pos 1)
-        if (self.matrix_index + 1 < len(hex_matrix)) and (self.list_index - 1 > 0):
+        if (self.matrix_index + 1 < len(hex_matrix)) and (self.list_index - 1 >= 0):
            hexToCheck = hex_matrix[self.matrix_index + 1][self.list_index - 1]
            hex_walls[1] = hexToCheck.check_wall_hex()
 
@@ -136,13 +136,13 @@ class Hex:
 
 
         # check southwest hex (pos 4)
-        if (self.matrix_index - 1 > 0) and (self.list_index + 1 < len(hex_list)):
+        if (self.matrix_index - 1 >= 0) and (self.list_index + 1 < len(hex_list)):
             hexToCheck = hex_matrix[self.matrix_index - 1][self.list_index + 1]
             hex_walls[4] = hexToCheck.check_wall_hex()
 
 
          # check northwest hex (pos 5)
-        if self.matrix_index - 1 > 0:
+        if self.matrix_index - 1 >= 0:
             hexToCheck = hex_matrix[self.matrix_index - 1][self.list_index]
             hex_walls[5] = hexToCheck.check_wall_hex()
 
@@ -157,6 +157,8 @@ class Hex:
             future.movable = True
             future.state[dir] = 0
             future.state[(dir+3)%6] = 1
+            print("Hit wall head on")
+            print("Changed direction of cell " + str(self.matrix_index) + " " + str(self.list_index) + " from " + str(dir) + " to " + str((dir + 3)%6))
         # cases for individual side glancing walls
         elif (neighbors_wall[(dir-1)%6] == 1):
             future.occupied = True
@@ -213,7 +215,7 @@ class Hex:
             # UPPER NEIGHBOR EFFECTS (0)
 
             # if my upper (0) neighbor is pointing down (3) then I will move down
-            if self.list_index - 1 > 0:
+            if self.list_index - 1 >= 0:
                 # Call motion_handler, passing upper neighbor
                 self.motion_handler(future, hex_matrix[self.matrix_index][self.list_index - 1], neighbors_movable, neighbors_wall, 0)
 
@@ -225,12 +227,12 @@ class Hex:
     
 
             # NORTHEAST NEIGHBOR (1)
-            if (self.matrix_index + 1 < len(hex_matrix)) and (self.list_index - 1 > 0):
+            if (self.matrix_index + 1 < len(hex_matrix)) and (self.list_index - 1 >= 0):
                 # Call motion_handler, passing northeast neighbor
                 self.motion_handler(future, hex_matrix[self.matrix_index + 1][self.list_index - 1], neighbors_movable, neighbors_wall, 1)
 
             # NORTHWEST NEIGHBOR (5)
-            if self.matrix_index - 1 > 0:
+            if self.matrix_index - 1 >= 0:
                 # Call motion_handler, passing northwest neighbor
                 self.motion_handler(future, hex_matrix[self.matrix_index - 1][self.list_index], neighbors_movable, neighbors_wall, 5)
 
@@ -242,7 +244,7 @@ class Hex:
 
 
             # SOUTHWEST NEIGHBOR (4)
-            if (self.matrix_index - 1 > 0) and (self.list_index + 1 < len(hex_list)):
+            if (self.matrix_index - 1 >= 0) and (self.list_index + 1 < len(hex_list)):
                 # Call motion_handler, passing southwests neighbor
                 self.motion_handler(future, hex_matrix[self.matrix_index - 1][self.list_index + 1], neighbors_movable, neighbors_wall, 4)
 
@@ -293,17 +295,19 @@ hex_matrix[7][8].occupied = True
 hex_matrix[10][8].make_move(5)
 #hex_matrix[4][6].state[3] = 1
 #hex_matrix[4][6].make_move(3)
-hex_matrix[9][6].make_move(4)
-hex_matrix[1][8].make_move(2)
+#hex_matrix[9][6].make_move(4)
+hex_matrix[2][8].make_move(5)
+hex_matrix[5][11].make_move(5)
 
 # hex_matrix[4][7].state[3] = 3
 # hex_matrix[6][10].state[2] = 1
 # hex_matrix[3][5].state[4] = 1
 
 #hex_matrix[6][6].make_wall()
-hex_matrix[5][9].make_wall()
-hex_matrix[6][7].make_wall()
+#hex_matrix[5][9].make_wall()
+#hex_matrix[6][7].make_wall()
 hex_matrix[7][9].make_wall()
+hex_matrix[7][8].make_wall()
 
 # Create walls around the edges
 # Left edge
