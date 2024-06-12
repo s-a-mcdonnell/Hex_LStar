@@ -162,8 +162,6 @@ class Hex:
             future.movable = True
             future.state[dir] = 0
             future.state[(dir+3)%6] = 1
-            print("Hit wall head on")
-            print("Changed direction of cell " + str(self.matrix_index) + " " + str(self.list_index) + " from " + str(dir) + " to " + str((dir + 3)%6))
         # cases for individual side glancing walls
         elif (neighbors_wall[(dir-1)%6] == 1):
             future.occupied = True
@@ -265,6 +263,11 @@ SCREEN_HEIGHT = 600
 
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption("Draw Hexagon")
+
+# set up pygame timer
+clock = pygame.time.Clock()
+run = True
+dt = 0
 
 # Create hexagons
 hex_matrix = []
@@ -386,7 +389,11 @@ while run:
         if event.type == pygame.QUIT:
             run = False
 
-    pygame.display.update()
+    # flips to the next frame
+    pygame.display.flip()
+
+    # sets animation to 6 frames per second (feel free to change)
+    dt = clock.tick(6) / 1000
 
     for hex_list in hex_matrix:
         for hexagon in hex_list:
@@ -395,9 +402,6 @@ while run:
     # need to use the python deepcopy in order to copy the inner lists of a 2D array
     hex_matrix = copy.deepcopy(hex_matrix_new)
     # hex_matrix = hex_matrix_new.copy()
-
-    # TODO: less janky way of time to slow down the animation
-    time.sleep(1)
 
 pygame.quit()
 
