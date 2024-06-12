@@ -189,12 +189,13 @@ class Hex:
                         future.occupied = True
                         future.movable = True
                         future.state[0] = 0
-                        future.state[2] = 1
+                        future.state[1] = 1
                     elif (neighbors_wall[1] == 1):
                         future.occupied = True
                         future.movable = True
                         future.state[0] = 0
-                        future.state[4] = 1
+                        future.state[5] = 1
+                        print("side bounced")
 
 
             # DOWN NEIGHBOR EFFECTS
@@ -204,7 +205,8 @@ class Hex:
                 if (not neighbors_wall[2]) and (not neighbors_wall[4]):
                     # TODO: It might be better here to say if (hex_matrix[m][i+1].state[0] == True, future.state[0] = 1)
                     # (so that if future.state[0] has been set by anything else, it doesn't get overwritten) -- Skyler
-                    future.state[0] = hex_matrix[self.matrix_index][self.list_index + 1].state[0]
+                    if hex_matrix[self.matrix_index][self.list_index + 1].state[0]:
+                        future.state[0] = 1
                     if future.state[0] != 0:
                         future.occupied = True
                 # TODO: I added this in then realized I was working on the wrong part of the code, I think -- Skyler    
@@ -227,7 +229,8 @@ class Hex:
 
             # NORTHEAST NEIGHBOR
             if (self.matrix_index + 1 < len(hex_matrix)) and (self.list_index - 1 > 0):
-                future.state[4] = hex_matrix[self.matrix_index + 1][self.list_index - 1].state[4]
+                if hex_matrix[self.matrix_index + 1][self.list_index - 1].state[4]:
+                    future.state[4] = 1
                 if future.state[4] != 0:
                     future.occupied = True
                 # if I am moving toward my northeast neighbor and it is movable, I become movable
@@ -237,7 +240,8 @@ class Hex:
 
             # NORTHWEST NEIGHBOR
             if self.matrix_index - 1 > 0:
-                future.state[2] = hex_matrix[self.matrix_index - 1][self.list_index].state[2]
+                if hex_matrix[self.matrix_index - 1][self.list_index].state[2]:
+                    future.state[2] = 1
                 if future.state[2] != 0:
                     future.occupied = True
                 # if I am moving toward my northwest neighbor and it is movable, I become movable
@@ -247,7 +251,8 @@ class Hex:
 
             # SOUTHEAST NEIGHBOR
             if self.matrix_index + 1 < len(hex_matrix):
-                future.state[5] = hex_matrix[self.matrix_index + 1][self.list_index].state[5]
+                if hex_matrix[self.matrix_index + 1][self.list_index].state[5]:
+                    future.state[5] = 1
                 if future.state[5] != 0:
                     future.occupied = True
                 elif (self.state[2] != 0) and (neighbors_movable[2] == 1):
@@ -256,7 +261,8 @@ class Hex:
 
             # SOUTHWEST NEIGHBOR
             if (self.matrix_index - 1 > 0) and (self.list_index + 1 < len(hex_list)):
-                future.state[1] = hex_matrix[self.matrix_index - 1][self.list_index + 1].state[1]
+                if hex_matrix[self.matrix_index - 1][self.list_index + 1].state[1]:
+                    future.state[1] = 1
                 if future.state[1] != 0:
                     future.occupied = True
                 elif (self.state[4] != 0) and (neighbors_movable[4] == 1):
@@ -313,8 +319,8 @@ hex_matrix[5][9].state[0] = 1
 # hex_matrix[6][10].state[2] = 1
 # hex_matrix[3][5].state[4] = 1
 
-hex_matrix[6][6].make_wall()
-#hex_matrix[4][7].make_wall()
+#hex_matrix[6][6].make_wall()
+hex_matrix[4][7].make_wall()
 
 run = True
 while run:
