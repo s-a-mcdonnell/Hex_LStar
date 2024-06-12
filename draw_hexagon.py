@@ -146,10 +146,12 @@ class Hex:
         neighbors_movable = self.check_movables()
         neighbors_wall = self.check_walls()
 
+        # If the hex is a wall, it will remain occupied and not movable
         if(hex_matrix[self.matrix_index][self.list_index].movable == False):
             future.movable = False
             future.occupied = True
 
+        # If the hex is currently occupied and not moving, it will still be occupied in the next generation
         if(hex_matrix[self.matrix_index][self.list_index].occupied == True) and (str(hex_matrix[self.matrix_index][self.list_index].state) == "[0, 0, 0, 0, 0, 0]"):
             future.occupied = True
 
