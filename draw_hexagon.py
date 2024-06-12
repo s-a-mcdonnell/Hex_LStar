@@ -312,7 +312,14 @@ for hex in hex_matrix[0]:
 # Right edge
 for hex in hex_matrix[13]:
     hex.make_wall()
+for i in range(6):
+    # Top edge
+    hex_matrix[1+2*i][6-i].make_wall()
+    hex_matrix[2+2*i][6-i].make_wall()
 
+    # Bottom edge
+    hex_matrix[1+2*i][15-i].make_wall()
+    hex_matrix[2+2*i][14-i].make_wall()
 
 run = True
 while run:
