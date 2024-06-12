@@ -166,8 +166,8 @@ class Hex:
             future.occupied = True
             future.movable = True
    
-   # TODO: Describe
-   # TODO: Rename straight_neighbor
+   # Handles interactions between a hex and its environment with respect to the given direction
+   # straight_neighbor is the neighbor in that direction (ex. when dir = 0, straight_neighbor is the upper neighbor of self)
    def motion_handler(self, future, straight_neighbor, neighbors_movable, neighbors_wall, dir):
        # if my neighbor is moving toward me and is not blocked by either of two side walls, I will gain motion
        if (not neighbors_wall[(dir+1)%6]) and (not neighbors_wall[(dir-1)%6]):
@@ -205,6 +205,7 @@ class Hex:
 
             # if my upper (0) neighbor is pointing down (3) then I will move down
             if self.list_index - 1 > 0:
+                # Call motion_handler, passing upper neighbor
                 self.motion_handler(future, hex_matrix[self.matrix_index][self.list_index - 1], neighbors_movable, neighbors_wall, 0)
                 '''if (not neighbors_wall[1]) and (not neighbors_wall[5]):
                     if hex_matrix[self.matrix_index][self.list_index - 1].state[3]:
