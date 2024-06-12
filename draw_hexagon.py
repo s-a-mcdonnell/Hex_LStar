@@ -23,7 +23,7 @@ class Hex:
        self.color = color
        self.movable = moveable
        self.occupied = occupied
-       self.state = [0, 0, 0, 0, 0, 0]
+       self.state = [0, 0, 0, 0, 0, 0, 0]
 
     # sets the given hex to act as a wall
    def make_wall(self):
@@ -58,8 +58,12 @@ class Hex:
 
     # returns a boolean indicating if the given hex is occupied, movable, and stationary (not currently moving)
    def check_movable_hex(self):
-       return (str(self.state) == "[0, 0, 0, 0, 0, 0]") and self.movable and self.occupied
+       return (not self.is_moving) and self.movable and self.occupied
        
+
+    # returns a boolean indicating if the hex is currently moving
+   def is_moving(self):
+        return self.state[0] or self.state[1] or self.state[2] or self.state[3] or self.state[4] or self.state[5]
     
    # returns a list of length six representing the six neighboring hexes of self, with 1 if the hex neighboring in that direction is movable, nonmoving, and occupied
    def check_movables(self): 
@@ -193,6 +197,7 @@ class Hex:
         # determine the state of the current hex based on the states of the hexes around it
         future = hex_matrix_new[self.matrix_index][self.list_index]
 
+        # TODO: Make state 7 elements long?
         future.state = [0,0,0,0,0,0]
         future.occupied = False
 
@@ -205,7 +210,7 @@ class Hex:
             future.occupied = True
 
         # If the hex is currently occupied and not moving, it will still be occupied in the next generation
-        if(hex_matrix[self.matrix_index][self.list_index].occupied == True) and (str(hex_matrix[self.matrix_index][self.list_index].state) == "[0, 0, 0, 0, 0, 0]"):
+        if(hex_matrix[self.matrix_index][self.list_index].occupied == True) and (not hex_matrix[self.matrix_index][self.list_index].is_moving()):
             future.occupied = True
 
         if self.movable:
@@ -346,7 +351,7 @@ while run:
             # polygon rotation tips from: https://stackoverflow.com/questions/75116101/how-to-make-rotate-polygon-on-key-in-pygame
 
             # draw an arrow on the hex if the hex is moving
-            if(str(hexagon.state) != "[0, 0, 0, 0, 0, 0]"):
+            if (hexagon.is_moving):
                 #pivot is the center of the hexagon
                 pivot = pygame.Vector2(hexagon.x + 20, hexagon.y + 35)
                 # set of arrow points should be the vectors from the pivot to the edge points of the arrow
