@@ -195,7 +195,6 @@ class Hex:
                         future.movable = True
                         future.state[0] = 0
                         future.state[5] = 1
-                        print("side bounced")
 
 
             # DOWN NEIGHBOR EFFECTS
@@ -208,10 +207,28 @@ class Hex:
                     if future.state[0] != 0:
                         future.occupied = True
 
-                # if I am moving down to my lower neighbor and it is occupied but not moving, I become occupied but not moving
-                if (self.state[3] != 0) and (neighbors_movable[3] == 1):
-                    future.occupied = True
-                    future.movable = True
+                if (self.state[3] != 0):
+                    # if I am moving down to my lower neighbor and it is occupied but not moving, I become occupied but not moving
+                    if neighbors_movable[3] == 1:
+                        future.occupied = True
+                        future.movable = True
+                    # if my neighbor is a wall, bounce, or if I have two neighors to the side in front
+                    elif (neighbors_wall[3] == 1) or ((neighbors_wall[2] == 1) and (neighbors_wall[4] == 1)):
+                        future.occupied = True
+                        future.movable = True
+                        future.state[3] = 0
+                        future.state[0] = 1
+                    # cases for individual side glancing walls
+                    elif (neighbors_wall[2] == 1):
+                        future.occupied = True
+                        future.movable = True
+                        future.state[3] = 0
+                        future.state[4] = 1
+                    elif (neighbors_wall[1] == 1):
+                        future.occupied = True
+                        future.movable = True
+                        future.state[3] = 0
+                        future.state[2] = 1
 
             # NORTHEAST NEIGHBOR
             if (self.matrix_index + 1 < len(hex_matrix)) and (self.list_index - 1 > 0):
@@ -297,16 +314,18 @@ hex_matrix[10][4].occupied = True
 # hex_matrix[6][10].occupied = True
 # hex_matrix[3][5].occupied = True
 hex_matrix[7][8].occupied = True
-hex_matrix[5][9].occupied = True
+hex_matrix[4][6].occupied = True
 
 hex_matrix[10][8].state[5] = 1
-hex_matrix[5][9].state[0] = 1
+hex_matrix[4][6].state[3] = 1
 # hex_matrix[4][7].state[3] = 3
 # hex_matrix[6][10].state[2] = 1
 # hex_matrix[3][5].state[4] = 1
 
 #hex_matrix[6][6].make_wall()
-hex_matrix[4][7].make_wall()
+hex_matrix[5][9].make_wall()
+hex_matrix[8][7].make_wall()
+
 
 run = True
 while run:
