@@ -151,7 +151,7 @@ class Hex:
 
     # handles the impacts of hitting an occupied neighbor (either a stationary object or a wall)
    def hit_neighbor(self, future, neighbors_movable, neighbors_wall, dir):
-        # if my neighbor is a wall, bounce, or if I have two neighors to the side in front
+        # if my neighbor is a wall (or if I have two neighors to the side in front), bounce off
         if (neighbors_wall[dir] == 1) or ((neighbors_wall[(dir-1)%6] == 1) and (neighbors_wall[(dir+1)%6] == 1)):
             future.occupied = True
             future.movable = True
