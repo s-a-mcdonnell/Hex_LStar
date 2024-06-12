@@ -226,10 +226,7 @@ class Hex:
                         future.state[4] = 1
                     if future.state[4] != 0:
                         future.occupied = True
-                '''# if I am moving toward my northeast neighbor and it is movable, I become movable
-                elif (self.state[1] != 0) and (neighbors_movable[1] == 1):
-                    future.occupied = True
-                    future.movable = True'''
+                
                 # handle impact of hitting occupied neighbor
                 if (self.state[1] != 0):
                     self.hit_neighbor(future, neighbors_movable, neighbors_wall, 1)
@@ -242,10 +239,7 @@ class Hex:
                         future.state[2] = 1
                     if future.state[2] != 0:
                         future.occupied = True
-                '''# if I am moving toward my northwest neighbor and it is movable, I become movable
-                elif (self.state[5] != 0) and (neighbors_movable[5] == 1):
-                    future.occupied = True
-                    future.movable = True'''
+                
                 # handle impact of hitting occupied neighbor
                 if (self.state[5] != 0):
                     self.hit_neighbor(future, neighbors_movable, neighbors_wall, 5)
@@ -258,9 +252,7 @@ class Hex:
                         future.state[5] = 1
                     if future.state[5] != 0:
                         future.occupied = True
-                '''elif (self.state[2] != 0) and (neighbors_movable[2] == 1):
-                    future.occupied = True
-                    future.movable = True'''
+                
                 # handle impact of hitting occupied neighbor
                 if (self.state[2] != 0):
                     self.hit_neighbor(future, neighbors_movable, neighbors_wall, 2)
@@ -273,9 +265,8 @@ class Hex:
                         future.state[1] = 1
                     if future.state[1] != 0:
                         future.occupied = True
-                '''elif (self.state[4] != 0) and (neighbors_movable[4] == 1):
-                    future.occupied = True
-                    future.movable = True'''
+
+                # handle impact of hitting occupied neighbor
                 if (self.state[4] != 0):
                     self.hit_neighbor(future, neighbors_movable, neighbors_wall, 4)
 
