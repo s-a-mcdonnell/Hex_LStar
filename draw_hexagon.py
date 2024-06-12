@@ -93,46 +93,51 @@ class Hex:
 
         return hex_movable
    
+    # returns a boolean indicating if the given hex is a wall (occupied and not movable)
+   def check_wall_hex(self):
+       return self.occupied and (not self.movable)
 
     # returns a list of length 6 to determine which of the neighbors around self hex are walls
    def check_walls(self):
         hex_walls = [0, 0, 0, 0, 0, 0]
 
+        # Default value of hexToCheck (not used)
+        hexToCheck = self
+
         # check upper hex (pos 0)
         if self.list_index - 1 > 0:
            hexToCheck = hex_matrix[self.matrix_index][self.list_index - 1]
-           if (hexToCheck.movable == False) and (hexToCheck.occupied == True):
-               hex_walls[0] = 1
+           hex_walls[0] = hexToCheck.check_wall_hex()
 
          # check northeast hex (pos 1)
         if (self.matrix_index + 1 < len(hex_matrix)) and (self.list_index - 1 > 0):
            hexToCheck = hex_matrix[self.matrix_index + 1][self.list_index - 1]
-           if (hexToCheck.movable == False) and (hexToCheck.occupied == True):
-               hex_walls[1] = 1
+           hex_walls[1] = hexToCheck.check_wall_hex()
+
 
         # check southeast hex (pos 2)
         if self.matrix_index + 1 < len(hex_matrix):
             hexToCheck = hex_matrix[self.matrix_index + 1][self.list_index]
-            if (hexToCheck.movable == False) and (hexToCheck.occupied == True):
-               hex_walls[2] = 1
+            hex_walls[2] = hexToCheck.check_wall_hex()
+
 
         # check down hex (pos 3)
         if self.list_index + 1 < len(hex_list):
             hexToCheck = hex_matrix[self.matrix_index][self.list_index + 1]
-            if (hexToCheck.movable == False) and (hexToCheck.occupied == True):
-               hex_walls[3] = 1
+            hex_walls[3] = hexToCheck.check_wall_hex()
+
 
         # check southwest hex (pos 4)
         if (self.matrix_index - 1 > 0) and (self.list_index + 1 < len(hex_list)):
             hexToCheck = hex_matrix[self.matrix_index - 1][self.list_index + 1]
-            if (hexToCheck.movable == False) and (hexToCheck.occupied == True):
-               hex_walls[4] = 1
+            hex_walls[4] = hexToCheck.check_wall_hex()
+
 
          # check northwest hex (pos 5)
         if self.matrix_index - 1 > 0:
             hexToCheck = hex_matrix[self.matrix_index - 1][self.list_index]
-            if (hexToCheck.movable == False) and (hexToCheck.occupied == True):
-               hex_walls[5] = 1
+            hex_walls[5] = hexToCheck.check_wall_hex()
+
 
         return hex_walls
 
