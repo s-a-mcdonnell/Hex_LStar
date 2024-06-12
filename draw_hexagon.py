@@ -39,7 +39,7 @@ class Hex:
     elif self.state[0] | self.state[1] | self.state[2] | self.state[3] | self.state[4] | self.state[5]:
        self.color = (0, 0, 255)
     else:
-        self.color = (255, 0, 0)
+        self.color = (50, 175, 175)
     
     # Draw the hexagon
     pygame.draw.polygon(screen, self.color, self.coordinates)
@@ -164,9 +164,16 @@ class Hex:
                 if future.state[3] != 0:
                     future.occupied = True
                 # if I am moving toward my upper neighbor, and my upper neighbor is occupied but not moving, then I become occupied but not moving
-                if (self.state[0] != 0) and (neighbors_movable[0] == 1):
-                    future.occupied = True
-                    future.moveable = True
+                if(self.state[0] != 0):
+                    if neighbors_movable[0] == 1:
+                        future.occupied = True
+                        future.movable = True
+                    elif neighbors_wall[0] == 1:
+                        future.occupied = True
+                        future.movable = True
+                        future.state[0] = 0
+                        future.state[3] = 1
+
 
             # DOWN NEIGHBOR EFFECTS
             if self.list_index + 1 < len(hex_list):
@@ -174,33 +181,47 @@ class Hex:
                 if future.state[0] != 0:
                     future.occupied = True
                 # if I am moving down to my lower neighbor and it is occupied but not moving, I become occupied but not moving
-                if (self.state[3] != 0) and (neighbors_movable[3] == 1):
+                elif (self.state[3] != 0) and (neighbors_movable[3] == 1):
                     future.occupied = True
-                    future.moveable = True
+                    future.movable = True
 
             # NORTHEAST NEIGHBOR
             if (self.matrix_index + 1 < len(hex_matrix)) and (self.list_index - 1 > 0):
                 future.state[4] = hex_matrix[self.matrix_index + 1][self.list_index - 1].state[4]
                 if future.state[4] != 0:
                     future.occupied = True
+                # if I am moving toward my northeast neighbor and it is movable, I become movable
+                elif (self.state[1] != 0) and (neighbors_movable[1] == 1):
+                    future.occupied = True
+                    future.movable = True
 
             # NORTHWEST NEIGHBOR
             if self.matrix_index - 1 > 0:
                 future.state[2] = hex_matrix[self.matrix_index - 1][self.list_index].state[2]
                 if future.state[2] != 0:
                     future.occupied = True
+                # if I am moving toward my northwest neighbor and it is movable, I become movable
+                elif (self.state[5] != 0) and (neighbors_movable[5] == 1):
+                    future.occupied = True
+                    future.movable = True
 
             # SOUTHEAST NEIGHBOR
             if self.matrix_index + 1 < len(hex_matrix):
                 future.state[5] = hex_matrix[self.matrix_index + 1][self.list_index].state[5]
                 if future.state[5] != 0:
                     future.occupied = True
+                elif (self.state[2] != 0) and (neighbors_movable[2] == 1):
+                    future.occupied = True
+                    future.movable = True
 
             # SOUTHWEST NEIGHBOR
             if (self.matrix_index - 1 > 0) and (self.list_index + 1 < len(hex_list)):
                 future.state[1] = hex_matrix[self.matrix_index - 1][self.list_index + 1].state[1]
                 if future.state[1] != 0:
                     future.occupied = True
+                elif (self.state[4] != 0) and (neighbors_movable[4] == 1):
+                    future.occupied = True
+                    future.movable = True
 
 
 
@@ -238,15 +259,17 @@ for x in range(15):
         hex_list_new.append(myHex)
 
 # Update the state of a few hexagons to reflect motion
-hex_matrix[10][10].occupied = True
+hex_matrix[10][8].occupied = True
 hex_matrix[10][4].occupied = True
 # hex_matrix[4][7].occupied = True
 # hex_matrix[6][10].occupied = True
 # hex_matrix[3][5].occupied = True
 hex_matrix[5][6].occupied = True
 hex_matrix[7][8].occupied = True
+hex_matrix[5][9].occupied = True
 
-hex_matrix[10][10].state[0] = 1
+hex_matrix[10][8].state[5] = 1
+hex_matrix[5][9].state[0] = 1
 # hex_matrix[4][7].state[3] = 3
 # hex_matrix[6][10].state[2] = 1
 # hex_matrix[3][5].state[4] = 1
@@ -274,7 +297,6 @@ while run:
                 #pivot is the center of the hexagon
                 pivot = pygame.Vector2(hexagon.x + 20, hexagon.y + 35)
                 # set of arrow points should be the vectors from the pivot to the edge points of the arrow
-                # arrow = [(hexagon.x + 20, hexagon.y + 10), (hexagon.x + 40, hexagon.y + 25), (hexagon.x + 30, hexagon.y + 25), (hexagon.x + 30, hexagon.y + 50), (hexagon.x + 10, hexagon.y + 50), (hexagon.x + 10, hexagon.y + 25), (hexagon.x, hexagon.y + 25)]
                 arrow = [(0, -15), (10, -5), (5, -5), (5, 15), (-5, 15), (-5, -5), (-10, -5)]
                 # get arrow by adding all the vectors to the pivot point => allows for easy rotation
 
