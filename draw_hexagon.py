@@ -206,7 +206,6 @@ class Hex:
             # DOWN NEIGHBOR EFFECTS
             if self.list_index + 1 < len(hex_list):
                 # if my lower neighbor is moving toward me and is not blocked by two side walls, I will gain motion
-                # TODO: This series of if-statements in the problem
                 if (not neighbors_wall[2]) and (not neighbors_wall[4]):
                     if hex_matrix[self.matrix_index][self.list_index + 1].state[0]:
                         future.state[0] = 1
