@@ -20,8 +20,6 @@ class Hex:
 
        self.coordinates = Hex.create_coor(self.x, self.y)
        
-        # TODO: need to make something for occupied vs unoccupied hexes
-
        self.color = color
        self.movable = moveable
        self.occupied = occupied
