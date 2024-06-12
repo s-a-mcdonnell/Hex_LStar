@@ -143,7 +143,7 @@ class Hex:
         return hex_walls
 
     # handles the impacts of hitting an occupied neighbor (either a stationary object or a wall)
-   def wall_bounce(self, future, neighbors_movable, neighbors_wall, dir):
+   def hit_neighbor(self, future, neighbors_movable, neighbors_wall, dir):
         # if my neighbor is a wall, bounce, or if I have two neighors to the side in front
         if (neighbors_wall[dir] == 1) or ((neighbors_wall[(dir-1)%6] == 1) and (neighbors_wall[(dir+1)%6] == 1)):
             future.occupied = True
@@ -200,7 +200,7 @@ class Hex:
                 
                 # handle impact of hitting occupied neighbor
                 if(self.state[0] != 0):
-                    self.wall_bounce(future, neighbors_movable, neighbors_wall, 0)
+                    self.hit_neighbor(future, neighbors_movable, neighbors_wall, 0)
 
 
             # DOWN NEIGHBOR EFFECTS
@@ -215,7 +215,7 @@ class Hex:
               
                 # handle impact of hitting occupied neighbor
                 if (self.state[3] != 0):
-                    self.wall_bounce(future, neighbors_movable, neighbors_wall, 3)
+                    self.hit_neighbor(future, neighbors_movable, neighbors_wall, 3)
     
 
             # NORTHEAST NEIGHBOR
@@ -232,7 +232,7 @@ class Hex:
                     future.movable = True'''
                 # handle impact of hitting occupied neighbor
                 if (self.state[1] != 0):
-                    self.wall_bounce(future, neighbors_movable, neighbors_wall, 1)
+                    self.hit_neighbor(future, neighbors_movable, neighbors_wall, 1)
 
             # NORTHWEST NEIGHBOR
             if self.matrix_index - 1 > 0:
@@ -248,7 +248,7 @@ class Hex:
                     future.movable = True'''
                 # handle impact of hitting occupied neighbor
                 if (self.state[5] != 0):
-                    self.wall_bounce(future, neighbors_movable, neighbors_wall, 5)
+                    self.hit_neighbor(future, neighbors_movable, neighbors_wall, 5)
 
             # SOUTHEAST NEIGHBOR
             if self.matrix_index + 1 < len(hex_matrix):
@@ -263,7 +263,7 @@ class Hex:
                     future.movable = True'''
                 # handle impact of hitting occupied neighbor
                 if (self.state[2] != 0):
-                    self.wall_bounce(future, neighbors_movable, neighbors_wall, 2)
+                    self.hit_neighbor(future, neighbors_movable, neighbors_wall, 2)
 
             # SOUTHWEST NEIGHBOR
             if (self.matrix_index - 1 > 0) and (self.list_index + 1 < len(hex_list)):
@@ -277,7 +277,7 @@ class Hex:
                     future.occupied = True
                     future.movable = True'''
                 if (self.state[4] != 0):
-                    self.wall_bounce(future, neighbors_movable, neighbors_wall, 4)
+                    self.hit_neighbor(future, neighbors_movable, neighbors_wall, 4)
 
 
 
