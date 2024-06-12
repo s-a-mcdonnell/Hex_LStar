@@ -170,6 +170,7 @@ class Hex:
             future.state[(dir-1)%6] = 1
         # if I am moving toward my neighbor, and my neighbor is occupied but not moving, then I become occupied but not moving
         # TODO: Discuss order in which rules are applied
+        # TODO: Also discuss if collisions off of a side wall should take priority over head-on collisions
         elif neighbors_movable[dir] == 1:
             future.occupied = True
             future.movable = True
@@ -303,6 +304,14 @@ hex_matrix[1][8].make_move(2)
 hex_matrix[5][9].make_wall()
 hex_matrix[6][7].make_wall()
 hex_matrix[7][9].make_wall()
+
+# Create walls around the edges
+# Left edge
+for hex in hex_matrix[0]:
+    hex.make_wall()
+# Right edge
+for hex in hex_matrix[13]:
+    hex.make_wall()
 
 
 run = True
