@@ -33,7 +33,7 @@ class Hex:
    
    def draw(self, screen):
     if self.occupied == False:
-        self.color = (255, 255, 255)
+        self.color = (190, 240, 255)
     elif self.movable == False:
         self.color = (20, 20, 20)
     elif self.state[0] | self.state[1] | self.state[2] | self.state[3] | self.state[4] | self.state[5]:
@@ -49,7 +49,7 @@ class Hex:
 
 
     
-    # returns a list of length six representing the six neighboring hexes of self, with 1 if the hex neighboring in that direction is movable, nonmoving, and occupied
+   # returns a list of length six representing the six neighboring hexes of self, with 1 if the hex neighboring in that direction is movable, nonmoving, and occupied
    def check_movables(self): 
         hex_movable = [0, 0, 0, 0, 0, 0]
 
@@ -92,7 +92,7 @@ class Hex:
         return hex_movable
    
 
-    # returns a list of length 6 to determine which of the neighbors around self hex are walls
+   # returns a list of length 6 to determine which of the neighbors around self hex are walls
    def check_walls(self):
         hex_walls = [0, 0, 0, 0, 0, 0]
 
@@ -135,7 +135,7 @@ class Hex:
         return hex_walls
 
 
-    #update self hexagon
+   #update self hexagon
    def update(self):
         # determine the state of the current hex based on the states of the hexes around it
         future = hex_matrix_new[self.matrix_index][self.list_index]
@@ -156,30 +156,46 @@ class Hex:
         if self.movable:
 
             # UPPER NEIGHBOR EFFECTS
+
             # if my upper (0) neighbor is pointing down (3) then I will move down
             if self.list_index - 1 > 0:
-                future.state[3] = hex_matrix[self.matrix_index][self.list_index - 1].state[3]
-                if future.state[3] != 0:
-                    future.occupied = True
+                if(neighbors_wall[1] == 0) and (neighbors_wall[5] == 0):
+                    future.state[3] = hex_matrix[self.matrix_index][self.list_index - 1].state[3]
+                    if future.state[3] != 0:
+                        future.occupied = True
                 # if I am moving toward my upper neighbor, and my upper neighbor is occupied but not moving, then I become occupied but not moving
                 if(self.state[0] != 0):
                     if neighbors_movable[0] == 1:
                         future.occupied = True
                         future.movable = True
-                    elif neighbors_wall[0] == 1:
+                    # if my neighbor is a wall, bounce, or if I have two neighors to the side in front
+                    elif (neighbors_wall[0] == 1) or ((neighbors_wall[5] == 1) and (neighbors_wall[1] == 1)):
                         future.occupied = True
                         future.movable = True
                         future.state[0] = 0
                         future.state[3] = 1
+                    # cases for individual side glancing walls
+                    elif (neighbors_wall[5] == 1):
+                        future.occupied = True
+                        future.movable = True
+                        future.state[0] = 0
+                        future.state[2] = 1
+                    elif (neighbors_wall[1] == 1):
+                        future.occupied = True
+                        future.movable = True
+                        future.state[0] = 0
+                        future.state[4] = 1
 
 
             # DOWN NEIGHBOR EFFECTS
             if self.list_index + 1 < len(hex_list):
-                future.state[0] = hex_matrix[self.matrix_index][self.list_index + 1].state[0]
-                if future.state[0] != 0:
-                    future.occupied = True
+                # if my lower neighbor is moving toward me and is not blocked by two side walls, I will gain motion
+                if(neighbors_wall[2] == 0) and (neighbors_wall[4] == 0):
+                    future.state[0] = hex_matrix[self.matrix_index][self.list_index + 1].state[0]
+                    if future.state[0] != 0:
+                        future.occupied = True
                 # if I am moving down to my lower neighbor and it is occupied but not moving, I become occupied but not moving
-                elif (self.state[3] != 0) and (neighbors_movable[3] == 1):
+                if (self.state[3] != 0) and (neighbors_movable[3] == 1):
                     future.occupied = True
                     future.movable = True
 
@@ -262,16 +278,18 @@ hex_matrix[10][4].occupied = True
 # hex_matrix[4][7].occupied = True
 # hex_matrix[6][10].occupied = True
 # hex_matrix[3][5].occupied = True
-hex_matrix[5][6].occupied = True
 hex_matrix[7][8].occupied = True
 hex_matrix[5][9].occupied = True
+hex_matrix[6][6].occupied = True
+#hex_matrix[4][7].occupied = True
 
 hex_matrix[10][8].state[5] = 1
 hex_matrix[5][9].state[0] = 1
 # hex_matrix[4][7].state[3] = 3
 # hex_matrix[6][10].state[2] = 1
 # hex_matrix[3][5].state[4] = 1
-hex_matrix[5][6].movable = False
+hex_matrix[6][6].movable = False
+#hex_matrix[4][7].movable = False
 
 run = True
 while run:
