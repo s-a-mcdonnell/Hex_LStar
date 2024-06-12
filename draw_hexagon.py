@@ -48,7 +48,10 @@ class Hex:
     # Draw text object displaying axial hex coordiantes
     # self.display_surface.blit(self.text, self.textRect)
 
-
+    # returns a boolean indicating if the given hex is occupied, movable, and stationary (not currently moving)
+   def check_movable_hex(self):
+       return (str(self.state) == "[0, 0, 0, 0, 0, 0]") and self.movable and self.occupied
+       
     
     # returns a list of length six representing the six neighboring hexes of self, with 1 if the hex neighboring in that direction is movable, nonmoving, and occupied
    def check_movables(self): 
@@ -58,40 +61,35 @@ class Hex:
         hexToCheck = self
 
         # check upper hex (pos 0)
+        # If the upper hex exists and is occupied, moving, and stationary, flip the boolean in the array
         if self.list_index - 1 > 0:
            hexToCheck = hex_matrix[self.matrix_index][self.list_index - 1]
-           if (str(hexToCheck.state) == "[0, 0, 0, 0, 0, 0]") and hexToCheck.movable == True and hexToCheck.occupied == True:
-               hex_movable[0] = 1
+           hex_movable[0] = hexToCheck.check_movable_hex()
 
         # check northeast hex (pos 1)
         if (self.matrix_index + 1 < len(hex_matrix)) and (self.list_index - 1 > 0):
            hexToCheck = hex_matrix[self.matrix_index + 1][self.list_index - 1]
-           if (str(hexToCheck.state) == "[0, 0, 0, 0, 0, 0]") and hexToCheck.movable == True and hexToCheck.occupied == True:
-               hex_movable[1] = 1
+           hex_movable[1] = hexToCheck.check_movable_hex()
 
         # check southeast hex (pos 2)
         if self.matrix_index + 1 < len(hex_matrix):
             hexToCheck = hex_matrix[self.matrix_index + 1][self.list_index]
-            if (str(hexToCheck.state) == "[0, 0, 0, 0, 0, 0]") and hexToCheck.movable == True and hexToCheck.occupied == True:
-               hex_movable[2] = 1
+            hex_movable[2] = hexToCheck.check_movable_hex()
 
         # check down hex (pos 3)
         if self.list_index + 1 < len(hex_list):
             hexToCheck = hex_matrix[self.matrix_index][self.list_index + 1]
-            if (str(hexToCheck.state) == "[0, 0, 0, 0, 0, 0]") and hexToCheck.movable == True and hexToCheck.occupied == True:
-               hex_movable[3] = 1
+            hex_movable[3] = hexToCheck.check_movable_hex()
 
         # check southwest hex (pos 4)
         if (self.matrix_index - 1 > 0) and (self.list_index + 1 < len(hex_list)):
             hexToCheck = hex_matrix[self.matrix_index - 1][self.list_index + 1]
-            if (str(hexToCheck.state) == "[0, 0, 0, 0, 0, 0]") and hexToCheck.movable == True and hexToCheck.occupied == True:
-               hex_movable[4] = 1
+            hex_movable[4] = hexToCheck.check_movable_hex()
 
         # check northwest hex (pos 5)
         if self.matrix_index - 1 > 0:
             hexToCheck = hex_matrix[self.matrix_index - 1][self.list_index]
-            if (str(hexToCheck.state) == "[0, 0, 0, 0, 0, 0]") and hexToCheck.movable == True and hexToCheck.occupied == True:
-               hex_movable[5] = 1
+            hex_movable[5] = hexToCheck.check_movable_hex()
 
         return hex_movable
    
