@@ -47,9 +47,9 @@ class Hex:
     # Draw text object displaying axial hex coordiantes
     # self.display_surface.blit(self.text, self.textRect)
 
-        # returns a list of length six representing the six neighboring hexes of self, with 1 if the hex neighboring in that direction is movable, nonmoving, and occupied
 
-
+    
+    # returns a list of length six representing the six neighboring hexes of self, with 1 if the hex neighboring in that direction is movable, nonmoving, and occupied
    def check_movables(self): 
         hex_movable = [0, 0, 0, 0, 0, 0]
 
@@ -92,6 +92,7 @@ class Hex:
         return hex_movable
    
 
+    # returns a list of length 6 to determine which of the neighbors around self hex are walls
    def check_walls(self):
         hex_walls = [0, 0, 0, 0, 0, 0]
 
