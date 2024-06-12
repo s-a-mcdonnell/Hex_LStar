@@ -220,6 +220,7 @@ class Hex:
 
             # DOWN NEIGHBOR EFFECTS
             if self.list_index + 1 < len(hex_list):
+                # Call motion_handler, passing lower neighbor
                 self.motion_handler(future, hex_matrix[self.matrix_index][self.list_index + 1], neighbors_movable, neighbors_wall, 3)
 
                 '''# if my lower neighbor is moving toward me and is not blocked by two side walls, I will gain motion
@@ -236,6 +237,7 @@ class Hex:
 
             # NORTHEAST NEIGHBOR
             if (self.matrix_index + 1 < len(hex_matrix)) and (self.list_index - 1 > 0):
+                # Call motion_handler, passing northeast neighbor
                 self.motion_handler(future, hex_matrix[self.matrix_index + 1][self.list_index - 1], neighbors_movable, neighbors_wall, 1)
 
                 '''# if my neighbor is moving toward me and is not blocked by two side walls, I will gain motion
@@ -251,6 +253,7 @@ class Hex:
 
             # NORTHWEST NEIGHBOR
             if self.matrix_index - 1 > 0:
+                # Call motion_handler, passing northwest neighbor
                 self.motion_handler(future, hex_matrix[self.matrix_index - 1][self.list_index], neighbors_movable, neighbors_wall, 5)
 
             '''# if my neighbor is moving toward me and is not blocked by two side walls, I will gain motion
@@ -266,6 +269,7 @@ class Hex:
 
             # SOUTHEAST NEIGHBOR
             if self.matrix_index + 1 < len(hex_matrix):
+                # Call motion_handler, passing southeast neighbor
                 self.motion_handler(future, hex_matrix[self.matrix_index + 1][self.list_index], neighbors_movable, neighbors_wall, 2)
 
                 '''# if my neighbor is moving toward me and is not blocked by two side walls, I will gain motion
@@ -281,6 +285,7 @@ class Hex:
 
             # SOUTHWEST NEIGHBOR
             if (self.matrix_index - 1 > 0) and (self.list_index + 1 < len(hex_list)):
+                # Call motion_handler, passing southwests neighbor
                 self.motion_handler(future, hex_matrix[self.matrix_index - 1][self.list_index + 1], neighbors_movable, neighbors_wall, 4)
 
                 '''# if my neighbor is moving toward me and is not blocked by two side walls, I will gain motion
