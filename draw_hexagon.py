@@ -23,38 +23,18 @@ class Hex:
 
        self.coordinates = Hex.create_coor(self.x, self.y)
        
+        # TO DO: need to make something for occupied vs unoccupied hexes
+
        self.color = color
        self.movable = moveable
        self.state = [0, 0, 0, 0, 0, 0]
 
-       # Writing text to screen according to this tutorial:https://www.geeksforgeeks.org/python-display-text-to-pygame-window/
-
-    #     # create the display surface object
-    #     # of specific dimension..e(X, Y).
-    #    # __ self.display_surface = pygame.display.set_mode((X, Y))
-    #    self.display_surface = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-
-    #     # create a font object.
-    #     # 1st parameter is the font file
-    #     # which is present in pygame.
-    #     # 2nd parameter is size of the font
-    #    font = pygame.font.Font('freesansbold.ttf', 15)
-        
-    #     # create a text surface object,
-    #     # on which text is drawn on it.
-    #    self.text = font.render(('(' + str(matrix_index) + ',' + str(list_index) + ')'), True, (0, 255, 0))
-        
-    #     # create a rectangular object for the
-    #     # text surface object
-    #    self.textRect = self.text.get_rect()
-        
-    #    # set the center of the rectangular object.
-    #    # __ self.textRect.center = (x + 30, y + 35)
-    #    self.textRect.center = (self.coordinates[0][0] + 10, self.coordinates[0][1] + 35)
    
    def draw(self, screen):
     if self.state[0] | self.state[1] | self.state[2] | self.state[3] | self.state[4] | self.state[5]:
        self.color = (0, 0, 255)
+    elif self.movable == False:
+        self.color = (20, 20, 20)
     else:
         self.color = (255, 0, 0)
     
@@ -63,6 +43,21 @@ class Hex:
 
     # Draw text object displaying axial hex coordiantes
     # self.display_surface.blit(self.text, self.textRect)
+
+    #update self hexagon
+    def update(self):
+        
+        # determine the state of the current hex based on the states of the hexes around it
+        future = hex_matrix_new[self.matrix_index][self.list_index]
+
+        future.state = [0,0,0,0,0,0]
+
+        if self.movable:
+
+            # UPPER NEIGHBOR EFFECTS
+            # if my upper (0) neighbor is pointing down (3) then I will move down
+            if self.list_index - 1 > 0:
+                future.state[3] = hex_matrix[self.matrix_index][self.list_index - 1].state[3]
 
 import pygame
 
@@ -86,7 +81,7 @@ for x in range(15):
         myHex = Hex(x, y)
         hex_list.append(myHex)
 
-# create additiona matrix
+# create additional matrix
 hex_matrix_new = []
 
 for x in range(15):
@@ -98,13 +93,11 @@ for x in range(15):
         hex_list_new.append(myHex)
 
 # Update the state of a few hexagons to reflect motion
-# __ hex_matrix[1][1].state[0] = 1
-# __ hex_matrix[2][3].state[4] = 1
-# __ hex_matrix[5][2].state[2] = 1
 hex_matrix[10][10].state[0] = 1
+hex_matrix[10][4].state[3] = 1
 hex_matrix[4][7].state[3] = 3
-# __ hex_matrix[8][12].state[4] = 1
 hex_matrix[6][10].state[2] = 1
+hex_matrix[5][6].movable = False
 
 run = True
 while run:
@@ -116,9 +109,44 @@ while run:
     r = 10
     g = 10
     b = 10
+
     for hex_list in hex_matrix:
         for hexagon in hex_list:
             hexagon.draw(screen)
+        
+            # draw an arrow on the hex if the hex is moving
+            if(str(hexagon.state) != "[0, 0, 0, 0, 0, 0]"):
+                #pivot is the center of the hexagon
+                pivot = pygame.Vector2(hexagon.x + 20, hexagon.y + 35)
+                # set of arrow points should be the vectors from the pivot to the edge points of the arrow
+                # arrow = [(hexagon.x + 20, hexagon.y + 10), (hexagon.x + 40, hexagon.y + 25), (hexagon.x + 30, hexagon.y + 25), (hexagon.x + 30, hexagon.y + 50), (hexagon.x + 10, hexagon.y + 50), (hexagon.x + 10, hexagon.y + 25), (hexagon.x, hexagon.y + 25)]
+                arrow = [(0, -15), (10, -5), (5, -5), (5, 15), (-5, 15), (-5, -5), (-10, -5)]
+                # get arrow by adding all the vectors to the pivot point => allows for easy rotation
+
+                if(hexagon.state[0] != 0):
+                    arrow_new = [(pygame.math.Vector2(x, y)) + pivot for x, y in arrow]
+                    pygame.draw.polygon(screen, (0, 0, 0), arrow_new)
+
+                if(hexagon.state[1] != 0):
+                    arrow_new = [(pygame.math.Vector2(x, y)).rotate(60.0) + pivot for x, y in arrow]
+                    pygame.draw.polygon(screen, (0, 0, 0), arrow_new)
+
+                if(hexagon.state[2] != 0):
+                    arrow_new = [(pygame.math.Vector2(x, y)).rotate(120.0) + pivot for x, y in arrow]
+                    pygame.draw.polygon(screen, (0, 0, 0), arrow_new)
+
+                if(hexagon.state[3] != 0):
+                    arrow_new = [(pygame.math.Vector2(x, y)).rotate(180.0) + pivot for x, y in arrow]
+                    pygame.draw.polygon(screen, (0, 0, 0), arrow_new)
+
+                if(hexagon.state[4] != 0):
+                    arrow_new = [(pygame.math.Vector2(x, y)).rotate(240.0) + pivot for x, y in arrow]
+                    pygame.draw.polygon(screen, (0, 0, 0), arrow_new)
+
+                if(hexagon.state[5] != 0):
+                    arrow_new = [(pygame.math.Vector2(x, y)).rotate(300.0) + pivot for x, y in arrow]
+                    pygame.draw.polygon(screen, (0, 0, 0), arrow_new)
+
 
     # Event handler (closing window)
     for event in pygame.event.get():
@@ -131,6 +159,8 @@ while run:
     for hex_list_new in hex_matrix_new:
         for hexagon in hex_list_new:
             hexagon.state = [0,0,0,0,0,0]
+            if(hex_matrix[hexagon.matrix_index][hexagon.list_index].movable == False):
+                hexagon.movable = False
 
     # update states in the new one
     for hex_list in hex_matrix:
