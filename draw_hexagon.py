@@ -142,7 +142,7 @@ class Hex:
 
         return hex_walls
 
-    # TODO: Describe (handles boncing self heading in the given direction off of any walls)
+    # handles the impacts of hitting an occupied neighbor (either a stationary object or a wall)
    def wall_bounce(self, future, neighbors_movable, neighbors_wall, dir):
         # if I am moving toward my neighbor, and my neighbor is occupied but not moving, then I become occupied but not moving
         if neighbors_movable[dir] == 1:
@@ -192,33 +192,15 @@ class Hex:
 
             # if my upper (0) neighbor is pointing down (3) then I will move down
             if self.list_index - 1 > 0:
-                if(neighbors_wall[1] == 0) and (neighbors_wall[5] == 0):
-                    future.state[3] = hex_matrix[self.matrix_index][self.list_index - 1].state[3]
+                if (not neighbors_wall[1]) and (not neighbors_wall[5]):
+                    if hex_matrix[self.matrix_index][self.list_index - 1].state[3]:
+                        future.state[3] = 1
                     if future.state[3] != 0:
                         future.occupied = True
-                # if I am moving toward my upper neighbor, and my upper neighbor is occupied but not moving, then I become occupied but not moving
+                
+                # handle impact of hitting occupied neighbor
                 if(self.state[0] != 0):
                     self.wall_bounce(future, neighbors_movable, neighbors_wall, 0)
-                    '''if neighbors_movable[0] == 1:
-                        future.occupied = True
-                        future.movable = True
-                    # if my neighbor is a wall, bounce, or if I have two neighors to the side in front
-                    elif (neighbors_wall[0] == 1) or ((neighbors_wall[5] == 1) and (neighbors_wall[1] == 1)):
-                        future.occupied = True
-                        future.movable = True
-                        future.state[0] = 0
-                        future.state[3] = 1
-                    # cases for individual side glancing walls
-                    elif (neighbors_wall[5] == 1):
-                        future.occupied = True
-                        future.movable = True
-                        future.state[0] = 0
-                        future.state[1] = 1
-                    elif (neighbors_wall[1] == 1):
-                        future.occupied = True
-                        future.movable = True
-                        future.state[0] = 0
-                        future.state[5] = 1'''
 
 
             # DOWN NEIGHBOR EFFECTS
@@ -230,72 +212,72 @@ class Hex:
                         future.state[0] = 1
                     if future.state[0] != 0:
                         future.occupied = True
-
+              
+                # handle impact of hitting occupied neighbor
                 if (self.state[3] != 0):
                     self.wall_bounce(future, neighbors_movable, neighbors_wall, 3)
-                    '''# if I am moving down to my lower neighbor and it is occupied but not moving, I become occupied but not moving
-                    if neighbors_movable[3] == 1:
-                        future.occupied = True
-                        future.movable = True
-                    # if my neighbor is a wall, bounce, or if I have two neighors to the side in front
-                    elif (neighbors_wall[3] == 1) or ((neighbors_wall[2] == 1) and (neighbors_wall[4] == 1)):
-                        future.occupied = True
-                        future.movable = True
-                        future.state[3] = 0
-                        future.state[0] = 1
-                    # cases for individual side glancing walls
-                    elif (neighbors_wall[2] == 1):
-                        future.occupied = True
-                        future.movable = True
-                        future.state[3] = 0
-                        future.state[4] = 1
-                    elif (neighbors_wall[1] == 1):
-                        future.occupied = True
-                        future.movable = True
-                        future.state[3] = 0
-                        future.state[2] = 1'''
+    
 
             # NORTHEAST NEIGHBOR
             if (self.matrix_index + 1 < len(hex_matrix)) and (self.list_index - 1 > 0):
-                if hex_matrix[self.matrix_index + 1][self.list_index - 1].state[4]:
-                    future.state[4] = 1
-                if future.state[4] != 0:
-                    future.occupied = True
-                # if I am moving toward my northeast neighbor and it is movable, I become movable
+                # if my neighbor is moving toward me and is not blocked by two side walls, I will gain motion
+                if (not neighbors_wall[0]) and (not neighbors_wall[2]):
+                    if hex_matrix[self.matrix_index + 1][self.list_index - 1].state[4]:
+                        future.state[4] = 1
+                    if future.state[4] != 0:
+                        future.occupied = True
+                '''# if I am moving toward my northeast neighbor and it is movable, I become movable
                 elif (self.state[1] != 0) and (neighbors_movable[1] == 1):
                     future.occupied = True
-                    future.movable = True
+                    future.movable = True'''
+                # handle impact of hitting occupied neighbor
+                if (self.state[1] != 0):
+                    self.wall_bounce(future, neighbors_movable, neighbors_wall, 1)
 
             # NORTHWEST NEIGHBOR
             if self.matrix_index - 1 > 0:
-                if hex_matrix[self.matrix_index - 1][self.list_index].state[2]:
-                    future.state[2] = 1
-                if future.state[2] != 0:
-                    future.occupied = True
-                # if I am moving toward my northwest neighbor and it is movable, I become movable
+                # if my neighbor is moving toward me and is not blocked by two side walls, I will gain motion
+                if (not neighbors_wall[0]) and (not neighbors_wall[4]):
+                    if hex_matrix[self.matrix_index - 1][self.list_index].state[2]:
+                        future.state[2] = 1
+                    if future.state[2] != 0:
+                        future.occupied = True
+                '''# if I am moving toward my northwest neighbor and it is movable, I become movable
                 elif (self.state[5] != 0) and (neighbors_movable[5] == 1):
                     future.occupied = True
-                    future.movable = True
+                    future.movable = True'''
+                # handle impact of hitting occupied neighbor
+                if (self.state[5] != 0):
+                    self.wall_bounce(future, neighbors_movable, neighbors_wall, 5)
 
             # SOUTHEAST NEIGHBOR
             if self.matrix_index + 1 < len(hex_matrix):
-                if hex_matrix[self.matrix_index + 1][self.list_index].state[5]:
-                    future.state[5] = 1
-                if future.state[5] != 0:
+                # if my neighbor is moving toward me and is not blocked by two side walls, I will gain motion
+                if (not neighbors_wall[1]) and (not neighbors_wall[3]):
+                    if hex_matrix[self.matrix_index + 1][self.list_index].state[5]:
+                        future.state[5] = 1
+                    if future.state[5] != 0:
+                        future.occupied = True
+                '''elif (self.state[2] != 0) and (neighbors_movable[2] == 1):
                     future.occupied = True
-                elif (self.state[2] != 0) and (neighbors_movable[2] == 1):
-                    future.occupied = True
-                    future.movable = True
+                    future.movable = True'''
+                # handle impact of hitting occupied neighbor
+                if (self.state[2] != 0):
+                    self.wall_bounce(future, neighbors_movable, neighbors_wall, 2)
 
             # SOUTHWEST NEIGHBOR
             if (self.matrix_index - 1 > 0) and (self.list_index + 1 < len(hex_list)):
-                if hex_matrix[self.matrix_index - 1][self.list_index + 1].state[1]:
-                    future.state[1] = 1
-                if future.state[1] != 0:
+                # if my neighbor is moving toward me and is not blocked by two side walls, I will gain motion
+                if (not neighbors_wall[3]) and (not neighbors_wall[5]):
+                    if hex_matrix[self.matrix_index - 1][self.list_index + 1].state[1]:
+                        future.state[1] = 1
+                    if future.state[1] != 0:
+                        future.occupied = True
+                '''elif (self.state[4] != 0) and (neighbors_movable[4] == 1):
                     future.occupied = True
-                elif (self.state[4] != 0) and (neighbors_movable[4] == 1):
-                    future.occupied = True
-                    future.movable = True
+                    future.movable = True'''
+                if (self.state[4] != 0):
+                    self.wall_bounce(future, neighbors_movable, neighbors_wall, 4)
 
 
 
@@ -348,7 +330,7 @@ hex_matrix[4][6].state[3] = 1
 # hex_matrix[3][5].state[4] = 1
 
 #hex_matrix[6][6].make_wall()
-hex_matrix[5][9].make_wall()
+hex_matrix[3][11].make_wall()
 hex_matrix[7][9].make_wall()
 
 
