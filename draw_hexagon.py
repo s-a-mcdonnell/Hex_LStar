@@ -361,6 +361,7 @@ hex_matrix[4][6].make_move(3)
 
 #hex_matrix[6][6].make_wall()
 hex_matrix[3][11].make_wall()
+hex_matrix[5][10].make_wall()
 hex_matrix[7][9].make_wall()
 
 
