@@ -499,9 +499,17 @@ for x in range(15):
 hex_matrix[5][11].make_move(0, (255, 255, 102))
 hex_matrix[5][6].make_move(3, (204, 0, 255))'''
 
-# Hexes approaching vertically, hex-on, with gap between
+'''# Hexes approaching vertically, hex-on, with gap between
 hex_matrix[5][10].make_move(0, (255, 255, 102))
-hex_matrix[5][6].make_move(3, (204, 0, 255))
+hex_matrix[5][6].make_move(3, (204, 0, 255))'''
+
+'''# Hexes approaching, hex-on, (direction 2-5)
+hex_matrix[10][7].make_move(5, (255, 255, 102))
+hex_matrix[3][7].make_move(2, (204, 0, 255))'''
+
+# Hexes approaching, hex-on, with gap in between(direction 2-5)
+hex_matrix[11][7].make_move(5, (255, 255, 102))
+hex_matrix[3][7].make_move(2, (204, 0, 255))
 
 '''# Hexes approaching diagonally, 60 degrees
 # yellow hex
