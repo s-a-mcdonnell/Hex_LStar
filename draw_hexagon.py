@@ -450,31 +450,6 @@ for x in range(15):
         hex_list_new.append(myHex)
 
 # Update the state of a few hexagons to reflect motion (test cases)
-'''#hex_matrix[10][8].occupied = True
-hex_matrix[10][4].occupied = True
-# hex_matrix[4][7].occupied = True
-# hex_matrix[6][10].occupied = True
-# hex_matrix[3][5].occupied = True
-#hex_matrix[4][6].occupied = True
-
-hex_matrix[9][10].make_move(5)
-
-#hex_matrix[4][6].make_move(3)
-
-hex_matrix[7][7].make_move(3)
-hex_matrix[6][8].make_move(2)
-hex_matrix[8][7].make_move(4)
-
-hex_matrix[5][5].make_move(3)
-hex_matrix[4][6].make_move(2)
-hex_matrix[6][5].make_move(4)
-
-
-#hex_matrix[6][6].make_wall()
-#hex_matrix[5][9].make_wall()
-#hex_matrix[6][7].make_wall()
-hex_matrix[7][9].make_wall()
-hex_matrix[7][8].make_wall()'''
 
 # hex_matrix[5][10].make_move(2, (255, 255, 102))
 # yellow hex
