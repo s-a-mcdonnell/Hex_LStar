@@ -109,12 +109,12 @@ class Hex:
 
     # returns a boolean indicating if the given hex is occupied, movable, and stationary (not currently moving)
    def check_movable_hex(self):
-       return (not self.is_moving) and self.movable and self.occupied
+       return not(self.is_moving()) and self.movable and self.occupied
        
 
     # returns a boolean indicating if the hex is currently moving
    def is_moving(self):
-        return self.state[0] or self.state[1] or self.state[2] or self.state[3] or self.state[4] or self.state[5]
+        return not(str(self.state) == "[0, 0, 0, 0, 0, 0]")
     
    # returns a list of length six representing the six neighboring hexes of self, with 1 if the hex neighboring in that direction is movable, nonmoving, and occupied
    def check_movables(self): 
@@ -344,6 +344,7 @@ for x in range(15):
 # Update the state of a few hexagons to reflect motion (test cases)
 #hex_matrix[10][8].occupied = True
 hex_matrix[10][4].occupied = True
+hex_matrix[8][4].make_move(2)
 # hex_matrix[4][7].occupied = True
 # hex_matrix[6][10].occupied = True
 # hex_matrix[3][5].occupied = True
@@ -353,14 +354,10 @@ hex_matrix[9][10].make_move(5)
 
 #hex_matrix[4][6].make_move(3)
 
-hex_matrix[7][7].make_move(3)
-hex_matrix[6][8].make_move(2)
-hex_matrix[8][7].make_move(4)
-
 hex_matrix[5][5].make_move(3)
-hex_matrix[4][6].make_move(2)
-hex_matrix[6][5].make_move(4)
-
+hex_matrix[5][6].occupied = True
+hex_matrix[5][7].make_move(3)
+hex_matrix[5][8].occupied = True
 
 #hex_matrix[6][6].make_wall()
 #hex_matrix[5][9].make_wall()
