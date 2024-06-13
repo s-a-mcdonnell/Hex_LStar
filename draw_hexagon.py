@@ -296,20 +296,15 @@ hex_matrix[10][4].occupied = True
 # hex_matrix[4][7].occupied = True
 # hex_matrix[6][10].occupied = True
 # hex_matrix[3][5].occupied = True
-hex_matrix[7][8].occupied = True
 #hex_matrix[4][6].occupied = True
 
-#hex_matrix[10][8].state[5] = 1
 hex_matrix[10][8].make_move(5)
-#hex_matrix[4][6].state[3] = 1
 #hex_matrix[4][6].make_move(3)
 #hex_matrix[9][6].make_move(4)
 hex_matrix[2][8].make_move(5)
-hex_matrix[5][11].make_move(5)
 
-# hex_matrix[4][7].state[3] = 3
-# hex_matrix[6][10].state[2] = 1
-# hex_matrix[3][5].state[4] = 1
+hex_matrix[7][7].make_move(3)
+hex_matrix[7][6].make_move(3)
 
 #hex_matrix[6][6].make_wall()
 #hex_matrix[5][9].make_wall()
@@ -391,8 +386,8 @@ while run:
     # flips to the next frame
     pygame.display.flip()
 
-    # sets animation to 6 frames per second (feel free to change)
-    dt = clock.tick(6) / 1000
+    # sets animation to n frames per second where n is inside the parentheses (feel free to change)
+    dt = clock.tick(2) / 1000
 
     for hex_list in hex_matrix:
         for hexagon in hex_list:
