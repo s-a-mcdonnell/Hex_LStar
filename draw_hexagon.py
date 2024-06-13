@@ -27,29 +27,10 @@ class Hex:
 
        if not movable:
            self.make_wall()
-       '''self.color = color
-       self.movable = movable
-       self.occupied = occupied
-       # TODO: Make 7 states?
-       self.state = [0, 0, 0, 0, 0, 0]'''
-
-       '''# Create arrows for later use
-       
-       #pivot is the center of the hexagon
-       pivot = pygame.Vector2(self.x + 20, self.y + 35)
-        # set of arrow points should be the vectors from the pivot to the edge points of the arrow
-       arrow = [(0, -15), (10, -5), (5, -5), (5, 15), (-5, 15), (-5, -5), (-10, -5)]
-        # get arrow by adding all the vectors to the pivot point => allows for easy rotation
-       self.arrows = []
-
-       for i in range(6):
-            self.arrows.append([(pygame.math.Vector2(x, y)).rotate(60.0*i) + pivot for x, y in arrow])
-        '''
 
     # sets the given hex to act as a wall
    def make_wall(self):
-       '''self.occupied = True
-       self.movable = False'''
+       # Wipe idents currently stored
        self.idents = None
        self.idents = []
        # Walls are black
@@ -58,13 +39,11 @@ class Hex:
 
     # sets the given hex to move in a given direction
    def make_move(self, dir, color=(255,0,0)):
-       '''self.occupied = True
-       self.movable = True
-       self.state[dir] = 1'''
+       # Note: Does not overwrite idents currently stored
        self.idents.append(Ident(color, dir))
 
    def make_occupied(self, color=(0,255,0)):
-       # TODO: Clear out current idents?
+       # TODO: Clear out current idents? (does not currently overwrite pre-existing idents)
        self.idents.append(Ident(color, -1))
 
    # returns a boolean indicating if a hex is occupied 
@@ -73,19 +52,9 @@ class Hex:
 
    def draw(self, screen):
     # Colors now determined by ident
-    '''if self.occupied == False:
-        # If not occupied: light blue
-        self.color = (190, 240, 255)
-    elif self.movable == False:
-        # If occupied and not movable (wall): dark grey
-        self.color = (20, 20, 20)
-    elif self.state[0] | self.state[1] | self.state[2] | self.state[3] | self.state[4] | self.state[5]:
-       # If moving: blue
-       self.color = (0, 0, 255)
-    else:
-        # If occupied and not moving (but movable): teal
-        self.color = (50, 175, 175)'''
     
+    # TODO: Simplify logic
+
     # Draw the hexagon
     # pygame.draw.polygon(screen, self.color, self.coordinates)
     if (len(self.idents) != 0):
@@ -452,17 +421,11 @@ while run:
             hexagon.update()
 
     # need to use the python deepcopy in order to copy the inner lists of a 2D array
+    # TODO: Check if simpler form of deepcopy will still work
     # hex_matrix = copy.deepcopy(hex_matrix_new)
 
     for i in range(len(hex_matrix)):
         hex_matrix[i] = copy.deepcopy(hex_matrix_new[i])
-        '''for j in range(len(hex_matrix[i])):
-            hex_matrix[i][j] = copy.deepcopy(hex_matrix_new[i][j])'''
-            
-        '''hex_matrix[i][j].idents = []
-            for k in range(len(hex_matrix_new[i][j].idents)):
-                hex_matrix[i][j].idents.append(hex_matrix_new[i][j].idents[k])'''
-    # hex_matrix = hex_matrix_new.copy()
 
 pygame.quit()
 
