@@ -61,7 +61,11 @@ class Hex:
        '''self.occupied = True
        self.movable = True
        self.state[dir] = 1'''
-       self.idents.append(Ident(color, dir)) 
+       self.idents.append(Ident(color, dir))
+
+   def make_occupied(self, color=(0,255,0)):
+       # TODO: Clear out current idents?
+       self.idents.append(Ident(color, -1))  
 
    def draw(self, screen):
     # Colors now determined by ident
