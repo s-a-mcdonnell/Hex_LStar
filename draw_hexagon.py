@@ -305,7 +305,7 @@ class Hex:
 class Ident:
     def __init__(self, color=(255, 255, 255), state=-1):
         # Constructor
-        self.color = (0, 0, 0)
+        self.color = color
         self.state = state
         self.property = None
     
