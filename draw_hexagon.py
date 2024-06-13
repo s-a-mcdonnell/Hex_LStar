@@ -310,7 +310,6 @@ def read_line(line):
     matrix_index = int(line_parts[0])
     list_index = int(line_parts[1])
     command = line_parts[2]
-    print(command)
 
     if command == "move":
         direction = int(line_parts[3])
