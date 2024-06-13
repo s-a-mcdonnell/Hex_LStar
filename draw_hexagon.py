@@ -281,6 +281,7 @@ class Hex:
                     ident_to_flip.state = (ident_to_flip.state+1)%6
                     future.take_ident(ident_to_flip)
                 # TODO: Write case for head-on collision with an empty hex in the middle
+                # TODO: Write case for 120 degree collisions (not just 60 degree)
                 else:
                 # Else take on identity of neighbor
                     print("case 4")
