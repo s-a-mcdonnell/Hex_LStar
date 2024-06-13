@@ -259,7 +259,7 @@ class Hex:
 
                 clockwise_neighbor_ident = None
                 if my_neighbors[(dir-1)%6] != None:
-                    counterclockwise_neighbor_ident = my_neighbors[(dir-1)%6].contains_direction((dir+2)%6)
+                    clockwise_neighbor_ident = my_neighbors[(dir-1)%6].contains_direction((dir+2)%6)
 
                 if my_ident != None:
                     print("case 1")
@@ -268,18 +268,20 @@ class Hex:
                     future.take_ident(ident_to_flip)
                 # TODO: Deal with diagonal collision (neighbor is heading towards the same hex)
                 elif counterclockwise_neighbor_ident != None:
+                    print("case 2")
                     # __elif I have two adjacent neighbors pointing at me
                     # __Take the ident from the straight_neighbor but flip its state to match that from the other neighbor (adjacent to straight_neighbor)
                     ident_to_flip = copy.deepcopy(counterclockwise_neighbor_ident)
                     ident_to_flip.state = (ident_to_flip.state-1)%6
                     future.take_ident(ident_to_flip)
                 elif clockwise_neighbor_ident != None:
+                    print("case 3")
                     ident_to_flip = copy.deepcopy(clockwise_neighbor_ident)
                     ident_to_flip.state = (ident_to_flip.state+1)%6
                     future.take_ident(ident_to_flip)
                 else:
                 # Else take on identity of neighbor
-                    print("case 2")
+                    print("case 4")
                     future.take_ident(neighbor_ident)
         
         # handle impact of hitting occupied neighbor
@@ -293,32 +295,38 @@ class Hex:
         try:
             my_neighbors[0] = hex_matrix[self.matrix_index][self.list_index - 1]
         except:
-            print("Neighbor 0 does not exist")
+            #print("Neighbor 0 does not exist")
+            pass
 
         try:
             my_neighbors[1] = hex_matrix[self.matrix_index + 1][self.list_index - 1]    
         except:
-            print("Neighbor 1 does not exist")
+            #print("Neighbor 1 does not exist")
+            pass
 
         try:
             my_neighbors[2] = hex_matrix[self.matrix_index + 1][self.list_index]
         except:
-            print("Neighbor 2 does not exist")
+            #print("Neighbor 2 does not exist")
+            pass
 
         try:
             my_neighbors[3] = hex_matrix[self.matrix_index][self.list_index + 1]
         except:
-            print("Neighbor 3 does not exist")
+            #print("Neighbor 3 does not exist")
+            pass
 
         try:
             my_neighbors[4] = hex_matrix[self.matrix_index - 1][self.list_index + 1]
         except:
-            print("Neighbor 4 does not exist")
+            #print("Neighbor 4 does not exist")
+            pass
         
         try:
             my_neighbors[5] = hex_matrix[self.matrix_index - 1][self.list_index]
         except:
-            print("Neighbor 5 does not exist")
+            #print("Neighbor 5 does not exist")
+            pass
         
         return my_neighbors
 
