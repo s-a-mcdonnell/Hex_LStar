@@ -156,23 +156,23 @@ class Hex:
 
     # handles the impacts of hitting an occupied neighbor (either a stationary object or a wall)
    def hit_neighbor(self, future, neighbors_movable, neighbors_wall, dir):
-        # if my neighbor is a wall (or if I have two neighors to the side in front), bounce off
-        if (neighbors_wall[dir] == 1) or ((neighbors_wall[(dir-1)%6] == 1) and (neighbors_wall[(dir+1)%6] == 1)):
-            future.occupied = True
-            future.movable = True
-            #future.state[dir] = 0
-            future.state[(dir+3)%6] = 1
         # cases for individual side glancing walls
-        elif (neighbors_wall[(dir-1)%6] == 1):
+        if (neighbors_wall[(dir-1)%6] == 1) and not (neighbors_wall[(dir+1)%6] == 1):
             future.occupied = True
             future.movable = True
             #future.state[dir] = 0
             future.state[(dir+1)%6] = 1
-        elif (neighbors_wall[(dir+1)%6] == 1):
+        elif (neighbors_wall[(dir+1)%6] == 1) and not (neighbors_wall[(dir-1)%6] == 1):
             future.occupied = True
             future.movable = True
             #future.state[dir] = 0
             future.state[(dir-1)%6] = 1
+        # if my neighbor is a wall (or if I have two neighors to the side in front), bounce off
+        elif (neighbors_wall[dir] == 1) or ((neighbors_wall[(dir-1)%6] == 1) and (neighbors_wall[(dir+1)%6] == 1)):
+            future.occupied = True
+            future.movable = True
+            #future.state[dir] = 0
+            future.state[(dir+3)%6] = 1
         # if I am moving toward my neighbor, and my neighbor is occupied but not moving, then I become occupied but not moving
         # TODO: Discuss order in which rules are applied
         # TODO: Also discuss if collisions off of a side wall should take priority over head-on collisions
