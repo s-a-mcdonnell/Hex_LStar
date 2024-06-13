@@ -160,18 +160,18 @@ class Hex:
         if (neighbors_wall[dir] == 1) or ((neighbors_wall[(dir-1)%6] == 1) and (neighbors_wall[(dir+1)%6] == 1)):
             future.occupied = True
             future.movable = True
-            future.state[dir] = 0
+            #future.state[dir] = 0
             future.state[(dir+3)%6] = 1
         # cases for individual side glancing walls
         elif (neighbors_wall[(dir-1)%6] == 1):
             future.occupied = True
             future.movable = True
-            future.state[dir] = 0
+            #future.state[dir] = 0
             future.state[(dir+1)%6] = 1
         elif (neighbors_wall[(dir+1)%6] == 1):
             future.occupied = True
             future.movable = True
-            future.state[dir] = 0
+            #future.state[dir] = 0
             future.state[(dir-1)%6] = 1
         # if I am moving toward my neighbor, and my neighbor is occupied but not moving, then I become occupied but not moving
         # TODO: Discuss order in which rules are applied
@@ -299,13 +299,18 @@ hex_matrix[10][4].occupied = True
 # hex_matrix[3][5].occupied = True
 #hex_matrix[4][6].occupied = True
 
-hex_matrix[10][8].make_move(5)
+hex_matrix[9][10].make_move(5)
+
 #hex_matrix[4][6].make_move(3)
-#hex_matrix[9][6].make_move(4)
-hex_matrix[2][8].make_move(5)
 
 hex_matrix[7][7].make_move(3)
-hex_matrix[7][6].make_move(3)
+hex_matrix[6][8].make_move(2)
+hex_matrix[8][7].make_move(4)
+
+hex_matrix[5][5].make_move(3)
+hex_matrix[4][6].make_move(2)
+hex_matrix[6][5].make_move(4)
+
 
 #hex_matrix[6][6].make_wall()
 #hex_matrix[5][9].make_wall()
@@ -388,7 +393,7 @@ while run:
     pygame.display.flip()
 
     # sets animation to n frames per second where n is inside the parentheses (feel free to change)
-    dt = clock.tick(2) / 1000
+    dt = clock.tick(1) / 1000
 
     for hex_list in hex_matrix:
         for hexagon in hex_list:
