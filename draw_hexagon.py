@@ -256,6 +256,9 @@ class Hex:
                     ident_to_flip.state = (ident_to_flip.state+3)%6
                     future.take_ident(ident_to_flip)
                 # TODO: Deal with diagonal collision (neighbor is heading towards the same hex)
+                # elif I have two adjacent neighbors pointing at me
+                # Take the ident from the straight_neighbor but flip its state to match that from the other neighbor (adjacent to straight_neighbor)
+                
                 else:
                 # Else take on identity of neighbor
                     print("case 2")
