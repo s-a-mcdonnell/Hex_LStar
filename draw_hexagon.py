@@ -241,6 +241,7 @@ class Hex:
    # straight_neighbor is the neighbor in that direction (ex. when dir = 0, straight_neighbor is the upper neighbor of self)
    def motion_handler(self, future, straight_neighbor, neighbors_movable, neighbors_wall, dir):
         # if my neighbor is moving toward me and is not blocked by either of two side walls, I will gain motion
+       # TODO: Need to distinguish between bouncing and passing through
        if (not neighbors_wall[(dir+1)%6]) and (not neighbors_wall[(dir-1)%6]):
            neighbor_ident = straight_neighbor.contains_direction((dir+3)%6)
            if neighbor_ident != None:
