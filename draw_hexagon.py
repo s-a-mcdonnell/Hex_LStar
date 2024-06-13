@@ -246,9 +246,10 @@ class Hex:
         # determine the state of the current hex based on the states of the hexes around it
         future = hex_matrix_new[self.matrix_index][self.list_index]
 
-        # TODO: Make state 7 elements long?
+        '''# TODO: Make state 7 elements long?
         future.state = [0, 0, 0, 0, 0, 0]
-        future.occupied = False
+        future.occupied = False'''
+        future.idents = []
 
         neighbors_movable = self.check_movables()
         neighbors_wall = self.check_walls()
