@@ -421,11 +421,8 @@ while run:
             hexagon.update()
 
     # need to use the python deepcopy in order to copy the inner lists of a 2D array
-    # TODO: Check if simpler form of deepcopy will still work
-    # hex_matrix = copy.deepcopy(hex_matrix_new)
-
-    for i in range(len(hex_matrix)):
-        hex_matrix[i] = copy.deepcopy(hex_matrix_new[i])
+    # TODO: Switch to alternating between two matrices
+    hex_matrix = copy.deepcopy(hex_matrix_new)
 
 pygame.quit()
 
