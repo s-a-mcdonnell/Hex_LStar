@@ -302,6 +302,14 @@ class Hex:
                 # Call motion_handler, passing southwests neighbor
                 self.motion_handler(future, hex_matrix[self.matrix_index - 1][self.list_index + 1], neighbors_movable, neighbors_wall, 4)
 
+class Ident:
+    def __init__(self, color=(255, 255, 255), state=-1):
+        # Constructor
+        self.color = (0, 0, 0)
+        self.state = state
+        self.property = None
+    
+
 
 import pygame
 
