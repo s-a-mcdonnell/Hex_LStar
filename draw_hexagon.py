@@ -57,6 +57,40 @@ class Hex:
     # Draw text object displaying axial hex coordiantes
     # self.display_surface.blit(self.text, self.textRect)
 
+    # polygon rotation tips from: https://stackoverflow.com/questions/75116101/how-to-make-rotate-polygon-on-key-in-pygame
+
+    # draw an arrow on the hex if the hex is moving
+    if (self.is_moving):
+        #pivot is the center of the hexagon
+        pivot = pygame.Vector2(self.x + 20, self.y + 35)
+        # set of arrow points should be the vectors from the pivot to the edge points of the arrow
+        arrow = [(0, -15), (10, -5), (5, -5), (5, 15), (-5, 15), (-5, -5), (-10, -5)]
+        # get arrow by adding all the vectors to the pivot point => allows for easy rotation
+
+        if(self.state[0] != 0):
+            arrow_new = [(pygame.math.Vector2(x, y)) + pivot for x, y in arrow]
+            pygame.draw.polygon(screen, (0, 0, 0), arrow_new)
+
+        if(self.state[1] != 0):
+            arrow_new = [(pygame.math.Vector2(x, y)).rotate(60.0) + pivot for x, y in arrow]
+            pygame.draw.polygon(screen, (0, 0, 0), arrow_new)
+
+        if(self.state[2] != 0):
+            arrow_new = [(pygame.math.Vector2(x, y)).rotate(120.0) + pivot for x, y in arrow]
+            pygame.draw.polygon(screen, (0, 0, 0), arrow_new)
+
+        if(self.state[3] != 0):
+            arrow_new = [(pygame.math.Vector2(x, y)).rotate(180.0) + pivot for x, y in arrow]
+            pygame.draw.polygon(screen, (0, 0, 0), arrow_new)
+
+        if(self.state[4] != 0):
+            arrow_new = [(pygame.math.Vector2(x, y)).rotate(240.0) + pivot for x, y in arrow]
+            pygame.draw.polygon(screen, (0, 0, 0), arrow_new)
+
+        if(self.state[5] != 0):
+            arrow_new = [(pygame.math.Vector2(x, y)).rotate(300.0) + pivot for x, y in arrow]
+            pygame.draw.polygon(screen, (0, 0, 0), arrow_new)
+
     # returns a boolean indicating if the given hex is occupied, movable, and stationary (not currently moving)
    def check_movable_hex(self):
        return (not self.is_moving) and self.movable and self.occupied
@@ -345,44 +379,10 @@ while run:
     g = 10
     b = 10
 
+    # Draw all hexagons
     for hex_list in hex_matrix:
         for hexagon in hex_list:
             hexagon.draw(screen)
-        
-            # polygon rotation tips from: https://stackoverflow.com/questions/75116101/how-to-make-rotate-polygon-on-key-in-pygame
-
-            # draw an arrow on the hex if the hex is moving
-            if (hexagon.is_moving):
-                #pivot is the center of the hexagon
-                pivot = pygame.Vector2(hexagon.x + 20, hexagon.y + 35)
-                # set of arrow points should be the vectors from the pivot to the edge points of the arrow
-                arrow = [(0, -15), (10, -5), (5, -5), (5, 15), (-5, 15), (-5, -5), (-10, -5)]
-                # get arrow by adding all the vectors to the pivot point => allows for easy rotation
-
-                if(hexagon.state[0] != 0):
-                    arrow_new = [(pygame.math.Vector2(x, y)) + pivot for x, y in arrow]
-                    pygame.draw.polygon(screen, (0, 0, 0), arrow_new)
-
-                if(hexagon.state[1] != 0):
-                    arrow_new = [(pygame.math.Vector2(x, y)).rotate(60.0) + pivot for x, y in arrow]
-                    pygame.draw.polygon(screen, (0, 0, 0), arrow_new)
-
-                if(hexagon.state[2] != 0):
-                    arrow_new = [(pygame.math.Vector2(x, y)).rotate(120.0) + pivot for x, y in arrow]
-                    pygame.draw.polygon(screen, (0, 0, 0), arrow_new)
-
-                if(hexagon.state[3] != 0):
-                    arrow_new = [(pygame.math.Vector2(x, y)).rotate(180.0) + pivot for x, y in arrow]
-                    pygame.draw.polygon(screen, (0, 0, 0), arrow_new)
-
-                if(hexagon.state[4] != 0):
-                    arrow_new = [(pygame.math.Vector2(x, y)).rotate(240.0) + pivot for x, y in arrow]
-                    pygame.draw.polygon(screen, (0, 0, 0), arrow_new)
-
-                if(hexagon.state[5] != 0):
-                    arrow_new = [(pygame.math.Vector2(x, y)).rotate(300.0) + pivot for x, y in arrow]
-                    pygame.draw.polygon(screen, (0, 0, 0), arrow_new)
-
 
     # Event handler (closing window)
     for event in pygame.event.get():
