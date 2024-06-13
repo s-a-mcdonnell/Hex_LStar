@@ -303,8 +303,10 @@ class Hex:
                 self.motion_handler(future, hex_matrix[self.matrix_index - 1][self.list_index + 1], neighbors_movable, neighbors_wall, 4)
 
 class Ident:
+    # Constructor
+    # Default color white
+    # Default state -1 (movable but not moving)
     def __init__(self, color=(255, 255, 255), state=-1):
-        # Constructor
         self.color = color
         self.state = state
         self.property = None
