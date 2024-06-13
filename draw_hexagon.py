@@ -252,6 +252,7 @@ class Hex:
                     ident_to_flip = copy.deepcopy(my_ident)
                     ident_to_flip.state = (ident_to_flip.state+3)%6
                     future.take_ident(ident_to_flip)
+                # TODO: Deal with diagonal collision (neighbor is heading towards the same hex)
                 else:
                 # Else take on identity of neighbor
                     print("case 2")
@@ -400,11 +401,11 @@ hex_matrix[7][9].make_wall()
 hex_matrix[7][8].make_wall()'''
 
 # hex_matrix[5][10].make_move(2, (255, 255, 102))
-# yellow hex moving down
-hex_matrix[5][6].make_move(3, (255, 255, 102))
+# yellow hex
+hex_matrix[5][6].make_move(2, (255, 255, 102))
 
-# purple hex moving up
-hex_matrix[5][11].make_move(0, (204, 0, 255))
+# purple hex
+hex_matrix[5][11].make_move(1, (204, 0, 255))
 
 
 
