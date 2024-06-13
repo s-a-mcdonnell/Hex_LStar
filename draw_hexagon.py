@@ -65,12 +65,7 @@ class Hex:
        return len(self.idents != 0)   
 
    def draw(self, screen):
-    # Colors now determined by ident
     
-    # TODO: Simplify logic
-
-    # Draw the hexagon      
-
     # Default color (no idents): light blue
     my_color = (190, 240, 255)
 
@@ -82,7 +77,7 @@ class Hex:
         my_color = (0, 255, 0)
         # TODO: Add cool animation here?
         
-    # Draw
+    # Draw the hexagon
     pygame.draw.polygon(screen, my_color, self.coordinates)
 
     # Draw text object displaying axial hex coordiantes
