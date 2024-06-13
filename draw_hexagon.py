@@ -23,7 +23,8 @@ class Hex:
        self.color = color
        self.movable = moveable
        self.occupied = occupied
-       self.state = [0, 0, 0, 0, 0, 0, 0]
+       # TODO: Make 7 states?
+       self.state = [0, 0, 0, 0, 0, 0]
 
     # sets the given hex to act as a wall
    def make_wall(self):
@@ -198,7 +199,7 @@ class Hex:
         future = hex_matrix_new[self.matrix_index][self.list_index]
 
         # TODO: Make state 7 elements long?
-        future.state = [0,0,0,0,0,0]
+        future.state = [0, 0, 0, 0, 0, 0]
         future.occupied = False
 
         neighbors_movable = self.check_movables()
