@@ -20,13 +20,17 @@ class Hex:
 
        self.coordinates = Hex.create_coor(self.x, self.y)
        
-       self.color = color
+       # Store identities of hexes
+       self.idents = []
+       if occupied:
+           self.idents.append(Ident(color))
+       '''self.color = color
        self.movable = moveable
        self.occupied = occupied
        # TODO: Make 7 states?
-       self.state = [0, 0, 0, 0, 0, 0]
+       self.state = [0, 0, 0, 0, 0, 0]'''
 
-       # Create arrows for later use
+       '''# Create arrows for later use
        
        #pivot is the center of the hexagon
        pivot = pygame.Vector2(self.x + 20, self.y + 35)
@@ -37,21 +41,28 @@ class Hex:
 
        for i in range(6):
             self.arrows.append([(pygame.math.Vector2(x, y)).rotate(60.0*i) + pivot for x, y in arrow])
-
+        '''
 
     # sets the given hex to act as a wall
    def make_wall(self):
-       self.occupied = True
-       self.movable = False
+       '''self.occupied = True
+       self.movable = False'''
+       self.idents = None
+       self.idents = []
+       # Walls are black
+       # -2 state is a wall
+       self.idents.append(Ident((0,0,0), -2))
 
     # sets the given hex to move in a given direction
-   def make_move(self, dir):
-       self.occupied = True
+   def make_move(self, dir, color=(255,0,0)):
+       '''self.occupied = True
        self.movable = True
-       self.state[dir] = 1 
+       self.state[dir] = 1'''
+       self.idents.append(Ident(color, dir)) 
 
    def draw(self, screen):
-    if self.occupied == False:
+    # Colors now determined by ident
+    '''if self.occupied == False:
         # If not occupied: light blue
         self.color = (190, 240, 255)
     elif self.movable == False:
@@ -62,15 +73,22 @@ class Hex:
        self.color = (0, 0, 255)
     else:
         # If occupied and not moving (but movable): teal
-        self.color = (50, 175, 175)
+        self.color = (50, 175, 175)'''
     
     # Draw the hexagon
-    pygame.draw.polygon(screen, self.color, self.coordinates)
+    # pygame.draw.polygon(screen, self.color, self.coordinates)
+    if (len(self.idents) != 0):
+        # TODO: Deal with drawing hexes containing multiple idents
+        pygame.draw.polygon(screen, self.idents[0].color, self.coordinates)
+    else:
+        # If a hex contains no idents, draw it light blue
+        pygame.draw.polygon(screen, (190, 240, 255), self.coordinates)
 
     # Draw text object displaying axial hex coordiantes
     # self.display_surface.blit(self.text, self.textRect)
 
-    # polygon rotation tips from: https://stackoverflow.com/questions/75116101/how-to-make-rotate-polygon-on-key-in-pygame
+    # TODO: No arrows drawn when using ident?
+    '''# polygon rotation tips from: https://stackoverflow.com/questions/75116101/how-to-make-rotate-polygon-on-key-in-pygame
 
     # draw an arrow on the hex if the hex is moving
     if (self.is_moving):
@@ -81,35 +99,17 @@ class Hex:
         # get arrow by adding all the vectors to the pivot point => allows for easy rotation
         for i in range(6):
             if self.state[i]:
-                pygame.draw.polygon(screen, (0, 0, 0), self.arrows[i]) 
-
-        '''if(self.state[0] != 0):
-            arrow_new = [(pygame.math.Vector2(x, y)) + pivot for x, y in arrow]
-            pygame.draw.polygon(screen, (0, 0, 0), arrow_new)
-
-        if(self.state[1] != 0):
-            arrow_new = [(pygame.math.Vector2(x, y)).rotate(60.0) + pivot for x, y in arrow]
-            pygame.draw.polygon(screen, (0, 0, 0), arrow_new)
-
-        if(self.state[2] != 0):
-            arrow_new = [(pygame.math.Vector2(x, y)).rotate(120.0) + pivot for x, y in arrow]
-            pygame.draw.polygon(screen, (0, 0, 0), arrow_new)
-
-        if(self.state[3] != 0):
-            arrow_new = [(pygame.math.Vector2(x, y)).rotate(180.0) + pivot for x, y in arrow]
-            pygame.draw.polygon(screen, (0, 0, 0), arrow_new)
-
-        if(self.state[4] != 0):
-            arrow_new = [(pygame.math.Vector2(x, y)).rotate(240.0) + pivot for x, y in arrow]
-            pygame.draw.polygon(screen, (0, 0, 0), arrow_new)
-
-        if(self.state[5] != 0):
-            arrow_new = [(pygame.math.Vector2(x, y)).rotate(300.0) + pivot for x, y in arrow]
-            pygame.draw.polygon(screen, (0, 0, 0), arrow_new)'''
+                pygame.draw.polygon(screen, (0, 0, 0), self.arrows[i])''' 
 
     # returns a boolean indicating if the given hex is occupied, movable, and stationary (not currently moving)
    def check_movable_hex(self):
-       return (not self.is_moving) and self.movable and self.occupied
+       #return (not self.is_moving) and self.movable and self.occupied
+       for ident in idents:
+           if ident.state == -1:
+               return True
+       # If none of the idents contain state -1, the hex is not movable
+       return False 
+       
        
 
     # returns a boolean indicating if the hex is currently moving
@@ -158,7 +158,12 @@ class Hex:
    
     # returns a boolean indicating if the given hex is a wall (occupied and not movable)
    def check_wall_hex(self):
-       return self.occupied and (not self.movable)
+       # There should never be a wall hex containing multiple idents
+       # If the one ident isn't state -2, it's not a wall
+       if (len(self.idents) != 1) or (self.idents[0].state != -2):
+           return False
+       else:
+           return True
 
    # returns a list of length 6 to determine which of the neighbors around self hex are walls
    def check_walls(self):
@@ -205,6 +210,7 @@ class Hex:
         return hex_walls
 
     # handles the impacts of hitting an occupied neighbor (either a stationary object or a wall)
+    # TODO: How to pass around idents?
    def hit_neighbor(self, future, neighbors_movable, neighbors_wall, dir):
         # cases for individual side glancing walls
         if (neighbors_wall[(dir-1)%6] == 1) and not (neighbors_wall[(dir+1)%6] == 1):
