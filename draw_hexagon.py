@@ -65,7 +65,11 @@ class Hex:
 
    def make_occupied(self, color=(0,255,0)):
        # TODO: Clear out current idents?
-       self.idents.append(Ident(color, -1))  
+       self.idents.append(Ident(color, -1))
+
+   # returns a boolean indicating if a hex is occupied 
+   def is_occupied(self):
+       return len(self.idents != 0)   
 
    def draw(self, screen):
     # Colors now determined by ident
