@@ -42,6 +42,9 @@ class Hex:
        # Note: Does not overwrite idents currently stored
        self.idents.append(Ident(color, dir))
 
+   def take_ident(self, ident):
+       self.idents.append(ident)    
+
    def make_occupied(self, color=(0,255,0)):
        # TODO: Clear out current idents? (does not currently overwrite pre-existing idents)
        self.idents.append(Ident(color, -1))
@@ -214,23 +217,25 @@ class Hex:
             future.occupied = True
             future.movable = True
    
-   # Returns a boolean indicating if a hex contains an ident heading in the given directon
+   # Checks if a hex contains an ident heading in the given directon
+   # If it does, returns that ident
+   # Else returns None
    def contains_direction(self, dir):
 
        for ident in self.idents:
            if ident.state == dir:
-               return True
+               return ident
 
-       return False 
+       return None 
    
    # Handles interactions between a hex and its environment with respect to the given direction
    # straight_neighbor is the neighbor in that direction (ex. when dir = 0, straight_neighbor is the upper neighbor of self)
    def motion_handler(self, future, straight_neighbor, neighbors_movable, neighbors_wall, dir):
-       # if my neighbor is moving toward me and is not blocked by either of two side walls, I will gain motion
+        # if my neighbor is moving toward me and is not blocked by either of two side walls, I will gain motion
        if (not neighbors_wall[(dir+1)%6]) and (not neighbors_wall[(dir-1)%6]):
-           if straight_neighbor.contains_direction((dir+3)%6):
-                future.state[(dir+3)%6] = 1
-                future.occupied = True
+           neighbor_ident = straight_neighbor.contains_direction((dir+3)%6)
+           if neighbor_ident != None:
+                future.take_ident(neighbor_ident)
         
         # handle impact of hitting occupied neighbor
        if self.contains_direction(dir): 
@@ -347,7 +352,7 @@ for x in range(15):
         hex_list_new.append(myHex)
 
 # Update the state of a few hexagons to reflect motion (test cases)
-#hex_matrix[10][8].occupied = True
+'''#hex_matrix[10][8].occupied = True
 hex_matrix[10][4].occupied = True
 # hex_matrix[4][7].occupied = True
 # hex_matrix[6][10].occupied = True
@@ -371,7 +376,9 @@ hex_matrix[6][5].make_move(4)
 #hex_matrix[5][9].make_wall()
 #hex_matrix[6][7].make_wall()
 hex_matrix[7][9].make_wall()
-hex_matrix[7][8].make_wall()
+hex_matrix[7][8].make_wall()'''
+
+hex_matrix[5][10].make_move(2)
 
 # Create walls around the edges
 # Left edge
