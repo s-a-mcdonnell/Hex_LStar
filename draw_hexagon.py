@@ -388,7 +388,7 @@ hex_matrix[6][5].make_move(4)
 hex_matrix[7][9].make_wall()
 hex_matrix[7][8].make_wall()'''
 
-hex_matrix[5][10].make_move(2)
+hex_matrix[5][10].make_move(2, (255, 255, 102))
 
 # Create walls around the edges
 # Left edge
