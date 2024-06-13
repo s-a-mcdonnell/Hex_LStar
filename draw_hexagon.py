@@ -241,8 +241,10 @@ class Hex:
        return None 
    
    # Handles interactions between a hex and its environment with respect to the given direction
-   # straight_neighbor is the neighbor in that direction (ex. when dir = 0, straight_neighbor is the upper neighbor of self)
-   def motion_handler(self, future, straight_neighbor, neighbors_movable, neighbors_wall, dir):
+   def motion_handler(self, future, my_neighbors, neighbors_movable, neighbors_wall, dir):
+        # straight_neighbor is the neighbor in that direction (ex. when dir = 0, straight_neighbor is the upper neighbor of self)
+       straight_neighbor = my_neighbors[dir]
+
         # if my neighbor is moving toward me and is not blocked by either of two side walls, I will gain motion
        # TODO: Need to distinguish between bouncing and passing through
        if (not neighbors_wall[(dir+1)%6]) and (not neighbors_wall[(dir-1)%6]):
@@ -250,15 +252,31 @@ class Hex:
            if neighbor_ident != None:
                 # If in a head-on collision with a neighbor moving in the opposite direction, maintain identity and switch direction
                 my_ident = self.contains_direction(dir)
+
+                counterclockwise_neighbor_ident = None
+                if my_neighbors[(dir+1)%6] != None:
+                    counterclockwise_neighbor_ident = my_neighbors[(dir+1)%6].contains_direction((dir-2)%6)
+
+                clockwise_neighbor_ident = None
+                if my_neighbors[(dir-1)%6] != None:
+                    counterclockwise_neighbor_ident = my_neighbors[(dir-1)%6].contains_direction((dir+2)%6)
+
                 if my_ident != None:
                     print("case 1")
                     ident_to_flip = copy.deepcopy(my_ident)
                     ident_to_flip.state = (ident_to_flip.state+3)%6
                     future.take_ident(ident_to_flip)
                 # TODO: Deal with diagonal collision (neighbor is heading towards the same hex)
-                # elif I have two adjacent neighbors pointing at me
-                # Take the ident from the straight_neighbor but flip its state to match that from the other neighbor (adjacent to straight_neighbor)
-                
+                elif counterclockwise_neighbor_ident != None:
+                    # __elif I have two adjacent neighbors pointing at me
+                    # __Take the ident from the straight_neighbor but flip its state to match that from the other neighbor (adjacent to straight_neighbor)
+                    ident_to_flip = copy.deepcopy(counterclockwise_neighbor_ident)
+                    ident_to_flip.state = (ident_to_flip.state-1)%6
+                    future.take_ident(ident_to_flip)
+                elif clockwise_neighbor_ident != None:
+                    ident_to_flip = copy.deepcopy(clockwise_neighbor_ident)
+                    ident_to_flip.state = (ident_to_flip.state+1)%6
+                    future.take_ident(ident_to_flip)
                 else:
                 # Else take on identity of neighbor
                     print("case 2")
@@ -267,6 +285,43 @@ class Hex:
         # handle impact of hitting occupied neighbor
        if self.contains_direction(dir): 
            self.hit_neighbor(future, neighbors_movable, neighbors_wall, dir)
+
+    # returns an array of neighbors (the entry in the array is None when the neighbor does not exist)
+   def get_neighbors(self):
+        my_neighbors = [None, None, None, None, None, None]
+
+        try:
+            my_neighbors[0] = hex_matrix[self.matrix_index][self.list_index - 1]
+        except:
+            print("Neighbor 0 does not exist")
+
+        try:
+            my_neighbors[1] = hex_matrix[self.matrix_index + 1][self.list_index - 1]    
+        except:
+            print("Neighbor 1 does not exist")
+
+        try:
+            my_neighbors[2] = hex_matrix[self.matrix_index + 1][self.list_index]
+        except:
+            print("Neighbor 2 does not exist")
+
+        try:
+            my_neighbors[3] = hex_matrix[self.matrix_index][self.list_index + 1]
+        except:
+            print("Neighbor 3 does not exist")
+
+        try:
+            my_neighbors[4] = hex_matrix[self.matrix_index - 1][self.list_index + 1]
+        except:
+            print("Neighbor 4 does not exist")
+        
+        try:
+            my_neighbors[5] = hex_matrix[self.matrix_index - 1][self.list_index]
+        except:
+            print("Neighbor 5 does not exist")
+        
+        return my_neighbors
+
 
    #update self hexagon
    def update(self):
@@ -286,17 +341,24 @@ class Hex:
             # TODO: Pass a color?
             future.idents.append(Ident((0,0,0),-2))
 
+        # TODO: Pretty sure this doesn't work, but I haven't tested it
         # If the hex is currently occupied and not moving, it will still be occupied in the next generation
         if hex_matrix[self.matrix_index][self.list_index].check_movable_hex():
             # TODO: pass the correct color (the color of the ident which is stationary)
             future.idents.append(Ident(-1))
 
+        my_neighbors = self.get_neighbors()
+        
         # TODO: Convert if self.movable: to ident
         if (len(self.idents) == 0) or (self.idents[0].state != -2):
             # TODO: Adjust to account for idents
             # UPPER NEIGHBOR EFFECTS (0)
 
-            # if my upper (0) neighbor is pointing down (3) then I will move down
+            for i in range(6):
+                if my_neighbors[i] != None:
+                    self.motion_handler(future, my_neighbors, neighbors_movable, neighbors_wall, i)
+
+            '''# if my upper (0) neighbor is pointing down (3) then I will move down
             if self.list_index - 1 >= 0:
                 # Call motion_handler, passing upper neighbor
                 self.motion_handler(future, hex_matrix[self.matrix_index][self.list_index - 1], neighbors_movable, neighbors_wall, 0)
@@ -328,7 +390,7 @@ class Hex:
             # SOUTHWEST NEIGHBOR (4)
             if (self.matrix_index - 1 >= 0) and (self.list_index + 1 < len(hex_list)):
                 # Call motion_handler, passing southwests neighbor
-                self.motion_handler(future, hex_matrix[self.matrix_index - 1][self.list_index + 1], neighbors_movable, neighbors_wall, 4)
+                self.motion_handler(future, hex_matrix[self.matrix_index - 1][self.list_index + 1], neighbors_movable, neighbors_wall, 4)'''
 
 class Ident:
     # Constructor
