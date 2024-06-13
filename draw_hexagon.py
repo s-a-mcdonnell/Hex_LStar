@@ -10,8 +10,8 @@ class Hex:
 
     # Constructor
     # color is an optional parameter with a default value of red
-    # moveable is an optional parameter with a default value of true
-   def __init__(self, matrix_index, list_index, color=(255, 0, 0), moveable=True, occupied=False):
+    # movable is an optional parameter with a default value of true
+   def __init__(self, matrix_index, list_index, color=(255, 0, 0), movable=True, occupied=False):
        self.matrix_index = matrix_index
        self.list_index = list_index
 
@@ -24,8 +24,11 @@ class Hex:
        self.idents = []
        if occupied:
            self.idents.append(Ident(color))
+
+       if not movable:
+           self.make_wall()
        '''self.color = color
-       self.movable = moveable
+       self.movable = movable
        self.occupied = occupied
        # TODO: Make 7 states?
        self.state = [0, 0, 0, 0, 0, 0]'''
@@ -108,9 +111,7 @@ class Hex:
            if ident.state == -1:
                return True
        # If none of the idents contain state -1, the hex is not movable
-       return False 
-       
-       
+       return False
 
     # returns a boolean indicating if the hex is currently moving
    def is_moving(self):
@@ -236,18 +237,27 @@ class Hex:
             future.occupied = True
             future.movable = True
    
+   # Returns a boolean indicating if a hex contains an ident heading in the given directon
+   def contains_direction(self, dir):
+
+       for ident in self.idents:
+           if ident.state == dir:
+               return True
+
+       return False 
+   
    # Handles interactions between a hex and its environment with respect to the given direction
    # straight_neighbor is the neighbor in that direction (ex. when dir = 0, straight_neighbor is the upper neighbor of self)
    def motion_handler(self, future, straight_neighbor, neighbors_movable, neighbors_wall, dir):
        # if my neighbor is moving toward me and is not blocked by either of two side walls, I will gain motion
        if (not neighbors_wall[(dir+1)%6]) and (not neighbors_wall[(dir-1)%6]):
-           if straight_neighbor.state[(dir+3)%6]:
+           if straight_neighbor.contains_direction((dir+3)%6):
                 future.state[(dir+3)%6] = 1
                 future.occupied = True
         
         # handle impact of hitting occupied neighbor
-       if(self.state[dir] != 0):
-            self.hit_neighbor(future, neighbors_movable, neighbors_wall, dir)
+       if self.contains_direction(dir): 
+           self.hit_neighbor(future, neighbors_movable, neighbors_wall, dir)
 
    #update self hexagon
    def update(self):
@@ -262,16 +272,18 @@ class Hex:
         neighbors_wall = self.check_walls()
 
         # If the hex is a wall, it will remain occupied and not movable
-        if(hex_matrix[self.matrix_index][self.list_index].movable == False):
-            future.movable = False
-            future.occupied = True
+        if(hex_matrix[self.matrix_index][self.list_index].check_wall_hex()):
+            # TODO: Pass a color?
+            future.idents.append(Ident((0,0,0),-2))
 
         # If the hex is currently occupied and not moving, it will still be occupied in the next generation
-        if(hex_matrix[self.matrix_index][self.list_index].occupied == True) and (not hex_matrix[self.matrix_index][self.list_index].is_moving()):
-            future.occupied = True
+        if hex_matrix[self.matrix_index][self.list_index].check_movable_hex():
+            # TODO: pass the correct color (the color of the ident which is stationary)
+            future.idents.append(Ident(-1))
 
-        if self.movable:
-
+        # TODO: Convert if self.movable: to ident
+        if (len(self.idents) == 0) or (self.idents[0].state != -2):
+            # TODO: Adjust to account for idents
             # UPPER NEIGHBOR EFFECTS (0)
 
             # if my upper (0) neighbor is pointing down (3) then I will move down
@@ -432,7 +444,16 @@ while run:
             hexagon.update()
 
     # need to use the python deepcopy in order to copy the inner lists of a 2D array
-    hex_matrix = copy.deepcopy(hex_matrix_new)
+    # hex_matrix = copy.deepcopy(hex_matrix_new)
+
+    for i in range(len(hex_matrix)):
+        hex_matrix[i] = copy.deepcopy(hex_matrix_new[i])
+        '''for j in range(len(hex_matrix[i])):
+            hex_matrix[i][j] = copy.deepcopy(hex_matrix_new[i][j])'''
+            
+        '''hex_matrix[i][j].idents = []
+            for k in range(len(hex_matrix_new[i][j].idents)):
+                hex_matrix[i][j].idents.append(hex_matrix_new[i][j].idents[k])'''
     # hex_matrix = hex_matrix_new.copy()
 
 pygame.quit()
