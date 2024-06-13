@@ -250,7 +250,7 @@ class Hex:
        if (not neighbors_wall[(dir+1)%6]) and (not neighbors_wall[(dir-1)%6]):
            neighbor_ident = straight_neighbor.contains_direction((dir+3)%6)
            if neighbor_ident != None:
-                # If in a head-on collision with a neighbor moving in the opposite direction, maintain identity and switch direction
+                # My identity pointing in the given direction, if it exists
                 my_ident = self.contains_direction(dir)
 
                 counterclockwise_neighbor_ident = None
@@ -262,6 +262,7 @@ class Hex:
                     clockwise_neighbor_ident = my_neighbors[(dir-1)%6].contains_direction((dir+2)%6)
 
                 if my_ident != None:
+                    # If in a head-on collision with a neighbor moving in the opposite direction, maintain identity and switch direction
                     print("case 1")
                     ident_to_flip = copy.deepcopy(my_ident)
                     ident_to_flip.state = (ident_to_flip.state+3)%6
@@ -279,6 +280,7 @@ class Hex:
                     ident_to_flip = copy.deepcopy(clockwise_neighbor_ident)
                     ident_to_flip.state = (ident_to_flip.state+1)%6
                     future.take_ident(ident_to_flip)
+                # TODO: Write case for head-on collision with an empty hex in the middle
                 else:
                 # Else take on identity of neighbor
                     print("case 4")
@@ -451,12 +453,15 @@ for x in range(15):
 
 # Update the state of a few hexagons to reflect motion (test cases)
 
-# hex_matrix[5][10].make_move(2, (255, 255, 102))
+# Hexes approaching vertically, hex-on
+hex_matrix[5][11].make_move(0, (255, 255, 102))
+hex_matrix[5][6].make_move(3, (204, 0, 255))
+
 # yellow hex
-hex_matrix[5][6].make_move(2, (255, 255, 102))
+'''hex_matrix[5][6].make_move(2, (255, 255, 102))
 
 # purple hex
-hex_matrix[5][11].make_move(1, (204, 0, 255))
+hex_matrix[5][11].make_move(1, (204, 0, 255))'''
 
 
 
