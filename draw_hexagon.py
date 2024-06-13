@@ -28,6 +28,16 @@ class Hex:
        if not movable:
            self.make_wall()
 
+        # Create arrows for later use
+       #pivot is the center of the hexagon
+       pivot = pygame.Vector2(self.x + 20, self.y + 35)
+        # set of arrow points should be the vectors from the pivot to the edge points of the arrow
+       arrow = [(0, -15), (10, -5), (5, -5), (5, 15), (-5, 15), (-5, -5), (-10, -5)]
+        # get arrow by adding all the vectors to the pivot point => allows for easy rotation
+       self.arrows = []
+       for i in range(6):
+            self.arrows.append([(pygame.math.Vector2(x, y)).rotate(60.0*i) + pivot for x, y in arrow]) 
+
     # sets the given hex to act as a wall
    def make_wall(self):
        # Wipe idents currently stored
@@ -42,6 +52,7 @@ class Hex:
        # Note: Does not overwrite idents currently stored
        self.idents.append(Ident(color, dir))
 
+    # Appends the passed ident to the given hex
    def take_ident(self, ident):
        self.idents.append(ident)    
 
@@ -59,7 +70,6 @@ class Hex:
     # TODO: Simplify logic
 
     # Draw the hexagon
-    # pygame.draw.polygon(screen, self.color, self.coordinates)
     if (len(self.idents) != 0):
         # TODO: Deal with drawing hexes containing multiple idents
         pygame.draw.polygon(screen, self.idents[0].color, self.coordinates)
@@ -70,8 +80,7 @@ class Hex:
     # Draw text object displaying axial hex coordiantes
     # self.display_surface.blit(self.text, self.textRect)
 
-    # TODO: No arrows drawn when using ident?
-    '''# polygon rotation tips from: https://stackoverflow.com/questions/75116101/how-to-make-rotate-polygon-on-key-in-pygame
+    # polygon rotation tips from: https://stackoverflow.com/questions/75116101/how-to-make-rotate-polygon-on-key-in-pygame
 
     # draw an arrow on the hex if the hex is moving
     if (self.is_moving):
@@ -81,8 +90,8 @@ class Hex:
         arrow = [(0, -15), (10, -5), (5, -5), (5, 15), (-5, 15), (-5, -5), (-10, -5)]
         # get arrow by adding all the vectors to the pivot point => allows for easy rotation
         for i in range(6):
-            if self.state[i]:
-                pygame.draw.polygon(screen, (0, 0, 0), self.arrows[i])''' 
+            if self.contains_direction(i):
+                pygame.draw.polygon(screen, (0, 0, 0), self.arrows[i])
 
     # returns a boolean indicating if the given hex is occupied, movable, and stationary (not currently moving)
    def check_movable_hex(self):
@@ -95,8 +104,8 @@ class Hex:
 
     # returns a boolean indicating if the hex is currently moving
    def is_moving(self):
-        return self.state[0] or self.state[1] or self.state[2] or self.state[3] or self.state[4] or self.state[5]
-    
+        return self.contains_direction(0) or self.contains_direction(1) or self.contains_direction(2) or self.contains_direction(3) or self.contains_direction(4) or self.contains_direction(5)
+   
    # returns a list of length six representing the six neighboring hexes of self, with 1 if the hex neighboring in that direction is movable, nonmoving, and occupied
    def check_movables(self): 
         hex_movable = [0, 0, 0, 0, 0, 0]
