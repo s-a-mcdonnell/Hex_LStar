@@ -1,5 +1,6 @@
 import time
 import copy
+import os
 
 ###############################################################################################################
 ###############################################################################################################
@@ -332,6 +333,21 @@ class Hex:
 ###############################################################################################################
 ###############################################################################################################
 
+def read_line(line):
+    line_parts = line.split(" ")
+    
+    matrix_index = int(line_parts[0])
+    list_index = int(line_parts[1])
+    command = line_parts[2]
+
+    if command == "move":
+        direction = int(line_parts[3])
+        hex_matrix[matrix_index][list_index].make_move(direction)
+    elif command == "occupied":
+        hex_matrix[matrix_index][list_index].occupied = True
+    elif command == "wall" or command == "wall\n":
+        hex_matrix[matrix_index][list_index].make_wall()
+
 import pygame
 
 pygame.init()
@@ -376,31 +392,12 @@ for x in range(15):
         myHex = Hex(x, y)
         hex_list_new.append(myHex)
 
-##########################################################################################################
 
-# Update the state of a few hexagons to reflect motion (test cases)
-#hex_matrix[10][8].occupied = True
-hex_matrix[10][4].occupied = True
-hex_matrix[8][4].make_move(2)
-# hex_matrix[4][7].occupied = True
-# hex_matrix[6][10].occupied = True
-# hex_matrix[3][5].occupied = True
-#hex_matrix[4][6].occupied = True
-
-hex_matrix[9][10].make_move(5)
-
-#hex_matrix[4][6].make_move(3)
-
-hex_matrix[5][5].make_move(3)
-hex_matrix[5][6].occupied = True
-hex_matrix[5][7].make_move(3)
-hex_matrix[5][8].occupied = True
-
-#hex_matrix[6][6].make_wall()
-#hex_matrix[5][9].make_wall()
-#hex_matrix[6][7].make_wall()
-hex_matrix[7][9].make_wall()
-hex_matrix[7][8].make_wall()
+# get initial state of the board from a file
+__location__ = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__)))
+file = open(os.path.join(__location__, "initial_state.txt"), "r")
+for line in file:
+    read_line(line)
 
 ##########################################################################################################
 

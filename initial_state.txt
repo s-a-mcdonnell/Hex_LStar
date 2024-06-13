@@ -1,0 +1,7 @@
+8 4 move 2
+9 10 move 5
+5 5 move 3
+5 7 move 3
+7 9 wall
+7 8 wall
+8 6 occupied
