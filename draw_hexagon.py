@@ -26,6 +26,19 @@ class Hex:
        # TODO: Make 7 states?
        self.state = [0, 0, 0, 0, 0, 0]
 
+       # Create arrows for later use
+       
+       #pivot is the center of the hexagon
+       pivot = pygame.Vector2(self.x + 20, self.y + 35)
+        # set of arrow points should be the vectors from the pivot to the edge points of the arrow
+       arrow = [(0, -15), (10, -5), (5, -5), (5, 15), (-5, 15), (-5, -5), (-10, -5)]
+        # get arrow by adding all the vectors to the pivot point => allows for easy rotation
+       self.arrows = []
+
+       for i in range(6):
+            self.arrows.append([(pygame.math.Vector2(x, y)).rotate(60.0*i) + pivot for x, y in arrow])
+
+
     # sets the given hex to act as a wall
    def make_wall(self):
        self.occupied = True
@@ -66,8 +79,11 @@ class Hex:
         # set of arrow points should be the vectors from the pivot to the edge points of the arrow
         arrow = [(0, -15), (10, -5), (5, -5), (5, 15), (-5, 15), (-5, -5), (-10, -5)]
         # get arrow by adding all the vectors to the pivot point => allows for easy rotation
+        for i in range(6):
+            if self.state[i]:
+                pygame.draw.polygon(screen, (0, 0, 0), self.arrows[i]) 
 
-        if(self.state[0] != 0):
+        '''if(self.state[0] != 0):
             arrow_new = [(pygame.math.Vector2(x, y)) + pivot for x, y in arrow]
             pygame.draw.polygon(screen, (0, 0, 0), arrow_new)
 
@@ -89,7 +105,7 @@ class Hex:
 
         if(self.state[5] != 0):
             arrow_new = [(pygame.math.Vector2(x, y)).rotate(300.0) + pivot for x, y in arrow]
-            pygame.draw.polygon(screen, (0, 0, 0), arrow_new)
+            pygame.draw.polygon(screen, (0, 0, 0), arrow_new)'''
 
     # returns a boolean indicating if the given hex is occupied, movable, and stationary (not currently moving)
    def check_movable_hex(self):
