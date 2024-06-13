@@ -69,13 +69,21 @@ class Hex:
     
     # TODO: Simplify logic
 
-    # Draw the hexagon
-    if (len(self.idents) != 0):
-        # TODO: Deal with drawing hexes containing multiple idents
-        pygame.draw.polygon(screen, self.idents[0].color, self.coordinates)
-    else:
-        # If a hex contains no idents, draw it light blue
-        pygame.draw.polygon(screen, (190, 240, 255), self.coordinates)
+    # Draw the hexagon      
+
+    # Default color (no idents): light blue
+    my_color = (190, 240, 255)
+
+    if (len(self.idents) == 1):
+        # If a hex contains only one ident, take that color
+        my_color = self.idents[0].color
+    elif (len(self.idents) > 1):
+        # If a hex contains multiple idents, draw it green
+        my_color = (0, 255, 0)
+        # TODO: Add cool animation here?
+        
+    # Draw
+    pygame.draw.polygon(screen, my_color, self.coordinates)
 
     # Draw text object displaying axial hex coordiantes
     # self.display_surface.blit(self.text, self.textRect)
