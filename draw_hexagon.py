@@ -104,7 +104,7 @@ class Hex:
     # returns a boolean indicating if the given hex is occupied, movable, and stationary (not currently moving)
    def check_movable_hex(self):
        #return (not self.is_moving) and self.movable and self.occupied
-       for ident in idents:
+       for ident in self.idents:
            if ident.state == -1:
                return True
        # If none of the idents contain state -1, the hex is not movable
