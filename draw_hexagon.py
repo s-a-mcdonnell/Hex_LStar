@@ -253,6 +253,7 @@ class Hex:
                 # My identity pointing in the given direction, if it exists
                 my_ident = self.contains_direction(dir)
 
+                # TODO: Did I mess up the names clockwise and counterclockwise?
                 counterclockwise_neighbor_ident = None
                 if my_neighbors[(dir+1)%6] != None:
                     counterclockwise_neighbor_ident = my_neighbors[(dir+1)%6].contains_direction((dir-2)%6)
@@ -260,6 +261,14 @@ class Hex:
                 clockwise_neighbor_ident = None
                 if my_neighbors[(dir-1)%6] != None:
                     clockwise_neighbor_ident = my_neighbors[(dir-1)%6].contains_direction((dir+2)%6)
+                
+                counterclockwise_step_ident = None
+                if my_neighbors[(dir+2)%6] != None:
+                    counterclockwise_step_ident = my_neighbors[(dir+2)%6].contains_direction((dir-1)%6)
+                
+                clockwise_step_ident = None
+                if my_neighbors[(dir-2)%6] != None:
+                    clockwise_step_ident = my_neighbors[(dir-2)%6].contains_direction((dir+1)%6)
 
                 if my_ident != None:
                     # If in a head-on collision with a neighbor moving in the opposite direction, maintain identity and switch direction
@@ -269,6 +278,7 @@ class Hex:
                     future.take_ident(ident_to_flip)
                 # TODO: Deal with diagonal collision (neighbor is heading towards the same hex)
                 elif counterclockwise_neighbor_ident != None:
+                    # Deal with 60-degree collision (version 1)
                     print("case 2")
                     # __elif I have two adjacent neighbors pointing at me
                     # __Take the ident from the straight_neighbor but flip its state to match that from the other neighbor (adjacent to straight_neighbor)
@@ -276,15 +286,30 @@ class Hex:
                     ident_to_flip.state = (ident_to_flip.state-1)%6
                     future.take_ident(ident_to_flip)
                 elif clockwise_neighbor_ident != None:
+                    # Deal with 60-degree collision (version 2)
                     print("case 3")
                     ident_to_flip = copy.deepcopy(clockwise_neighbor_ident)
                     ident_to_flip.state = (ident_to_flip.state+1)%6
                     future.take_ident(ident_to_flip)
                 # TODO: Write case for head-on collision with an empty hex in the middle
                 # TODO: Write case for 120 degree collisions (not just 60 degree)
+                elif counterclockwise_step_ident != None:
+                    # TODO: Test this
+                    # Deal with 120-degree collision (version 1)
+                    print("case 4")
+                    ident_to_flip = copy.deepcopy(counterclockwise_step_ident)
+                    ident_to_flip.state = (ident_to_flip.state-2)%6
+                    future.take_ident(ident_to_flip)
+                elif clockwise_step_ident != None:
+                    # TODO: Test this
+                    # Deal with 120-degree collision (version 2)
+                    print("case 5")
+                    ident_to_flip = copy.deepcopy(clockwise_step_ident)
+                    ident_to_flip.state = (ident_to_flip.state+2)%6
+                    future.take_ident(ident_to_flip)
                 else:
                 # Else take on identity of neighbor
-                    print("case 4")
+                    print("case 6")
                     future.take_ident(neighbor_ident)
         
         # handle impact of hitting occupied neighbor
@@ -454,15 +479,20 @@ for x in range(15):
 
 # Update the state of a few hexagons to reflect motion (test cases)
 
-# Hexes approaching vertically, hex-on
+'''# Hexes approaching vertically, hex-on
 hex_matrix[5][11].make_move(0, (255, 255, 102))
-hex_matrix[5][6].make_move(3, (204, 0, 255))
+hex_matrix[5][6].make_move(3, (204, 0, 255))'''
 
+'''# Hexes approaching diagonally, 60 degrees
 # yellow hex
-'''hex_matrix[5][6].make_move(2, (255, 255, 102))
-
+hex_matrix[5][6].make_move(2, (255, 255, 102))
 # purple hex
 hex_matrix[5][11].make_move(1, (204, 0, 255))'''
+
+# Hexes approaching diagonally, 120 degrees
+hex_matrix[2][8].make_move(3, (204, 0, 255))
+hex_matrix[5][11].make_move(5, (255, 255, 102))
+
 
 
 
