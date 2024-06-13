@@ -494,32 +494,31 @@ for x in range(15):
         hex_list_new.append(myHex)
 
 # Update the state of a few hexagons to reflect motion (test cases)
-
+YELLOW = (255, 255, 102)
+PURPLE = (204, 0, 255)
 '''# Hexes approaching vertically, hex-on
-hex_matrix[5][11].make_move(0, (255, 255, 102))
-hex_matrix[5][6].make_move(3, (204, 0, 255))'''
+hex_matrix[5][11].make_move(0, YELLOW)
+hex_matrix[5][6].make_move(3, PURPLE)'''
 
 '''# Hexes approaching vertically, hex-on, with gap between
-hex_matrix[5][10].make_move(0, (255, 255, 102))
-hex_matrix[5][6].make_move(3, (204, 0, 255))'''
+hex_matrix[5][10].make_move(0, YELLOW)
+hex_matrix[5][6].make_move(3, PURPLE)'''
 
 '''# Hexes approaching, hex-on, (direction 2-5)
-hex_matrix[10][7].make_move(5, (255, 255, 102))
-hex_matrix[3][7].make_move(2, (204, 0, 255))'''
+hex_matrix[10][7].make_move(5, YELLOW)
+hex_matrix[3][7].make_move(2, PURPLE)'''
 
-# Hexes approaching, hex-on, with gap in between(direction 2-5)
-hex_matrix[11][7].make_move(5, (255, 255, 102))
-hex_matrix[3][7].make_move(2, (204, 0, 255))
+'''# Hexes approaching, hex-on, with gap in between(direction 2-5)
+hex_matrix[11][7].make_move(5, YELLOW)
+hex_matrix[3][7].make_move(2, PURPLE)'''
 
 '''# Hexes approaching diagonally, 60 degrees
-# yellow hex
-hex_matrix[5][6].make_move(2, (255, 255, 102))
-# purple hex
-hex_matrix[5][11].make_move(1, (204, 0, 255))'''
+hex_matrix[5][6].make_move(2, YELLOW)
+hex_matrix[5][11].make_move(1, PURPLE)'''
 
 '''# Hexes approaching diagonally, 120 degrees
-hex_matrix[2][8].make_move(3, (204, 0, 255))
-hex_matrix[5][11].make_move(5, (255, 255, 102))'''
+hex_matrix[2][8].make_move(3, PURPLE)
+hex_matrix[5][11].make_move(5, YELLOW)'''
 
 
 
