@@ -310,14 +310,15 @@ def read_line(line):
     matrix_index = int(line_parts[0])
     list_index = int(line_parts[1])
     command = line_parts[2]
+    print(command)
 
     if command == "move":
         direction = int(line_parts[3])
         hex_matrix[matrix_index][list_index].make_move(direction)
-    elif command == "wall":
-        hex_matrix[matrix_index][list_index].make_wall()
     elif command == "occupied":
         hex_matrix[matrix_index][list_index].occupied = True
+    elif command == "wall" or command == "wall\n":
+        hex_matrix[matrix_index][list_index].make_wall()
 
 import pygame
 
