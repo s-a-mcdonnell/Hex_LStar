@@ -468,6 +468,9 @@ clock = pygame.time.Clock()
 run = True
 dt = 0
 
+# set up state
+state = "pause"
+
 # Create hexagons
 hex_matrix = []
 
@@ -554,7 +557,7 @@ while run:
     pygame.display.flip()
 
     # sets animation to n frames per second where n is inside the parentheses (feel free to change)
-    dt = clock.tick(1) / 1000
+    dt = clock.tick(5) / 1000
 
     for hex_list in hex_matrix:
         for hexagon in hex_list:
@@ -562,9 +565,27 @@ while run:
 
     # need to use the python deepcopy in order to copy the inner lists of a 2D array
     # TODO: Switch to alternating between two matrices
-    hex_matrix = copy.deepcopy(hex_matrix_new)
+
+    # HOW TO GET CODE TO START:
+        # press g key after running file to start the animation
+        # press p to pause the animation
+        # press s while paused to step through the animation
+    if event.type == pygame.TEXTINPUT:
+        # takes the key input
+        keys = pygame.key.get_pressed()
+
+        if keys[pygame.K_g]:
+            state = "go"
+        elif keys[pygame.K_p]:
+            state = "pause"
+
+        if state == "pause" and keys[pygame.K_s]:
+            for x in range(0, 1):
+                hex_matrix = copy.deepcopy(hex_matrix_new)
+
+    if state == "go":
+        hex_matrix = copy.deepcopy(hex_matrix_new)
 
 pygame.quit()
 
-## making sure I remember how to commit
 
