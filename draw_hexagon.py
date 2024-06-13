@@ -245,7 +245,17 @@ class Hex:
        if (not neighbors_wall[(dir+1)%6]) and (not neighbors_wall[(dir-1)%6]):
            neighbor_ident = straight_neighbor.contains_direction((dir+3)%6)
            if neighbor_ident != None:
-                future.take_ident(neighbor_ident)
+                # If in a head-on collision with a neighbor moving in the opposite direction, maintain identity and switch direction
+                my_ident = self.contains_direction(dir)
+                if my_ident != None:
+                    print("case 1")
+                    ident_to_flip = copy.deepcopy(my_ident)
+                    ident_to_flip.state = (ident_to_flip.state+3)%6
+                    future.take_ident(ident_to_flip)
+                else:
+                # Else take on identity of neighbor
+                    print("case 2")
+                    future.take_ident(neighbor_ident)
         
         # handle impact of hitting occupied neighbor
        if self.contains_direction(dir): 
