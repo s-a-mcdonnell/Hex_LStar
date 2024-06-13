@@ -456,7 +456,6 @@ while run:
             state = "pause"
 
         if state == "pause" and keys[pygame.K_s]:
-            print("hit")
             for x in range(0, 1):
                 hex_matrix = copy.deepcopy(hex_matrix_new)
 
