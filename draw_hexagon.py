@@ -1,12 +1,18 @@
 import time
 import copy
 
+###############################################################################################################
+###############################################################################################################
+
 class Hex:
+
+    # Create Coordinate
    @staticmethod
    def create_coor(x, y):
         # Making hex smaller so that borders will be visible
         return [(x+3, y+3), (x+37, y+3), (x+57, y+35), (x+37, y+67), (x+3, y+67), (x-17, y+35)]
 
+    ##########################################################################################################
 
     # Constructor
     # color is an optional parameter with a default value of red
@@ -38,18 +44,24 @@ class Hex:
        for i in range(6):
             self.arrows.append([(pygame.math.Vector2(x, y)).rotate(60.0*i) + pivot for x, y in arrow])
 
+    ##########################################################################################################
 
     # sets the given hex to act as a wall
    def make_wall(self):
        self.occupied = True
        self.movable = False
 
+    ##########################################################################################################
+
     # sets the given hex to move in a given direction
    def make_move(self, dir):
        self.occupied = True
        self.movable = True
-       self.state[dir] = 1 
+       self.state[dir] = 1
 
+    ##########################################################################################################
+
+    # graphics
    def draw(self, screen):
     if self.occupied == False:
         # If not occupied: light blue
@@ -107,15 +119,20 @@ class Hex:
             arrow_new = [(pygame.math.Vector2(x, y)).rotate(300.0) + pivot for x, y in arrow]
             pygame.draw.polygon(screen, (0, 0, 0), arrow_new)'''
 
+    ##########################################################################################################
+
     # returns a boolean indicating if the given hex is occupied, movable, and stationary (not currently moving)
    def check_movable_hex(self):
        return (not self.is_moving) and self.movable and self.occupied
-       
+
+    ##########################################################################################################
 
     # returns a boolean indicating if the hex is currently moving
    def is_moving(self):
         return self.state[0] or self.state[1] or self.state[2] or self.state[3] or self.state[4] or self.state[5]
-    
+
+    ##########################################################################################################
+
    # returns a list of length six representing the six neighboring hexes of self, with 1 if the hex neighboring in that direction is movable, nonmoving, and occupied
    def check_movables(self): 
         hex_movable = [0, 0, 0, 0, 0, 0]
@@ -155,10 +172,14 @@ class Hex:
             hex_movable[5] = hexToCheck.check_movable_hex()
 
         return hex_movable
-   
+
+    ##########################################################################################################
+
     # returns a boolean indicating if the given hex is a wall (occupied and not movable)
    def check_wall_hex(self):
        return self.occupied and (not self.movable)
+
+    ##########################################################################################################
 
    # returns a list of length 6 to determine which of the neighbors around self hex are walls
    def check_walls(self):
@@ -204,6 +225,8 @@ class Hex:
 
         return hex_walls
 
+    ##########################################################################################################
+
     # handles the impacts of hitting an occupied neighbor (either a stationary object or a wall)
    def hit_neighbor(self, future, neighbors_movable, neighbors_wall, dir):
         # cases for individual side glancing walls
@@ -229,7 +252,9 @@ class Hex:
         elif neighbors_movable[dir] == 1:
             future.occupied = True
             future.movable = True
-   
+
+    ##########################################################################################################
+
    # Handles interactions between a hex and its environment with respect to the given direction
    # straight_neighbor is the neighbor in that direction (ex. when dir = 0, straight_neighbor is the upper neighbor of self)
    def motion_handler(self, future, straight_neighbor, neighbors_movable, neighbors_wall, dir):
@@ -242,6 +267,8 @@ class Hex:
         # handle impact of hitting occupied neighbor
        if(self.state[dir] != 0):
             self.hit_neighbor(future, neighbors_movable, neighbors_wall, dir)
+
+    ##########################################################################################################
 
    #update self hexagon
    def update(self):
@@ -302,6 +329,8 @@ class Hex:
                 # Call motion_handler, passing southwests neighbor
                 self.motion_handler(future, hex_matrix[self.matrix_index - 1][self.list_index + 1], neighbors_movable, neighbors_wall, 4)
 
+###############################################################################################################
+###############################################################################################################
 
 import pygame
 
@@ -318,6 +347,12 @@ pygame.display.set_caption("Draw Hexagon")
 clock = pygame.time.Clock()
 run = True
 dt = 0
+
+# set up state
+state = "pause"
+# states are "pause" "go" "step"
+
+##########################################################################################################
 
 # Create hexagons
 hex_matrix = []
@@ -340,6 +375,8 @@ for x in range(15):
     for y in range(16):
         myHex = Hex(x, y)
         hex_list_new.append(myHex)
+
+##########################################################################################################
 
 # Update the state of a few hexagons to reflect motion (test cases)
 #hex_matrix[10][8].occupied = True
@@ -368,6 +405,8 @@ hex_matrix[6][5].make_move(4)
 hex_matrix[7][9].make_wall()
 hex_matrix[7][8].make_wall()
 
+##########################################################################################################
+
 # Create walls around the edges
 # Left edge
 for hex in hex_matrix[0]:
@@ -384,39 +423,53 @@ for i in range(6):
     hex_matrix[1+2*i][15-i].make_wall()
     hex_matrix[2+2*i][14-i].make_wall()
 
+##########################################################################################################
+
 run = True
 while run:
 
     # Reset screen
     screen.fill((0, 0, 0))
 
-    # Draw hexagons
-    r = 10
-    g = 10
-    b = 10
+    # Event handler (closing window)
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            run = False
 
     # Draw all hexagons
     for hex_list in hex_matrix:
         for hexagon in hex_list:
             hexagon.draw(screen)
 
-    # Event handler (closing window)
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            run = False
 
     # flips to the next frame
     pygame.display.flip()
 
     # sets animation to n frames per second where n is inside the parentheses (feel free to change)
-    dt = clock.tick(1) / 1000
+    dt = clock.tick(10) / 1000
+
 
     for hex_list in hex_matrix:
         for hexagon in hex_list:
             hexagon.update()
 
+
+    if event.type == pygame.TEXTINPUT:
+        keys = pygame.key.get_pressed()
+        if keys[pygame.K_g]:
+            state = "go"
+        elif keys[pygame.K_p]:
+            state = "pause"
+
+        if state == "pause" and keys[pygame.K_s]:
+            print("hit")
+            for x in range(0, 1):
+                hex_matrix = copy.deepcopy(hex_matrix_new)
+
     # need to use the python deepcopy in order to copy the inner lists of a 2D array
-    hex_matrix = copy.deepcopy(hex_matrix_new)
+
+    if state == "go":
+        hex_matrix = copy.deepcopy(hex_matrix_new)
     # hex_matrix = hex_matrix_new.copy()
 
 pygame.quit()
