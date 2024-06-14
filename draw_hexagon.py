@@ -17,8 +17,8 @@ class Hex:
 
     # Constructor
     # color is an optional parameter with a default value of red
-    # moveable is an optional parameter with a default value of true
-   def __init__(self, matrix_index, list_index, color=(255, 0, 0), moveable=True, occupied=False):
+    # movable is an optional parameter with a default value of true
+   def __init__(self, matrix_index, list_index, color=(255, 0, 0), movable=True, occupied=False):
        self.matrix_index = matrix_index
        self.list_index = list_index
 
@@ -27,58 +27,80 @@ class Hex:
 
        self.coordinates = Hex.create_coor(self.x, self.y)
        
-       self.color = color
-       self.movable = moveable
-       self.occupied = occupied
-       # TODO: Make 7 states?
-       self.state = [0, 0, 0, 0, 0, 0]
+       # Store identities of hexes
+       self.idents = []
+       if occupied:
+           self.idents.append(Ident(color))
 
-       # Create arrows for later use
-       
+       if not movable:
+           self.make_wall()
+
+        # Create arrows for later use
        #pivot is the center of the hexagon
        pivot = pygame.Vector2(self.x + 20, self.y + 35)
         # set of arrow points should be the vectors from the pivot to the edge points of the arrow
        arrow = [(0, -15), (10, -5), (5, -5), (5, 15), (-5, 15), (-5, -5), (-10, -5)]
         # get arrow by adding all the vectors to the pivot point => allows for easy rotation
        self.arrows = []
-
        for i in range(6):
-            self.arrows.append([(pygame.math.Vector2(x, y)).rotate(60.0*i) + pivot for x, y in arrow])
+            self.arrows.append([(pygame.math.Vector2(x, y)).rotate(60.0*i) + pivot for x, y in arrow]) 
 
     ##########################################################################################################
 
     # sets the given hex to act as a wall
    def make_wall(self):
-       self.occupied = True
-       self.movable = False
+       # Wipe idents currently stored
+       self.idents = None
+       self.idents = []
+       # Walls are black
+       # -2 state is a wall
+       self.idents.append(Ident((0,0,0), -2))
+
+    ##########################################################################################################
 
     ##########################################################################################################
 
     # sets the given hex to move in a given direction
-   def make_move(self, dir):
-       self.occupied = True
-       self.movable = True
-       self.state[dir] = 1
+   def make_move(self, dir, color=(255,0,0)):
+       # Note: Does not overwrite idents currently stored
+       self.idents.append(Ident(color, dir))
+
+    # Appends the passed ident to the given hex
+   def take_ident(self, ident):
+       self.idents.append(ident)    
+
+   def make_occupied(self, color=(0, 255, 0)):
+       # TODO: Clear out current idents? (does not currently overwrite pre-existing idents)
+       self.idents.append(Ident(color, -1))
+
+   # returns a boolean indicating if a hex is occupied 
+   def is_occupied(self):
+       return len(self.idents != 0)   
 
     ##########################################################################################################
 
     # graphics
    def draw(self, screen):
-    if self.occupied == False:
-        # If not occupied: light blue
-        self.color = (190, 240, 255)
-    elif self.movable == False:
-        # If occupied and not movable (wall): dark grey
-        self.color = (20, 20, 20)
-    elif self.state[0] | self.state[1] | self.state[2] | self.state[3] | self.state[4] | self.state[5]:
-       # If moving: blue
-       self.color = (0, 0, 255)
-    else:
-        # If occupied and not moving (but movable): teal
-        self.color = (50, 175, 175)
     
+    # Default color (no idents): light blue
+    my_color = (190, 240, 255)
+
+    if (len(self.idents) == 1):
+        # If a hex contains only one ident, take that color
+        my_color = self.idents[0].color
+    elif (len(self.idents) > 1):
+        # If a hex contains multiple idents, draw it green
+        my_color = (0, 255, 0)
+        # TODO: Add cool animation here?
+        
     # Draw the hexagon
-    pygame.draw.polygon(screen, self.color, self.coordinates)
+    pygame.draw.polygon(screen, my_color, self.coordinates)
+
+    # Draw an extra hexagon to visually show that a hexagon is stationary even with the different colors
+    if self.contains_direction(-1) != None:
+        new_coords = [(self.x+9, self.y+11), (self.x+31, self.y+11), (self.x+47, self.y+35), (self.x+31, self.y+59), (self.x+9, self.y+59), (self.x-7, self.y+35)]
+        new_color = [max(0, c - 120) for c in my_color]
+        pygame.draw.polygon(screen, new_color, new_coords)
 
     # Draw text object displaying axial hex coordiantes
     # self.display_surface.blit(self.text, self.textRect)
@@ -93,47 +115,22 @@ class Hex:
         arrow = [(0, -15), (10, -5), (5, -5), (5, 15), (-5, 15), (-5, -5), (-10, -5)]
         # get arrow by adding all the vectors to the pivot point => allows for easy rotation
         for i in range(6):
-            if self.state[i]:
-                pygame.draw.polygon(screen, (0, 0, 0), self.arrows[i]) 
-
-        '''if(self.state[0] != 0):
-            arrow_new = [(pygame.math.Vector2(x, y)) + pivot for x, y in arrow]
-            pygame.draw.polygon(screen, (0, 0, 0), arrow_new)
-
-        if(self.state[1] != 0):
-            arrow_new = [(pygame.math.Vector2(x, y)).rotate(60.0) + pivot for x, y in arrow]
-            pygame.draw.polygon(screen, (0, 0, 0), arrow_new)
-
-        if(self.state[2] != 0):
-            arrow_new = [(pygame.math.Vector2(x, y)).rotate(120.0) + pivot for x, y in arrow]
-            pygame.draw.polygon(screen, (0, 0, 0), arrow_new)
-
-        if(self.state[3] != 0):
-            arrow_new = [(pygame.math.Vector2(x, y)).rotate(180.0) + pivot for x, y in arrow]
-            pygame.draw.polygon(screen, (0, 0, 0), arrow_new)
-
-        if(self.state[4] != 0):
-            arrow_new = [(pygame.math.Vector2(x, y)).rotate(240.0) + pivot for x, y in arrow]
-            pygame.draw.polygon(screen, (0, 0, 0), arrow_new)
-
-        if(self.state[5] != 0):
-            arrow_new = [(pygame.math.Vector2(x, y)).rotate(300.0) + pivot for x, y in arrow]
-            pygame.draw.polygon(screen, (0, 0, 0), arrow_new)'''
-
-    ##########################################################################################################
+            if self.contains_direction(i):
+                pygame.draw.polygon(screen, (0, 0, 0), self.arrows[i])
 
     # returns a boolean indicating if the given hex is occupied, movable, and stationary (not currently moving)
    def check_movable_hex(self):
-
-       return not(self.is_moving()) and self.movable and self.occupied
-       
+       #return (not self.is_moving) and self.movable and self.occupied
+       for ident in self.idents:
+           if ident.state == -1:
+               return True
+       # If none of the idents contain state -1, the hex is not movable
+       return False
 
     # returns a boolean indicating if the hex is currently moving
    def is_moving(self):
-        return not(str(self.state) == "[0, 0, 0, 0, 0, 0]")
-    ##########################################################################################################
-
-
+        return self.contains_direction(0) or self.contains_direction(1) or self.contains_direction(2) or self.contains_direction(3) or self.contains_direction(4) or self.contains_direction(5)
+   
    # returns a list of length six representing the six neighboring hexes of self, with 1 if the hex neighboring in that direction is movable, nonmoving, and occupied
    def check_movables(self): 
         hex_movable = [0, 0, 0, 0, 0, 0]
@@ -178,7 +175,25 @@ class Hex:
 
     # returns a boolean indicating if the given hex is a wall (occupied and not movable)
    def check_wall_hex(self):
-       return self.occupied and (not self.movable)
+       # There should never be a wall hex containing multiple idents
+       # If the one ident isn't state -2, it's not a wall
+       if (len(self.idents) != 1) or (self.idents[0].state != -2):
+           return False
+       else:
+           return True
+
+# Checks if a hex contains an ident heading in the given directon
+   # If it does, returns that ident
+   # Else returns None
+   def contains_direction(self, dir):
+
+       for ident in self.idents:
+           if ident.state == dir:
+               return ident
+
+       return None 
+
+    ##########################################################################################################
 
     ##########################################################################################################
 
@@ -229,45 +244,180 @@ class Hex:
     ##########################################################################################################
 
     # handles the impacts of hitting an occupied neighbor (either a stationary object or a wall)
-   def hit_neighbor(self, future, neighbors_movable, neighbors_wall, dir):
+    # TODO: How to pass around idents?
+   def hit_neighbor(self, future, my_neighbors, neighbors_movable, neighbors_wall, dir):
         # cases for individual side glancing walls
         if (neighbors_wall[(dir-1)%6] == 1) and not (neighbors_wall[(dir+1)%6] == 1):
-            future.occupied = True
-            future.movable = True
-            #future.state[dir] = 0
-            future.state[(dir+1)%6] = 1
+            ident_to_rotate = copy.deepcopy(self.contains_direction(dir))
+            ident_to_rotate.state = (dir+1)%6
+            future.take_ident(ident_to_rotate)
         elif (neighbors_wall[(dir+1)%6] == 1) and not (neighbors_wall[(dir-1)%6] == 1):
-            future.occupied = True
-            future.movable = True
-            #future.state[dir] = 0
-            future.state[(dir-1)%6] = 1
+            ident_to_rotate = copy.deepcopy(self.contains_direction(dir))
+            ident_to_rotate.state = (dir-1)%6
+            future.take_ident(ident_to_rotate)
+
         # if my neighbor is a wall (or if I have two neighors to the side in front), bounce off
         elif (neighbors_wall[dir] == 1) or ((neighbors_wall[(dir-1)%6] == 1) and (neighbors_wall[(dir+1)%6] == 1)):
-            future.occupied = True
-            future.movable = True
-            #future.state[dir] = 0
-            future.state[(dir+3)%6] = 1
+            ident_to_rotate = copy.deepcopy(self.contains_direction(dir))
+            ident_to_rotate.state = (dir+3)%6
+            future.take_ident(ident_to_rotate)
+            
+        
         # if I am moving toward my neighbor, and my neighbor is occupied but not moving, then I become occupied but not moving
         # TODO: Discuss order in which rules are applied
         # TODO: Also discuss if collisions off of a side wall should take priority over head-on collisions
         elif neighbors_movable[dir] == 1:
+            # If I am hitting a stationary neighbor, I become stationary but maintain my identity
+            ident_to_stop = copy.deepcopy(self.contains_direction(dir))
+            ident_to_stop.state = -1
+            future.take_ident(ident_to_stop)
+   
             future.occupied = True
             future.movable = True
 
     ##########################################################################################################
 
    # Handles interactions between a hex and its environment with respect to the given direction
-   # straight_neighbor is the neighbor in that direction (ex. when dir = 0, straight_neighbor is the upper neighbor of self)
-   def motion_handler(self, future, straight_neighbor, neighbors_movable, neighbors_wall, dir):
-       # if my neighbor is moving toward me and is not blocked by either of two side walls, I will gain motion
+   def motion_handler(self, future, my_neighbors, neighbors_movable, neighbors_wall, dir):
+        # straight_neighbor is the neighbor in that direction (ex. when dir = 0, straight_neighbor is the upper neighbor of self)
+       straight_neighbor = my_neighbors[dir]
+
+        # if my neighbor is moving toward me and is not blocked by either of two side walls, I will gain motion
+       # TODO: Need to distinguish between bouncing and passing through
        if (not neighbors_wall[(dir+1)%6]) and (not neighbors_wall[(dir-1)%6]):
-           if straight_neighbor.state[(dir+3)%6]:
-                future.state[(dir+3)%6] = 1
-                future.occupied = True
+           neighbor_ident = straight_neighbor.contains_direction((dir+3)%6)
+           if neighbor_ident != None:
+                # My identity pointing in the given direction, if it exists
+                my_ident = self.contains_direction(dir)
+
+                # TODO: Did I mess up the names clockwise and counterclockwise?
+                counterclockwise_neighbor_ident = None
+                if my_neighbors[(dir+1)%6] != None:
+                    counterclockwise_neighbor_ident = my_neighbors[(dir+1)%6].contains_direction((dir-2)%6)
+
+                clockwise_neighbor_ident = None
+                if my_neighbors[(dir-1)%6] != None:
+                    clockwise_neighbor_ident = my_neighbors[(dir-1)%6].contains_direction((dir+2)%6)
+                
+                counterclockwise_step_ident = None
+                if my_neighbors[(dir+2)%6] != None:
+                    counterclockwise_step_ident = my_neighbors[(dir+2)%6].contains_direction((dir-1)%6)
+                
+                clockwise_step_ident = None
+                if my_neighbors[(dir-2)%6] != None:
+                    clockwise_step_ident = my_neighbors[(dir-2)%6].contains_direction((dir+1)%6)
+                
+                dir_neighbor_ident = None
+                if my_neighbors[dir] != None:
+                    dir_neighbor_ident = my_neighbors[dir].contains_direction((dir+3)%6)
+
+                opp_neighbor_ident = None
+                if my_neighbors[(dir+3)%6] != None:
+                    opp_neighbor_ident = my_neighbors[(dir+3)%6].contains_direction(dir)
+
+                # TODO: What if I contain multiple identities? (Do elif statements really make sense here?)
+
+                if my_ident != None:
+                    # If in a head-on collision with a neighbor moving in the opposite direction, maintain identity and switch direction
+                    print("case 1")
+                    ident_to_flip = copy.deepcopy(my_ident)
+                    ident_to_flip.state = (ident_to_flip.state+3)%6
+                    future.take_ident(ident_to_flip)
+                # TODO: Deal with diagonal collision (neighbor is heading towards the same hex)
+                elif counterclockwise_neighbor_ident != None:
+                    # Deal with 60-degree collision (version 1)
+                    print("case 2")
+                    # __elif I have two adjacent neighbors pointing at me
+                    # __Take the ident from the straight_neighbor but flip its state to match that from the other neighbor (adjacent to straight_neighbor)
+                    ident_to_flip = copy.deepcopy(counterclockwise_neighbor_ident)
+                    ident_to_flip.state = (ident_to_flip.state-1)%6
+                    future.take_ident(ident_to_flip)
+                elif clockwise_neighbor_ident != None:
+                    # Deal with 60-degree collision (version 2)
+                    print("case 3")
+                    ident_to_flip = copy.deepcopy(clockwise_neighbor_ident)
+                    ident_to_flip.state = (ident_to_flip.state+1)%6
+                    future.take_ident(ident_to_flip)
+                elif counterclockwise_step_ident != None:
+                    # TODO: Test this
+                    # Deal with 120-degree collision (version 1)
+                    print("case 4")
+                    ident_to_flip = copy.deepcopy(counterclockwise_step_ident)
+                    ident_to_flip.state = (ident_to_flip.state-2)%6
+                    future.take_ident(ident_to_flip)
+                elif clockwise_step_ident != None:
+                    # TODO: Test this
+                    # Deal with 120-degree collision (version 2)
+                    print("case 5")
+                    ident_to_flip = copy.deepcopy(clockwise_step_ident)
+                    ident_to_flip.state = (ident_to_flip.state+2)%6
+                    future.take_ident(ident_to_flip)
+                elif dir_neighbor_ident and opp_neighbor_ident:
+                    # Handle head-on collision with an empty hex in the middle
+                    print("case 6")
+                    ident_to_flip = copy.deepcopy(dir_neighbor_ident)
+                    ident_to_flip.state = (ident_to_flip.state + 3)%6
+                    future.take_ident(ident_to_flip)
+                elif self.check_movable_hex():
+                    print("case 7")
+                    # __
+                    ident_to_edit = copy.deepcopy(self.contains_direction(-1))
+                    ident_to_edit.state = (dir+3)%6
+                    # TODO: Is deepcopy necessary?
+                    future.take_ident(ident_to_edit)
+                else:
+                    # Else take on identity of neighbor
+                    print("case 8")
+                    future.take_ident(neighbor_ident)
         
         # handle impact of hitting occupied neighbor
-       if(self.state[dir] != 0):
-            self.hit_neighbor(future, neighbors_movable, neighbors_wall, dir)
+       if self.contains_direction(dir): 
+           self.hit_neighbor(future, my_neighbors, neighbors_movable, neighbors_wall, dir)
+
+    # returns an array of neighbors (the entry in the array is None when the neighbor does not exist)
+   def get_neighbors(self):
+        my_neighbors = [None, None, None, None, None, None]
+
+        try:
+            my_neighbors[0] = hex_matrix[self.matrix_index][self.list_index - 1]
+        except:
+            #print("Neighbor 0 does not exist")
+            pass
+
+        try:
+            my_neighbors[1] = hex_matrix[self.matrix_index + 1][self.list_index - 1]    
+        except:
+            #print("Neighbor 1 does not exist")
+            pass
+
+        try:
+            my_neighbors[2] = hex_matrix[self.matrix_index + 1][self.list_index]
+        except:
+            #print("Neighbor 2 does not exist")
+            pass
+
+        try:
+            my_neighbors[3] = hex_matrix[self.matrix_index][self.list_index + 1]
+        except:
+            #print("Neighbor 3 does not exist")
+            pass
+
+        try:
+            my_neighbors[4] = hex_matrix[self.matrix_index - 1][self.list_index + 1]
+        except:
+            #print("Neighbor 4 does not exist")
+            pass
+        
+        try:
+            my_neighbors[5] = hex_matrix[self.matrix_index - 1][self.list_index]
+        except:
+            #print("Neighbor 5 does not exist")
+            pass
+        
+        return my_neighbors
+
+
+    ##########################################################################################################
 
     ##########################################################################################################
 
@@ -276,59 +426,49 @@ class Hex:
         # determine the state of the current hex based on the states of the hexes around it
         future = hex_matrix_new[self.matrix_index][self.list_index]
 
-        # TODO: Make state 7 elements long?
+        '''# TODO: Make state 7 elements long?
         future.state = [0, 0, 0, 0, 0, 0]
-        future.occupied = False
+        future.occupied = False'''
+        future.idents = []
 
         neighbors_movable = self.check_movables()
         neighbors_wall = self.check_walls()
 
         # If the hex is a wall, it will remain occupied and not movable
-        if(hex_matrix[self.matrix_index][self.list_index].movable == False):
-            future.movable = False
-            future.occupied = True
+        if(self.check_wall_hex()):
+            # TODO: Pass a color?
+            future.idents.append(Ident((0,0,0),-2))
+
+
+        my_neighbors = self.get_neighbors()
+        
+        # TODO: Convert if self.movable: to ident
+        if (len(self.idents) == 0) or (self.idents[0].state != -2):
+            # TODO: Adjust to account for idents
+
+            for i in range(6):
+                if my_neighbors[i] != None:
+                    self.motion_handler(future, my_neighbors, neighbors_movable, neighbors_wall, i)
 
         # If the hex is currently occupied and not moving, it will still be occupied in the next generation
-        if(hex_matrix[self.matrix_index][self.list_index].occupied == True) and (not hex_matrix[self.matrix_index][self.list_index].is_moving()):
-            future.occupied = True
-
-        if self.movable:
-
-            # UPPER NEIGHBOR EFFECTS (0)
-
-            # if my upper (0) neighbor is pointing down (3) then I will move down
-            if self.list_index - 1 >= 0:
-                # Call motion_handler, passing upper neighbor
-                self.motion_handler(future, hex_matrix[self.matrix_index][self.list_index - 1], neighbors_movable, neighbors_wall, 0)
+        # If that hasn't already been seen to by the motion handler, that must mean that the hex is occupied and stationary in the next generation
+        # TODO: It is not necessarily true, however, that it will still be occupied and STATIONARY in the next generation, which is what I'm going here
+        # TODO: Explain logic better --> Could this be the cause of the stationary hex being obliterated when hit by two moving hexes?
+        is_stationary = self.contains_direction(-1)
+        if is_stationary and (len(future.idents) == 0):
+            future.idents.append(copy.deepcopy(is_stationary))
 
 
-            # DOWN NEIGHBOR EFFECTS (3)
-            if self.list_index + 1 < len(hex_list):
-                # Call motion_handler, passing lower neighbor
-                self.motion_handler(future, hex_matrix[self.matrix_index][self.list_index + 1], neighbors_movable, neighbors_wall, 3)
+
+class Ident:
+    # Constructor
+    # Default color white
+    # Default state -1 (movable but not moving)
+    def __init__(self, color=(255, 255, 255), state=-1):
+        self.color = color
+        self.state = state
+        self.property = None
     
-
-            # NORTHEAST NEIGHBOR (1)
-            if (self.matrix_index + 1 < len(hex_matrix)) and (self.list_index - 1 >= 0):
-                # Call motion_handler, passing northeast neighbor
-                self.motion_handler(future, hex_matrix[self.matrix_index + 1][self.list_index - 1], neighbors_movable, neighbors_wall, 1)
-
-            # NORTHWEST NEIGHBOR (5)
-            if self.matrix_index - 1 >= 0:
-                # Call motion_handler, passing northwest neighbor
-                self.motion_handler(future, hex_matrix[self.matrix_index - 1][self.list_index], neighbors_movable, neighbors_wall, 5)
-
-
-            # SOUTHEAST NEIGHBOR (2)
-            if self.matrix_index + 1 < len(hex_matrix):
-                # Call motion_handler, passing southeast neighbor
-                self.motion_handler(future, hex_matrix[self.matrix_index + 1][self.list_index], neighbors_movable, neighbors_wall, 2)
-
-
-            # SOUTHWEST NEIGHBOR (4)
-            if (self.matrix_index - 1 >= 0) and (self.list_index + 1 < len(hex_list)):
-                # Call motion_handler, passing southwests neighbor
-                self.motion_handler(future, hex_matrix[self.matrix_index - 1][self.list_index + 1], neighbors_movable, neighbors_wall, 4)
 
 ###############################################################################################################
 ###############################################################################################################
@@ -440,8 +580,7 @@ while run:
     pygame.display.flip()
 
     # sets animation to n frames per second where n is inside the parentheses (feel free to change)
-    dt = clock.tick(10) / 1000
-
+    dt = clock.tick(5) / 1000
 
     for hex_list in hex_matrix:
         for hexagon in hex_list:
@@ -460,12 +599,28 @@ while run:
                 hex_matrix = copy.deepcopy(hex_matrix_new)
 
     # need to use the python deepcopy in order to copy the inner lists of a 2D array
+    # TODO: Switch to alternating between two matrices
+
+    # HOW TO GET CODE TO START:
+        # press g key after running file to start the animation
+        # press p to pause the animation
+        # press s while paused to step through the animation
+    if event.type == pygame.TEXTINPUT:
+        # takes the key input
+        keys = pygame.key.get_pressed()
+
+        if keys[pygame.K_g]:
+            state = "go"
+        elif keys[pygame.K_p]:
+            state = "pause"
+
+        if state == "pause" and keys[pygame.K_s]:
+            for x in range(0, 1):
+                hex_matrix = copy.deepcopy(hex_matrix_new)
 
     if state == "go":
         hex_matrix = copy.deepcopy(hex_matrix_new)
-    # hex_matrix = hex_matrix_new.copy()
 
 pygame.quit()
 
-## making sure I remember how to commit
 
