@@ -334,7 +334,8 @@ class Hex:
                     # take the ident from the straight_neighbor but flip its state to match that from the other neighbor (adjacent to straight_neighbor)
                     
                     #TODO: What if a wall blocks it?
-                    if neighbors_wall[(dir+2)%6]:
+                    # TODO: What if the other arrow it would collide with bounces off of an arrow in self?
+                    if neighbors_wall[(dir+2)%6] or self.contains_direction((dir+1)%6):
                         # If a wall blocks it, take on identity of neighbor
                         print("case 2 alt")
                         future.take_ident(neighbor_ident)
@@ -347,7 +348,8 @@ class Hex:
                     print("case 3, dir = " + str(dir))
                     
                     #TODO: What if a wall blocks it?
-                    if neighbors_wall[(dir-2)%6]:
+                    # TODO: What if the other arrow it would collide with bounces off of an arrow in self?
+                    if neighbors_wall[(dir-2)%6] or self.contains_direction((dir-1)%6):
                         # If a wall blocks it, take on identity of neighbor
                         print("case 3 alt/")
                         future.take_ident(neighbor_ident)
