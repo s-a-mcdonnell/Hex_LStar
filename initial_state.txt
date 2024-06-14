@@ -1,2 +1,3 @@
-12 3 move YELLOW 3
-11 5 move ORANGE 1
+7 8 wall
+8 7 move YELLOW 5
+7 6 move ORANGE 3
