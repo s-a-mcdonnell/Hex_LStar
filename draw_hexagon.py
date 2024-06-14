@@ -556,6 +556,12 @@ def check_for_repeat_identities():
                                 print("Two idents with serial number " + str(i_ident.serial_number) + " at (" + str(k) + ", " + str(i) + ") and (" + str(l) + ", " + str(j) + ")")
                                 # pygame.quit()
 
+def advance_game():
+    for hex_list in hex_matrix:
+                for hexagon in hex_list:
+                    hexagon.update()
+    swap_matrices()
+
 import pygame
 
 pygame.init()
@@ -632,6 +638,7 @@ for i in range(6):
 
 run = True
 while run:
+    print("Top of while loop")
 
     # Reset screen
     screen.fill((0, 0, 0))
@@ -653,9 +660,6 @@ while run:
     # sets animation to n frames per second where n is inside the parentheses (feel free to change)
     #dt = clock.tick(5) / 1000
 
-    for hex_list in hex_matrix:
-        for hexagon in hex_list:
-            hexagon.update()
 
     # HOW TO GET CODE TO START:
         # press g key after running file to start the animation
@@ -673,14 +677,16 @@ while run:
             state = "hyper"
 
         if state == "pause" and keys[pygame.K_s]:
-            swap_matrices()
+            advance_game()
+            # TODO: Should the clock tick here?
+            dt = clock.tick(2) / 1000
 
     if state == "go":
+        advance_game()
         dt = clock.tick(5) / 1000
-        swap_matrices()
     elif state == "hyper":
+        advance_game()
         dt = clock.tick(2000) / 1000
-        swap_matrices()
     
     check_for_repeat_identities()
 
