@@ -56,7 +56,7 @@ class Hex:
    def take_ident(self, ident):
        self.idents.append(ident)    
 
-   def make_occupied(self, color=(0,255,0)):
+   def make_occupied(self, color=(0, 255, 0)):
        # TODO: Clear out current idents? (does not currently overwrite pre-existing idents)
        self.idents.append(Ident(color, -1))
 
@@ -158,6 +158,17 @@ class Hex:
        else:
            return True
 
+# Checks if a hex contains an ident heading in the given directon
+   # If it does, returns that ident
+   # Else returns None
+   def contains_direction(self, dir):
+
+       for ident in self.idents:
+           if ident.state == dir:
+               return ident
+
+       return None 
+
    # returns a list of length 6 to determine which of the neighbors around self hex are walls
    def check_walls(self):
         hex_walls = [0, 0, 0, 0, 0, 0]
@@ -204,7 +215,7 @@ class Hex:
 
     # handles the impacts of hitting an occupied neighbor (either a stationary object or a wall)
     # TODO: How to pass around idents?
-   def hit_neighbor(self, future, neighbors_movable, neighbors_wall, dir):
+   def hit_neighbor(self, future, my_neighbors, neighbors_movable, neighbors_wall, dir):
         # cases for individual side glancing walls
         if (neighbors_wall[(dir-1)%6] == 1) and not (neighbors_wall[(dir+1)%6] == 1):
             future.occupied = True
@@ -226,19 +237,10 @@ class Hex:
         # TODO: Discuss order in which rules are applied
         # TODO: Also discuss if collisions off of a side wall should take priority over head-on collisions
         elif neighbors_movable[dir] == 1:
-            future.occupied = True
-            future.movable = True
-   
-   # Checks if a hex contains an ident heading in the given directon
-   # If it does, returns that ident
-   # Else returns None
-   def contains_direction(self, dir):
-
-       for ident in self.idents:
-           if ident.state == dir:
-               return ident
-
-       return None 
+            # If I am hitting a stationary neighbor, I become stationary but maintain my identity
+            ident_to_stop = self.contains_direction(dir)
+            ident_to_stop.state = -1
+            future.take_ident(ident_to_stop)
    
    # Handles interactions between a hex and its environment with respect to the given direction
    def motion_handler(self, future, my_neighbors, neighbors_movable, neighbors_wall, dir):
@@ -277,6 +279,8 @@ class Hex:
                 opp_neighbor_ident = None
                 if my_neighbors[(dir+3)%6] != None:
                     opp_neighbor_ident = my_neighbors[(dir+3)%6].contains_direction(dir)
+
+                # TODO: What if I contain multiple identities? (Do elif statements really make sense here?)
 
                 if my_ident != None:
                     # If in a head-on collision with a neighbor moving in the opposite direction, maintain identity and switch direction
@@ -327,7 +331,7 @@ class Hex:
         
         # handle impact of hitting occupied neighbor
        if self.contains_direction(dir): 
-           self.hit_neighbor(future, neighbors_movable, neighbors_wall, dir)
+           self.hit_neighbor(future, my_neighbors, neighbors_movable, neighbors_wall, dir)
 
     # returns an array of neighbors (the entry in the array is None when the neighbor does not exist)
    def get_neighbors(self):
@@ -386,15 +390,17 @@ class Hex:
         neighbors_wall = self.check_walls()
 
         # If the hex is a wall, it will remain occupied and not movable
-        if(hex_matrix[self.matrix_index][self.list_index].check_wall_hex()):
+        if(self.check_wall_hex()):
             # TODO: Pass a color?
             future.idents.append(Ident((0,0,0),-2))
 
         # TODO: Pretty sure this doesn't work, but I haven't tested it
         # If the hex is currently occupied and not moving, it will still be occupied in the next generation
-        if hex_matrix[self.matrix_index][self.list_index].check_movable_hex():
+        # TODO: It is not necessarily true, however, that it will still be occupied and STATIONARY in the next generation, which is what I'm going here
+        is_stationary = self.contains_direction(-1)
+        if is_stationary:
             # TODO: pass the correct color (the color of the ident which is stationary)
-            future.idents.append(Ident(-1))
+            future.idents.append(copy.deepcopy(is_stationary))
 
         my_neighbors = self.get_neighbors()
         
@@ -520,6 +526,10 @@ hex_matrix[5][11].make_move(1, PURPLE)'''
 hex_matrix[2][8].make_move(3, PURPLE)
 hex_matrix[5][11].make_move(5, YELLOW)'''
 
+# Moving hex hitting occupied stationary hex
+# Hexes approaching diagonally, 120 degrees
+hex_matrix[8][7].make_occupied(PURPLE)
+hex_matrix[3][7].make_move(2, YELLOW)
 
 
 
