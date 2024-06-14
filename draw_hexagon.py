@@ -488,7 +488,7 @@ hex_matrix[5][6].make_move(3, PURPLE)'''
 hex_matrix[10][7].make_move(5, YELLOW)
 hex_matrix[3][7].make_move(2, PURPLE)'''
 
-'''# Hexes approaching, hex-on, with gap in between(direction 2-5)
+'''# Hexes approaching, hex-on, with gap in between (direction 2-5)
 hex_matrix[11][7].make_move(5, YELLOW)
 hex_matrix[3][7].make_move(2, PURPLE)'''
 
@@ -500,10 +500,17 @@ hex_matrix[5][11].make_move(1, PURPLE)'''
 hex_matrix[2][8].make_move(3, PURPLE)
 hex_matrix[5][11].make_move(5, YELLOW)'''
 
-# Moving hex hitting occupied stationary hex
-# Hexes approaching diagonally, 120 degrees
+'''# Moving hex hitting occupied stationary hex (direction 2-5)
 hex_matrix[8][7].make_occupied(PURPLE)
-hex_matrix[3][7].make_move(2, YELLOW)
+hex_matrix[3][7].make_move(2, YELLOW)'''
+
+'''# Moving hex hitting occupied stationary hex (direction 0-3)
+hex_matrix[3][10].make_occupied(PURPLE)
+hex_matrix[3][6].make_move(3, YELLOW)'''
+
+# Moving hex hitting occupied stationary hex (direction 1-4)
+hex_matrix[7][6].make_occupied(PURPLE)
+hex_matrix[3][10].make_move(1, YELLOW)
 
 
 
