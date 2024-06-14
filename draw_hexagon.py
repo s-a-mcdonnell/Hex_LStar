@@ -358,14 +358,21 @@ class Hex:
                 # TODO: Deal with potential wall block for 120 degree collisions
                 elif counterclockwise_step_ident != None:
                     # Deal with 120-degree collision (version 1)
-                    print("case 4")
-                    ident_to_flip = counterclockwise_step_ident.copy()
-                    ident_to_flip.state = (ident_to_flip.state-2)%6
-                    future.take_ident(ident_to_flip)
+                    print("case 4, dir " + str(dir))
+
+                    # TODO: Explain wall influence
+                    if neighbors_wall[(dir+3)%6]:
+                        print("case 4 alt")
+                        future.take_ident(neighbor_ident)
+                    else:
+                        ident_to_flip = counterclockwise_step_ident.copy()
+                        ident_to_flip.state = (ident_to_flip.state-2)%6
+                        future.take_ident(ident_to_flip)
                 elif clockwise_step_ident != None:
                     # Deal with 120-degree collision (version 2)
                     print("case 5, dir " + str(dir))
 
+                    # TODO: Explain wall influence
                     if neighbors_wall[(dir+3)%6]:
                         print("case 5 alt")
                         future.take_ident(neighbor_ident)

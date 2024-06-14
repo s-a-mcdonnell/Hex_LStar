@@ -1,2 +1,2 @@
-1 10 move YELLOW 3
-2 11 move ORANGE 5
+12 3 move YELLOW 3
+11 5 move ORANGE 1
