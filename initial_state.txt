@@ -5,3 +5,4 @@
 7 9 wall
 7 8 wall
 8 6 occupied GREEN
+6 6 occupied PINK

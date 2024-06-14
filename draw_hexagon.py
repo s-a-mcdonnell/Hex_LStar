@@ -324,8 +324,8 @@ class Hex:
                 elif counterclockwise_neighbor_ident != None:
                     # Deal with 60-degree collision (version 1)
                     print("case 2")
-                    # __elif I have two adjacent neighbors pointing at me
-                    # __Take the ident from the straight_neighbor but flip its state to match that from the other neighbor (adjacent to straight_neighbor)
+                    # if I have two adjacent neighbors pointing at me
+                    # take the ident from the straight_neighbor but flip its state to match that from the other neighbor (adjacent to straight_neighbor)
                     ident_to_flip = counterclockwise_neighbor_ident.copy()
                     ident_to_flip.state = (ident_to_flip.state-1)%6
                     future.take_ident(ident_to_flip)
@@ -355,7 +355,8 @@ class Hex:
                     future.take_ident(ident_to_flip)
                 elif self.check_movable_hex():
                     print("case 7")
-                    # __
+                    # If I am currently stationary
+                    # TODO: Describe logic here
                     ident_to_edit = self.contains_direction(-1).copy()
                     ident_to_edit.state = (dir+3)%6
                     future.take_ident(ident_to_edit)
