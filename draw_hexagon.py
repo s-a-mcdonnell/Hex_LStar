@@ -330,7 +330,7 @@ class Hex:
                     #TODO: What if a wall blocks it?
                     if neighbors_wall[(dir+2)%6]:
                         # Else take on identity of neighbor
-                        print("case 8 alt")
+                        print("case 8 alt 1")
                         future.take_ident(neighbor_ident)
                     else:
                         ident_to_flip = counterclockwise_neighbor_ident.copy()
@@ -343,7 +343,7 @@ class Hex:
                     #TODO: What if a wall blocks it?
                     if neighbors_wall[(dir-2)%6]:
                         # Else take on identity of neighbor
-                        print("case 8 alt")
+                        print("case 8 alt 2")
                         future.take_ident(neighbor_ident)
                     else:
                         ident_to_flip = clockwise_neighbor_ident.copy()
