@@ -505,6 +505,14 @@ def read_line(line):
     elif command == "wall" or command == "wall\n":
         hex_matrix[matrix_index][list_index].make_wall()
 
+def swap_matrices():
+    global hex_matrix
+    global hex_matrix_new
+
+    temp_matrix = hex_matrix
+    hex_matrix = hex_matrix_new
+    hex_matrix_new = temp_matrix
+
 import pygame
 
 pygame.init()
@@ -537,6 +545,7 @@ for x in range(15):
     for y in range(16):
         myHex = Hex(x, y)
         hex_list.append(myHex)
+
 
 # create additional matrix
 hex_matrix_new = []
@@ -614,8 +623,11 @@ while run:
             state = "pause"
 
         if state == "pause" and keys[pygame.K_s]:
-            for x in range(0, 1):
-                hex_matrix = copy.deepcopy(hex_matrix_new)
+
+            print("Swapping over temp in pause() 1")
+            swap_matrices()
+            '''for x in range(0, 1):
+                hex_matrix = copy.deepcopy(hex_matrix_new)'''
 
     # need to use the python deepcopy in order to copy the inner lists of a 2D array
     # TODO: Switch to alternating between two matrices
@@ -634,11 +646,16 @@ while run:
             state = "pause"
 
         if state == "pause" and keys[pygame.K_s]:
-            for x in range(0, 1):
-                hex_matrix = copy.deepcopy(hex_matrix_new)
+            print("Swapping over temp in pause() 2")
+            swap_matrices()
+
+            '''for x in range(0, 1):
+                hex_matrix = copy.deepcopy(hex_matrix_new)'''
 
     if state == "go":
-        hex_matrix = copy.deepcopy(hex_matrix_new)
+        # __ hex_matrix = copy.deepcopy(hex_matrix_new)
+        print("Swapping over temp in go()")
+        swap_matrices()
 
 pygame.quit()
 
