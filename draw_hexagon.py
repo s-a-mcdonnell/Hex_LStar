@@ -218,37 +218,21 @@ class Hex:
    def hit_neighbor(self, future, my_neighbors, neighbors_movable, neighbors_wall, dir):
         # cases for individual side glancing walls
         if (neighbors_wall[(dir-1)%6] == 1) and not (neighbors_wall[(dir+1)%6] == 1):
-            # TODO: Rewrite to use idents
             ident_to_rotate = copy.deepcopy(self.contains_direction(dir))
             ident_to_rotate.state = (dir+1)%6
             future.take_ident(ident_to_rotate)
-            
-            '''future.occupied = True
-            future.movable = True
-            #future.state[dir] = 0
-            future.state[(dir+1)%6] = 1'''
         elif (neighbors_wall[(dir+1)%6] == 1) and not (neighbors_wall[(dir-1)%6] == 1):
-            # TODO: Rewrite to use idents
             ident_to_rotate = copy.deepcopy(self.contains_direction(dir))
             ident_to_rotate.state = (dir-1)%6
             future.take_ident(ident_to_rotate)
 
-
-            '''future.occupied = True
-            future.movable = True
-            #future.state[dir] = 0
-            future.state[(dir-1)%6] = 1'''
         # if my neighbor is a wall (or if I have two neighors to the side in front), bounce off
         elif (neighbors_wall[dir] == 1) or ((neighbors_wall[(dir-1)%6] == 1) and (neighbors_wall[(dir+1)%6] == 1)):
-            # TODO: Rewrite to use idents
             ident_to_rotate = copy.deepcopy(self.contains_direction(dir))
             ident_to_rotate.state = (dir+3)%6
             future.take_ident(ident_to_rotate)
             
-            '''future.occupied = True
-            future.movable = True
-            #future.state[dir] = 0
-            future.state[(dir+3)%6] = 1'''
+        
         # if I am moving toward my neighbor, and my neighbor is occupied but not moving, then I become occupied but not moving
         # TODO: Discuss order in which rules are applied
         # TODO: Also discuss if collisions off of a side wall should take priority over head-on collisions
