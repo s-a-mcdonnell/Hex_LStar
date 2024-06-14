@@ -317,21 +317,19 @@ class Hex:
                     ident_to_flip = copy.deepcopy(clockwise_step_ident)
                     ident_to_flip.state = (ident_to_flip.state+2)%6
                     future.take_ident(ident_to_flip)
-                # TODO: Write case for head-on collision with an empty hex in the middle
                 elif dir_neighbor_ident and opp_neighbor_ident:
                     # Handle head-on collision with an empty hex in the middle
                     print("case 6")
                     ident_to_flip = copy.deepcopy(dir_neighbor_ident)
                     ident_to_flip.state = (ident_to_flip.state + 3)%6
                     future.take_ident(ident_to_flip)
-                elif self.contains_direction(-1):
+                elif self.check_movable_hex():
                     print("case 7")
                     # __
                     ident_to_edit = copy.deepcopy(self.contains_direction(-1))
                     ident_to_edit.state = (dir+3)%6
                     # TODO: Is deepcopy necessary?
-                    future.idents.append(ident_to_edit)
-
+                    future.take_ident(ident_to_edit)
                 else:
                     # Else take on identity of neighbor
                     print("case 8")
@@ -402,58 +400,26 @@ class Hex:
             # TODO: Pass a color?
             future.idents.append(Ident((0,0,0),-2))
 
-        # TODO: Pretty sure this doesn't work, but I haven't tested it
-        # If the hex is currently occupied and not moving, it will still be occupied in the next generation
-        # TODO: It is not necessarily true, however, that it will still be occupied and STATIONARY in the next generation, which is what I'm going here
-        is_stationary = self.contains_direction(-1)
-        if is_stationary:
-            # TODO: pass the correct color (the color of the ident which is stationary)
-            future.idents.append(copy.deepcopy(is_stationary))
 
         my_neighbors = self.get_neighbors()
         
         # TODO: Convert if self.movable: to ident
         if (len(self.idents) == 0) or (self.idents[0].state != -2):
             # TODO: Adjust to account for idents
-            # UPPER NEIGHBOR EFFECTS (0)
 
             for i in range(6):
                 if my_neighbors[i] != None:
                     self.motion_handler(future, my_neighbors, neighbors_movable, neighbors_wall, i)
 
-            '''# if my upper (0) neighbor is pointing down (3) then I will move down
-            if self.list_index - 1 >= 0:
-                # Call motion_handler, passing upper neighbor
-                self.motion_handler(future, hex_matrix[self.matrix_index][self.list_index - 1], neighbors_movable, neighbors_wall, 0)
+        # If the hex is currently occupied and not moving, it will still be occupied in the next generation
+        # If that hasn't already been seen to by the motion handler, that must mean that the hex is occupied and stationary in the next generation
+        # TODO: It is not necessarily true, however, that it will still be occupied and STATIONARY in the next generation, which is what I'm going here
+        # TODO: Explain logic better
+        is_stationary = self.contains_direction(-1)
+        if is_stationary and (len(future.idents) == 0):
+            future.idents.append(copy.deepcopy(is_stationary))
 
 
-            # DOWN NEIGHBOR EFFECTS (3)
-            if self.list_index + 1 < len(hex_list):
-                # Call motion_handler, passing lower neighbor
-                self.motion_handler(future, hex_matrix[self.matrix_index][self.list_index + 1], neighbors_movable, neighbors_wall, 3)
-    
-
-            # NORTHEAST NEIGHBOR (1)
-            if (self.matrix_index + 1 < len(hex_matrix)) and (self.list_index - 1 >= 0):
-                # Call motion_handler, passing northeast neighbor
-                self.motion_handler(future, hex_matrix[self.matrix_index + 1][self.list_index - 1], neighbors_movable, neighbors_wall, 1)
-
-            # NORTHWEST NEIGHBOR (5)
-            if self.matrix_index - 1 >= 0:
-                # Call motion_handler, passing northwest neighbor
-                self.motion_handler(future, hex_matrix[self.matrix_index - 1][self.list_index], neighbors_movable, neighbors_wall, 5)
-
-
-            # SOUTHEAST NEIGHBOR (2)
-            if self.matrix_index + 1 < len(hex_matrix):
-                # Call motion_handler, passing southeast neighbor
-                self.motion_handler(future, hex_matrix[self.matrix_index + 1][self.list_index], neighbors_movable, neighbors_wall, 2)
-
-
-            # SOUTHWEST NEIGHBOR (4)
-            if (self.matrix_index - 1 >= 0) and (self.list_index + 1 < len(hex_list)):
-                # Call motion_handler, passing southwests neighbor
-                self.motion_handler(future, hex_matrix[self.matrix_index - 1][self.list_index + 1], neighbors_movable, neighbors_wall, 4)'''
 
 class Ident:
     # Constructor
