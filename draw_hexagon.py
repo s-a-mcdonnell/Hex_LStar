@@ -481,7 +481,7 @@ class Ident:
         # Record serial number and iterate
         if serial_number == -1:
             self.serial_number = Ident.idents_created
-            print("Ident with serial numnber " + str(self.serial_number) + " created")
+            print("Ident with serial number " + str(self.serial_number) + " created")
             Ident.idents_created += 1
         else:
             self.serial_number = serial_number
