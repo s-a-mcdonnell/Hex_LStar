@@ -324,17 +324,33 @@ class Hex:
                 elif counterclockwise_neighbor_ident != None:
                     # Deal with 60-degree collision (version 1)
                     print("case 2")
-                    # __elif I have two adjacent neighbors pointing at me
-                    # __Take the ident from the straight_neighbor but flip its state to match that from the other neighbor (adjacent to straight_neighbor)
-                    ident_to_flip = counterclockwise_neighbor_ident.copy()
-                    ident_to_flip.state = (ident_to_flip.state-1)%6
-                    future.take_ident(ident_to_flip)
+                    # if I have two adjacent neighbors pointing at me
+                    # take the ident from the straight_neighbor but flip its state to match that from the other neighbor (adjacent to straight_neighbor)
+                    
+                    #TODO: What if a wall blocks it?
+                    if neighbors_wall[(dir+2)%6]:
+                        # Else take on identity of neighbor
+                        print("case 8 alt 1")
+                        future.take_ident(neighbor_ident)
+                    else:
+                        ident_to_flip = counterclockwise_neighbor_ident.copy()
+                        ident_to_flip.state = (ident_to_flip.state-1)%6
+                        future.take_ident(ident_to_flip)
                 elif clockwise_neighbor_ident != None:
                     # Deal with 60-degree collision (version 2)
                     print("case 3")
-                    ident_to_flip = clockwise_neighbor_ident.copy()
-                    ident_to_flip.state = (ident_to_flip.state+1)%6
-                    future.take_ident(ident_to_flip)
+                    
+                    #TODO: What if a wall blocks it?
+                    if neighbors_wall[(dir-2)%6]:
+                        # Else take on identity of neighbor
+                        print("case 8 alt 2")
+                        future.take_ident(neighbor_ident)
+                    else:
+                        ident_to_flip = clockwise_neighbor_ident.copy()
+                        ident_to_flip.state = (ident_to_flip.state+1)%6
+                        future.take_ident(ident_to_flip)
+
+                # TODO: Deal with potential wall block for 120 degree collisions
                 elif counterclockwise_step_ident != None:
                     # Deal with 120-degree collision (version 1)
                     print("case 4")
@@ -355,7 +371,8 @@ class Hex:
                     future.take_ident(ident_to_flip)
                 elif self.check_movable_hex():
                     print("case 7")
-                    # __
+                    # If I am currently stationary
+                    # TODO: Describe logic here
                     ident_to_edit = self.contains_direction(-1).copy()
                     ident_to_edit.state = (dir+3)%6
                     future.take_ident(ident_to_edit)
@@ -505,6 +522,14 @@ def read_line(line):
     elif command == "wall" or command == "wall\n":
         hex_matrix[matrix_index][list_index].make_wall()
 
+def swap_matrices():
+    global hex_matrix
+    global hex_matrix_new
+
+    temp_matrix = hex_matrix
+    hex_matrix = hex_matrix_new
+    hex_matrix_new = temp_matrix
+
 import pygame
 
 pygame.init()
@@ -537,6 +562,7 @@ for x in range(15):
     for y in range(16):
         myHex = Hex(x, y)
         hex_list.append(myHex)
+
 
 # create additional matrix
 hex_matrix_new = []
@@ -605,21 +631,6 @@ while run:
         for hexagon in hex_list:
             hexagon.update()
 
-
-    if event.type == pygame.TEXTINPUT:
-        keys = pygame.key.get_pressed()
-        if keys[pygame.K_g]:
-            state = "go"
-        elif keys[pygame.K_p]:
-            state = "pause"
-
-        if state == "pause" and keys[pygame.K_s]:
-            for x in range(0, 1):
-                hex_matrix = copy.deepcopy(hex_matrix_new)
-
-    # need to use the python deepcopy in order to copy the inner lists of a 2D array
-    # TODO: Switch to alternating between two matrices
-
     # HOW TO GET CODE TO START:
         # press g key after running file to start the animation
         # press p to pause the animation
@@ -634,11 +645,10 @@ while run:
             state = "pause"
 
         if state == "pause" and keys[pygame.K_s]:
-            for x in range(0, 1):
-                hex_matrix = copy.deepcopy(hex_matrix_new)
+            swap_matrices()
 
     if state == "go":
-        hex_matrix = copy.deepcopy(hex_matrix_new)
+        swap_matrices()
 
 pygame.quit()
 
