@@ -1,7 +1,7 @@
-8 4 move 2
-9 10 move 5
+8 4 move YELLOW 2
+9 10 move PURPLE 5
 5 6 wall 3
-5 7 move 3
+5 7 move ORANGE 3
 7 9 wall
 7 8 wall
-8 6 occupied
+8 6 occupied GREEN
