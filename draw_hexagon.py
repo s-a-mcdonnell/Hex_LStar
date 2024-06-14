@@ -414,7 +414,7 @@ class Hex:
         # If the hex is currently occupied and not moving, it will still be occupied in the next generation
         # If that hasn't already been seen to by the motion handler, that must mean that the hex is occupied and stationary in the next generation
         # TODO: It is not necessarily true, however, that it will still be occupied and STATIONARY in the next generation, which is what I'm going here
-        # TODO: Explain logic better
+        # TODO: Explain logic better --> Could this be the cause of the stationary hex being obliterated when hit by two moving hexes?
         is_stationary = self.contains_direction(-1)
         if is_stationary and (len(future.idents) == 0):
             future.idents.append(copy.deepcopy(is_stationary))
