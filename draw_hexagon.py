@@ -651,7 +651,7 @@ while run:
     pygame.display.flip()
 
     # sets animation to n frames per second where n is inside the parentheses (feel free to change)
-    dt = clock.tick(5) / 1000
+    #dt = clock.tick(5) / 1000
 
     for hex_list in hex_matrix:
         for hexagon in hex_list:
@@ -669,11 +669,17 @@ while run:
             state = "go"
         elif keys[pygame.K_p]:
             state = "pause"
+        elif keys[pygame.K_h]:
+            state = "hyper"
 
         if state == "pause" and keys[pygame.K_s]:
             swap_matrices()
 
     if state == "go":
+        dt = clock.tick(5) / 1000
+        swap_matrices()
+    elif state == "hyper":
+        dt = clock.tick(2000) / 1000
         swap_matrices()
     
     check_for_repeat_identities()
