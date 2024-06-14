@@ -244,7 +244,6 @@ class Hex:
     ##########################################################################################################
 
     # handles the impacts of hitting an occupied neighbor (either a stationary object or a wall)
-    # TODO: How to pass around idents?
    def hit_neighbor(self, future, my_neighbors, neighbors_movable, neighbors_wall, dir):
         # cases for individual side glancing walls
         if (neighbors_wall[(dir-1)%6] == 1) and not (neighbors_wall[(dir+1)%6] == 1):
@@ -283,7 +282,6 @@ class Hex:
        straight_neighbor = my_neighbors[dir]
 
         # if my neighbor is moving toward me and is not blocked by either of two side walls, I will gain motion
-       # TODO: Need to distinguish between bouncing and passing through
        if (not neighbors_wall[(dir+1)%6]) and (not neighbors_wall[(dir-1)%6]):
            neighbor_ident = straight_neighbor.contains_direction((dir+3)%6)
            if neighbor_ident != None:
@@ -323,7 +321,6 @@ class Hex:
                     ident_to_flip = my_ident
                     ident_to_flip.state = (ident_to_flip.state+3)%6
                     future.take_ident(ident_to_flip)
-                # TODO: Deal with diagonal collision (neighbor is heading towards the same hex)
                 elif counterclockwise_neighbor_ident != None:
                     # Deal with 60-degree collision (version 1)
                     print("case 2")
@@ -339,14 +336,12 @@ class Hex:
                     ident_to_flip.state = (ident_to_flip.state+1)%6
                     future.take_ident(ident_to_flip)
                 elif counterclockwise_step_ident != None:
-                    # TODO: Test this
                     # Deal with 120-degree collision (version 1)
                     print("case 4")
                     ident_to_flip = counterclockwise_step_ident.copy()
                     ident_to_flip.state = (ident_to_flip.state-2)%6
                     future.take_ident(ident_to_flip)
                 elif clockwise_step_ident != None:
-                    # TODO: Test this
                     # Deal with 120-degree collision (version 2)
                     print("case 5")
                     ident_to_flip = clockwise_step_ident.copy()
@@ -363,7 +358,6 @@ class Hex:
                     # __
                     ident_to_edit = self.contains_direction(-1).copy()
                     ident_to_edit.state = (dir+3)%6
-                    # TODO: Is deepcopy necessary?
                     future.take_ident(ident_to_edit)
                 else:
                     # Else take on identity of neighbor
@@ -426,9 +420,6 @@ class Hex:
         # determine the state of the current hex based on the states of the hexes around it
         future = hex_matrix_new[self.matrix_index][self.list_index]
 
-        '''# TODO: Make state 7 elements long?
-        future.state = [0, 0, 0, 0, 0, 0]
-        future.occupied = False'''
         future.idents = []
 
         neighbors_movable = self.check_movables()
@@ -436,8 +427,7 @@ class Hex:
 
         # If the hex is a wall, it will remain occupied and not movable
         if(self.check_wall_hex()):
-            # TODO: Pass a color?
-            future.idents.append(Ident((0,0,0),-2))
+            future.make_wall()
 
 
         my_neighbors = self.get_neighbors()
