@@ -473,7 +473,27 @@ class Ident:
 ###############################################################################################################
 ###############################################################################################################
 
+def get_color(color_text):
+    if color_text == "YELLOW" or color_text == "YELLOW\n":
+        return (255, 255, 102)
+    elif color_text == "PURPLE" or color_text == "PURPLE\n":
+        return (204, 0, 255)
+    elif color_text == "ORANGE" or color_text == "ORANGE\n":
+        return(255, 102, 0)
+    elif(color_text == "GREEN"):
+        return(106, 232, 100)
+    elif(color_text == "BLUE"):
+        pass
+    elif(color_text == "RED"):
+        pass
+    elif(color_text == "PINK"):
+        pass
+    else:
+        return (100, 100, 100)
+
 def read_line(line):
+
+    # actual parsing of the text file
     line_parts = line.split(" ")
     
     matrix_index = int(line_parts[0])
@@ -481,10 +501,14 @@ def read_line(line):
     command = line_parts[2]
 
     if command == "move":
-        direction = int(line_parts[3])
-        hex_matrix[matrix_index][list_index].make_move(direction)
+        direction = int(line_parts[4])
+        color_text = line_parts[3]
+        color = get_color(color_text)
+        hex_matrix[matrix_index][list_index].make_move(direction, color)
     elif command == "occupied":
-        hex_matrix[matrix_index][list_index].occupied = True
+        color_text = line_parts[3]
+        color = get_color(color_text)
+        hex_matrix[matrix_index][list_index].make_occupied(color)
     elif command == "wall" or command == "wall\n":
         hex_matrix[matrix_index][list_index].make_wall()
 
@@ -532,6 +556,8 @@ for x in range(15):
         myHex = Hex(x, y)
         hex_list_new.append(myHex)
 
+
+# IMPORTANT: format of text file input is "matrix_index, list_index, state, color, direction"
 
 # get initial state of the board from a file
 __location__ = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__)))
