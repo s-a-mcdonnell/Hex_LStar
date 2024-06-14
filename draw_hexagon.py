@@ -650,10 +650,14 @@ for i in range(6):
     hex_matrix[1+2*i][15-i].make_wall()
     hex_matrix[2+2*i][14-i].make_wall()
 
+
+fast = True
 ##########################################################################################################
 
 run = True
 while run:
+    if fast == False:
+        pygame.time.delay(100)
     # Reset screen
     screen.fill((0, 0, 0))
 
@@ -691,14 +695,18 @@ while run:
             state = "hyper"
 
         if state == "pause" and keys[pygame.K_s]:
+            fast = False
             next_generation()
-            dt = clock.tick(5) / 1000
+            dt = clock.tick(1) / 1000
             #TODO: Why is it taking two steps?
+            # - fixed by introduring time delay
 
     if state == "go":
+        fast = True
         next_generation()
         dt = clock.tick(5) / 1000
     elif state == "hyper":
+        fast = True
         next_generation()
         dt = clock.tick(2000) / 1000
     
