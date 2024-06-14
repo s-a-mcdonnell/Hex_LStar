@@ -556,8 +556,9 @@ def check_for_repeat_identities():
                                 print("Two idents with serial number " + str(i_ident.serial_number) + " at (" + str(k) + ", " + str(i) + ") and (" + str(l) + ", " + str(j) + ")")
                                 # pygame.quit()
 
+# Updates all the states
 def next_generation():
-    # Iterate through the hexagons, determining what their next state should be
+    # Iterates through the hexagons, determining what their next state should be
     for hex_list in hex_matrix:
                 for hexagon in hex_list:
                     hexagon.update()
