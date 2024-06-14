@@ -556,10 +556,12 @@ def check_for_repeat_identities():
                                 print("Two idents with serial number " + str(i_ident.serial_number) + " at (" + str(k) + ", " + str(i) + ") and (" + str(l) + ", " + str(j) + ")")
                                 # pygame.quit()
 
-def advance_game():
+def next_generation():
+    # Iterate through the hexagons, determining what their next state should be
     for hex_list in hex_matrix:
                 for hexagon in hex_list:
                     hexagon.update()
+    
     swap_matrices()
 
 import pygame
@@ -677,15 +679,14 @@ while run:
             state = "hyper"
 
         if state == "pause" and keys[pygame.K_s]:
-            advance_game()
-            # TODO: Should the clock tick here?
-            dt = clock.tick(2) / 1000
+            next_generation()
+            dt = clock.tick(1) / 1000
 
     if state == "go":
-        advance_game()
+        next_generation()
         dt = clock.tick(5) / 1000
     elif state == "hyper":
-        advance_game()
+        next_generation()
         dt = clock.tick(2000) / 1000
     
     check_for_repeat_identities()
