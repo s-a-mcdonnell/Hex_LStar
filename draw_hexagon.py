@@ -326,15 +326,31 @@ class Hex:
                     print("case 2")
                     # if I have two adjacent neighbors pointing at me
                     # take the ident from the straight_neighbor but flip its state to match that from the other neighbor (adjacent to straight_neighbor)
-                    ident_to_flip = counterclockwise_neighbor_ident.copy()
-                    ident_to_flip.state = (ident_to_flip.state-1)%6
-                    future.take_ident(ident_to_flip)
+                    
+                    #TODO: What if a wall blocks it?
+                    if neighbors_wall[(dir+2)%6]:
+                        # Else take on identity of neighbor
+                        print("case 8 alt")
+                        future.take_ident(neighbor_ident)
+                    else:
+                        ident_to_flip = counterclockwise_neighbor_ident.copy()
+                        ident_to_flip.state = (ident_to_flip.state-1)%6
+                        future.take_ident(ident_to_flip)
                 elif clockwise_neighbor_ident != None:
                     # Deal with 60-degree collision (version 2)
                     print("case 3")
-                    ident_to_flip = clockwise_neighbor_ident.copy()
-                    ident_to_flip.state = (ident_to_flip.state+1)%6
-                    future.take_ident(ident_to_flip)
+                    
+                    #TODO: What if a wall blocks it?
+                    if neighbors_wall[(dir-2)%6]:
+                        # Else take on identity of neighbor
+                        print("case 8 alt")
+                        future.take_ident(neighbor_ident)
+                    else:
+                        ident_to_flip = clockwise_neighbor_ident.copy()
+                        ident_to_flip.state = (ident_to_flip.state+1)%6
+                        future.take_ident(ident_to_flip)
+
+                # TODO: Deal with potential wall block for 120 degree collisions
                 elif counterclockwise_step_ident != None:
                     # Deal with 120-degree collision (version 1)
                     print("case 4")
