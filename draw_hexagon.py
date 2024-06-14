@@ -218,17 +218,20 @@ class Hex:
    def hit_neighbor(self, future, my_neighbors, neighbors_movable, neighbors_wall, dir):
         # cases for individual side glancing walls
         if (neighbors_wall[(dir-1)%6] == 1) and not (neighbors_wall[(dir+1)%6] == 1):
+            # TODO: Rewrite to use idents
             future.occupied = True
             future.movable = True
             #future.state[dir] = 0
             future.state[(dir+1)%6] = 1
         elif (neighbors_wall[(dir+1)%6] == 1) and not (neighbors_wall[(dir-1)%6] == 1):
+            # TODO: Rewrite to use idents
             future.occupied = True
             future.movable = True
             #future.state[dir] = 0
             future.state[(dir-1)%6] = 1
         # if my neighbor is a wall (or if I have two neighors to the side in front), bounce off
         elif (neighbors_wall[dir] == 1) or ((neighbors_wall[(dir-1)%6] == 1) and (neighbors_wall[(dir+1)%6] == 1)):
+            # TODO: Rewrite to use idents
             future.occupied = True
             future.movable = True
             #future.state[dir] = 0
