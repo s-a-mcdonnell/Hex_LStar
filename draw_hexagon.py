@@ -493,6 +493,7 @@ class Ident:
         else:
             self.serial_number = serial_number
             print("Ident with serial number " + str(self.serial_number) + " copied")
+            print("color: " + str(self.color))
 
 
     def copy(self):
@@ -567,6 +568,9 @@ def check_for_repeat_identities():
 
 # Updates all the states
 def next_generation():
+    print("---")
+    print("Calculating next generation")
+
     # Iterates through the hexagons, determining what their next state should be
     for hex_list in hex_matrix:
                 for hexagon in hex_list:
@@ -650,8 +654,6 @@ for i in range(6):
 
 run = True
 while run:
-    print("Top of while loop")
-
     # Reset screen
     screen.fill((0, 0, 0))
 
@@ -690,7 +692,8 @@ while run:
 
         if state == "pause" and keys[pygame.K_s]:
             next_generation()
-            dt = clock.tick(1) / 1000
+            dt = clock.tick(5) / 1000
+            #TODO: Why is it taking two steps?
 
     if state == "go":
         next_generation()
