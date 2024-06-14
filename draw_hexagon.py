@@ -498,7 +498,9 @@ class Ident:
 
         # Record serial number and iterate
         if serial_number == -1:
+            # If no serial number is provided
             self.serial_number = Ident.idents_created
+
             print("Ident with serial number " + str(self.serial_number) + " created")
             if state == -2:
                 print("Is a wall")
@@ -582,6 +584,8 @@ def check_for_repeat_identities():
                             if j_ident.serial_number == i_ident.serial_number:
                                 print("Two idents with serial number " + str(i_ident.serial_number) + " at (" + str(k) + ", " + str(i) + ") and (" + str(l) + ", " + str(j) + ")")
                                 # pygame.quit()
+                                # TODO: De-jankify this (I want to pause the visual rather than closing it)
+                                time.sleep(100000)
 
 # Updates all the states
 def next_generation():
