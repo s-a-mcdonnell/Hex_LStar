@@ -4,3 +4,5 @@
 8 6 wall
 9 3 move ORANGE 3
 3 10 move GREY 4
+6 7 move PINK 2
+8 7 move RED 5
