@@ -80,6 +80,12 @@ class Hex:
     # Draw the hexagon
     pygame.draw.polygon(screen, my_color, self.coordinates)
 
+    # Draw an extra hexagon to visually show that a hexagon is stationary even with the different colors
+    if self.contains_direction(-1) != None:
+        new_coords = [(self.x+9, self.y+11), (self.x+31, self.y+11), (self.x+47, self.y+35), (self.x+31, self.y+59), (self.x+9, self.y+59), (self.x-7, self.y+35)]
+        new_color = [max(0, c - 120) for c in my_color]
+        pygame.draw.polygon(screen, new_color, new_coords)
+
     # Draw text object displaying axial hex coordiantes
     # self.display_surface.blit(self.text, self.textRect)
 
@@ -505,18 +511,18 @@ hex_matrix[5][11].make_move(5, YELLOW)'''
 hex_matrix[8][7].make_occupied(PURPLE)
 hex_matrix[3][7].make_move(2, YELLOW)'''
 
-'''# Moving hex hitting occupied stationary hex (direction 0-3)
+# Moving hex hitting occupied stationary hex (direction 0-3)
 hex_matrix[3][10].make_occupied(PURPLE)
-hex_matrix[3][6].make_move(3, YELLOW)'''
+hex_matrix[3][6].make_move(3, YELLOW)
 
 '''# Moving hex hitting occupied stationary hex (direction 1-4)
 hex_matrix[7][6].make_occupied(PURPLE)
 hex_matrix[3][10].make_move(1, YELLOW)'''
 
-# Two moving hexes at 60 degrees from one another hit a stationary hex
+'''# Two moving hexes at 60 degrees from one another hit a stationary hex
 hex_matrix[5][6].make_move(2, YELLOW)
 hex_matrix[5][11].make_move(1, PURPLE)
-hex_matrix[10][6].make_occupied(ORANGE)
+hex_matrix[10][6].make_occupied(ORANGE)'''
 
 
 
