@@ -249,6 +249,7 @@ class Hex:
         if (neighbors_wall[(dir-1)%6] == 1) and not (neighbors_wall[(dir+1)%6] == 1):
             print("hit neighbor case 1, dir = " + str(dir))
             print("self color " + str(self.contains_direction(dir).color))
+            print("self location (" + str(self.matrix_index) + ", " + str(self.list_index) + ")")
             ident_to_rotate = self.contains_direction(dir).copy()
             ident_to_rotate.state = (dir+1)%6
             future.take_ident(ident_to_rotate)
@@ -352,6 +353,8 @@ class Hex:
                         future.take_ident(neighbor_ident)
                     else:
                         ident_to_flip = clockwise_neighbor_ident.copy()
+                        print("I am hex (" + str(self.matrix_index) + ", " + str(self.list_index) + ")")
+                        print("flipping ident with color " + str(ident_to_flip.color) + ", original direction " + str(ident_to_flip.state))
                         ident_to_flip.state = (ident_to_flip.state+1)%6
                         future.take_ident(ident_to_flip)
 
@@ -585,6 +588,23 @@ def check_for_repeat_identities():
                                 print("Two idents with serial number " + str(i_ident.serial_number) + " at (" + str(k) + ", " + str(i) + ") and (" + str(l) + ", " + str(j) + ")")
                                 # pygame.quit()
                                 # TODO: De-jankify this (I want to pause the visual rather than closing it)
+
+                                # Attempt to go back in time by one frame (not working):
+                                '''swap_matrices()
+                                print("matrices swapped back")
+
+                                # Reset screen
+                                screen.fill((0, 0, 0))
+
+                                 # Draw all hexagons
+                                for hex_list in hex_matrix:
+                                    for hexagon in hex_list:
+                                        hexagon.draw(screen)
+
+                                # flips to the next frame
+                                pygame.display.flip()'''
+
+
                                 time.sleep(100000)
 
 # Updates all the states
