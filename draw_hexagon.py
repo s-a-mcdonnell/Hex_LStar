@@ -238,7 +238,7 @@ class Hex:
         # TODO: Also discuss if collisions off of a side wall should take priority over head-on collisions
         elif neighbors_movable[dir] == 1:
             # If I am hitting a stationary neighbor, I become stationary but maintain my identity
-            ident_to_stop = self.contains_direction(dir)
+            ident_to_stop = copy.deepcopy(self.contains_direction(dir))
             ident_to_stop.state = -1
             future.take_ident(ident_to_stop)
    
@@ -324,9 +324,17 @@ class Hex:
                     ident_to_flip = copy.deepcopy(dir_neighbor_ident)
                     ident_to_flip.state = (ident_to_flip.state + 3)%6
                     future.take_ident(ident_to_flip)
-                else:
-                # Else take on identity of neighbor
+                elif self.contains_direction(-1):
                     print("case 7")
+                    # __
+                    ident_to_edit = copy.deepcopy(self.contains_direction(-1))
+                    ident_to_edit.state = (dir+3)%6
+                    # TODO: Is deepcopy necessary?
+                    future.idents.append(ident_to_edit)
+
+                else:
+                    # Else take on identity of neighbor
+                    print("case 8")
                     future.take_ident(neighbor_ident)
         
         # handle impact of hitting occupied neighbor
