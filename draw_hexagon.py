@@ -224,17 +224,17 @@ class Hex:
    def hit_neighbor(self, future, my_neighbors, neighbors_movable, neighbors_wall, dir):
         # cases for individual side glancing walls
         if (neighbors_wall[(dir-1)%6] == 1) and not (neighbors_wall[(dir+1)%6] == 1):
-            ident_to_rotate = copy.deepcopy(self.contains_direction(dir))
+            ident_to_rotate = self.contains_direction(dir).copy()
             ident_to_rotate.state = (dir+1)%6
             future.take_ident(ident_to_rotate)
         elif (neighbors_wall[(dir+1)%6] == 1) and not (neighbors_wall[(dir-1)%6] == 1):
-            ident_to_rotate = copy.deepcopy(self.contains_direction(dir))
+            ident_to_rotate = self.contains_direction(dir).copy()
             ident_to_rotate.state = (dir-1)%6
             future.take_ident(ident_to_rotate)
 
         # if my neighbor is a wall (or if I have two neighors to the side in front), bounce off
         elif (neighbors_wall[dir] == 1) or ((neighbors_wall[(dir-1)%6] == 1) and (neighbors_wall[(dir+1)%6] == 1)):
-            ident_to_rotate = copy.deepcopy(self.contains_direction(dir))
+            ident_to_rotate = self.contains_direction(dir).copy()
             ident_to_rotate.state = (dir+3)%6
             future.take_ident(ident_to_rotate)
             
@@ -244,7 +244,7 @@ class Hex:
         # TODO: Also discuss if collisions off of a side wall should take priority over head-on collisions
         elif neighbors_movable[dir] == 1:
             # If I am hitting a stationary neighbor, I become stationary but maintain my identity
-            ident_to_stop = copy.deepcopy(self.contains_direction(dir))
+            ident_to_stop = self.contains_direction(dir).copy()
             ident_to_stop.state = -1
             future.take_ident(ident_to_stop)
    
@@ -291,7 +291,7 @@ class Hex:
                 if my_ident != None:
                     # If in a head-on collision with a neighbor moving in the opposite direction, maintain identity and switch direction
                     print("case 1")
-                    ident_to_flip = copy.deepcopy(my_ident)
+                    ident_to_flip = my_ident
                     ident_to_flip.state = (ident_to_flip.state+3)%6
                     future.take_ident(ident_to_flip)
                 # TODO: Deal with diagonal collision (neighbor is heading towards the same hex)
@@ -300,39 +300,39 @@ class Hex:
                     print("case 2")
                     # __elif I have two adjacent neighbors pointing at me
                     # __Take the ident from the straight_neighbor but flip its state to match that from the other neighbor (adjacent to straight_neighbor)
-                    ident_to_flip = copy.deepcopy(counterclockwise_neighbor_ident)
+                    ident_to_flip = counterclockwise_neighbor_ident.copy()
                     ident_to_flip.state = (ident_to_flip.state-1)%6
                     future.take_ident(ident_to_flip)
                 elif clockwise_neighbor_ident != None:
                     # Deal with 60-degree collision (version 2)
                     print("case 3")
-                    ident_to_flip = copy.deepcopy(clockwise_neighbor_ident)
+                    ident_to_flip = clockwise_neighbor_ident.copy()
                     ident_to_flip.state = (ident_to_flip.state+1)%6
                     future.take_ident(ident_to_flip)
                 elif counterclockwise_step_ident != None:
                     # TODO: Test this
                     # Deal with 120-degree collision (version 1)
                     print("case 4")
-                    ident_to_flip = copy.deepcopy(counterclockwise_step_ident)
+                    ident_to_flip = counterclockwise_step_ident.copy()
                     ident_to_flip.state = (ident_to_flip.state-2)%6
                     future.take_ident(ident_to_flip)
                 elif clockwise_step_ident != None:
                     # TODO: Test this
                     # Deal with 120-degree collision (version 2)
                     print("case 5")
-                    ident_to_flip = copy.deepcopy(clockwise_step_ident)
+                    ident_to_flip = clockwise_step_ident.copy()
                     ident_to_flip.state = (ident_to_flip.state+2)%6
                     future.take_ident(ident_to_flip)
                 elif dir_neighbor_ident and opp_neighbor_ident:
                     # Handle head-on collision with an empty hex in the middle
                     print("case 6")
-                    ident_to_flip = copy.deepcopy(dir_neighbor_ident)
+                    ident_to_flip = dir_neighbor_ident.copy()
                     ident_to_flip.state = (ident_to_flip.state + 3)%6
                     future.take_ident(ident_to_flip)
                 elif self.check_movable_hex():
                     print("case 7")
                     # __
-                    ident_to_edit = copy.deepcopy(self.contains_direction(-1))
+                    ident_to_edit = self.contains_direction(-1).copy()
                     ident_to_edit.state = (dir+3)%6
                     # TODO: Is deepcopy necessary?
                     future.take_ident(ident_to_edit)
@@ -423,7 +423,7 @@ class Hex:
         # TODO: Explain logic better --> Could this be the cause of the stationary hex being obliterated when hit by two moving hexes?
         is_stationary = self.contains_direction(-1)
         if is_stationary and (len(future.idents) == 0):
-            future.idents.append(copy.deepcopy(is_stationary))
+            future.idents.append(is_stationary.copy())
 
 
 
@@ -435,6 +435,9 @@ class Ident:
         self.color = color
         self.state = state
         self.property = None
+
+    def copy(self):
+        return copy.copy(self)
     
 
 
