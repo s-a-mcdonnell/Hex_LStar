@@ -334,7 +334,8 @@ class Hex:
                     # take the ident from the straight_neighbor but flip its state to match that from the other neighbor (adjacent to straight_neighbor)
                     
                     #TODO: What if a wall blocks it?
-                    if neighbors_wall[(dir+2)%6]:
+                    # TODO: What if the other arrow it would collide with bounces off of an arrow in self?
+                    if neighbors_wall[(dir+2)%6] or self.contains_direction((dir+1)%6):
                         # If a wall blocks it, take on identity of neighbor
                         print("case 2 alt")
                         future.take_ident(neighbor_ident)
@@ -347,7 +348,8 @@ class Hex:
                     print("case 3, dir = " + str(dir))
                     
                     #TODO: What if a wall blocks it?
-                    if neighbors_wall[(dir-2)%6]:
+                    # TODO: What if the other arrow it would collide with bounces off of an arrow in self?
+                    if neighbors_wall[(dir-2)%6] or self.contains_direction((dir-1)%6):
                         # If a wall blocks it, take on identity of neighbor
                         print("case 3 alt/")
                         future.take_ident(neighbor_ident)
@@ -364,7 +366,8 @@ class Hex:
                     print("case 4, dir " + str(dir))
 
                     # TODO: Explain wall influence
-                    if neighbors_wall[(dir+3)%6]:
+                    # TODO: What if the other arrow it would collide with bounces off of an arrow in self?
+                    if neighbors_wall[(dir+3)%6] or self.contains_direction((dir+2)%6):
                         print("case 4 alt")
                         future.take_ident(neighbor_ident)
                     else:
@@ -376,7 +379,8 @@ class Hex:
                     print("case 5, dir " + str(dir))
 
                     # TODO: Explain wall influence
-                    if neighbors_wall[(dir+3)%6]:
+                     # TODO: What if the other arrow it would collide with bounces off of an arrow in self?
+                    if neighbors_wall[(dir+3)%6] or self.contains_direction((dir-2)%6):
                         print("case 5 alt")
                         future.take_ident(neighbor_ident)
                     else:
@@ -587,7 +591,7 @@ def check_for_repeat_identities():
                             if j_ident.serial_number == i_ident.serial_number:
                                 print("Two idents with serial number " + str(i_ident.serial_number) + " at (" + str(k) + ", " + str(i) + ") and (" + str(l) + ", " + str(j) + ")")
                                 # pygame.quit()
-                                # TODO: De-jankify this (I want to pause the visual rather than closing it)
+                                # TODO: De-jankify this (there must be a better way than like 10 for-loops)
 
                                 # Attempt to go back in time by one frame (not working):
                                 '''swap_matrices()
