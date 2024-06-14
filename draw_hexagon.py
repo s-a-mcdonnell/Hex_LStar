@@ -471,13 +471,26 @@ class Ident:
     # Constructor
     # Default color white
     # Default state -1 (movable but not moving)
-    def __init__(self, color=(255, 255, 255), state=-1):
+    idents_created = 0
+
+    def __init__(self, color=(255, 255, 255), state=-1, serial_number=-1, property=None):
         self.color = color
         self.state = state
-        self.property = None
+        self.property = property
+
+        # Record serial number and iterate
+        if serial_number == -1:
+            self.serial_number = Ident.idents_created
+            print("Ident with serial numnber " + str(self.serial_number) + " created")
+            Ident.idents_created += 1
+        else:
+            self.serial_number = serial_number
 
     def copy(self):
-        return copy.copy(self)
+        # return copy.copy(self)
+        # TODO: Review copy method
+        new_copy = Ident(self.color, self.state, self.serial_number, self.property)
+        return new_copy
     
 
 ###############################################################################################################
@@ -529,6 +542,19 @@ def swap_matrices():
     temp_matrix = hex_matrix
     hex_matrix = hex_matrix_new
     hex_matrix_new = temp_matrix
+
+# Traverses hex_matrix and check for repeated identities (identified by serial number), issuing error message
+def check_for_repeat_identities():
+    # TODO: make this work and make it less ugly
+    for k in range(len(hex_matrix)):
+        for i in range(len(hex_matrix[k])):
+            for i_ident in hex_matrix[k][i].idents:
+                for l in range(k+1, len(hex_matrix)):
+                    for j in range(i+1, len(hex_matrix[l])):
+                        for j_ident in hex_matrix[l][j].idents:
+                            if j_ident.serial_number == i_ident.serial_number:
+                                print("Two idents with serial number " + str(i_ident.serial_number) + " at (" + str(k) + ", " + str(i) + ") and (" + str(l) + ", " + str(j) + ")")
+                                pygame.quit()
 
 import pygame
 
@@ -649,6 +675,9 @@ while run:
 
     if state == "go":
         swap_matrices()
+    
+    check_for_repeat_identities()
+
 
 pygame.quit()
 
