@@ -587,7 +587,7 @@ def check_for_repeat_identities():
                             if j_ident.serial_number == i_ident.serial_number:
                                 print("Two idents with serial number " + str(i_ident.serial_number) + " at (" + str(k) + ", " + str(i) + ") and (" + str(l) + ", " + str(j) + ")")
                                 # pygame.quit()
-                                # TODO: De-jankify this (I want to pause the visual rather than closing it)
+                                # TODO: De-jankify this (there must be a better way than like 10 for-loops)
 
                                 # Attempt to go back in time by one frame (not working):
                                 '''swap_matrices()
