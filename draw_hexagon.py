@@ -260,7 +260,7 @@ class Hex:
 
         # if my neighbor is a wall (or if I have two neighors to the side in front), bounce off
         elif (neighbors_wall[dir] == 1) or ((neighbors_wall[(dir-1)%6] == 1) and (neighbors_wall[(dir+1)%6] == 1)):
-            print("hit neighbor case 3")
+            print("hit neighbor case 3, dir = " + str(dir))
             ident_to_rotate = self.contains_direction(dir).copy()
             ident_to_rotate.state = (dir+3)%6
             future.take_ident(ident_to_rotate)
@@ -270,7 +270,7 @@ class Hex:
         # TODO: Discuss order in which rules are applied
         # TODO: Also discuss if collisions off of a side wall should take priority over head-on collisions
         elif neighbors_movable[dir] == 1:
-            print("hit neighbor case 4")
+            print("hit neighbor case 4, dir = " + str(dir))
             # If I am hitting a stationary neighbor, I become stationary but maintain my identity
             ident_to_stop = self.contains_direction(dir).copy()
             ident_to_stop.state = -1
@@ -328,7 +328,7 @@ class Hex:
                     future.take_ident(ident_to_flip)
                 elif counterclockwise_neighbor_ident != None:
                     # Deal with 60-degree collision (version 1)
-                    print("case 2")
+                    print("case 2, dir = " + str(dir))
                     # if I have two adjacent neighbors pointing at me
                     # take the ident from the straight_neighbor but flip its state to match that from the other neighbor (adjacent to straight_neighbor)
                     
@@ -343,7 +343,7 @@ class Hex:
                         future.take_ident(ident_to_flip)
                 elif clockwise_neighbor_ident != None:
                     # Deal with 60-degree collision (version 2)
-                    print("case 3")
+                    print("case 3, dir = " + str(dir))
                     
                     #TODO: What if a wall blocks it?
                     if neighbors_wall[(dir-2)%6]:
@@ -574,7 +574,7 @@ def swap_matrices():
 
 # Traverses hex_matrix and check for repeated identities (identified by serial number), issuing error message
 def check_for_repeat_identities():
-    # TODO: make this work and make it less ugly
+    # TODO: make this work and make it less ugly (maintain list of hexes with identities?)
     for k in range(len(hex_matrix)):
         for i in range(len(hex_matrix[k])):
             for i_ident in hex_matrix[k][i].idents:
@@ -720,7 +720,6 @@ while run:
             next_generation()
             dt = clock.tick(1) / 1000
             #TODO: Why is it taking two steps?
-            # - fixed by introduring time delay
 
     if state == "go":
         fast = True
