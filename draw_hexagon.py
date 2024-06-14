@@ -445,6 +445,7 @@ class Hex:
         # If the hex is a wall, it will remain occupied and not movable
         if(self.check_wall_hex()):
             future.make_wall()
+            return
 
 
         my_neighbors = self.get_neighbors()
