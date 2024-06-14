@@ -366,7 +366,8 @@ class Hex:
                     print("case 4, dir " + str(dir))
 
                     # TODO: Explain wall influence
-                    if neighbors_wall[(dir+3)%6]:
+                    # TODO: What if the other arrow it would collide with bounces off of an arrow in self?
+                    if neighbors_wall[(dir+3)%6] or self.contains_direction((dir+2)%6):
                         print("case 4 alt")
                         future.take_ident(neighbor_ident)
                     else:
@@ -378,7 +379,8 @@ class Hex:
                     print("case 5, dir " + str(dir))
 
                     # TODO: Explain wall influence
-                    if neighbors_wall[(dir+3)%6]:
+                     # TODO: What if the other arrow it would collide with bounces off of an arrow in self?
+                    if neighbors_wall[(dir+3)%6] or self.contains_direction((dir-2)%6):
                         print("case 5 alt")
                         future.take_ident(neighbor_ident)
                     else:
