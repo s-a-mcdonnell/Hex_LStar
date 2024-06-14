@@ -614,24 +614,6 @@ while run:
         for hexagon in hex_list:
             hexagon.update()
 
-
-    if event.type == pygame.TEXTINPUT:
-        keys = pygame.key.get_pressed()
-        if keys[pygame.K_g]:
-            state = "go"
-        elif keys[pygame.K_p]:
-            state = "pause"
-
-        if state == "pause" and keys[pygame.K_s]:
-
-            print("Swapping over temp in pause() 1")
-            swap_matrices()
-            '''for x in range(0, 1):
-                hex_matrix = copy.deepcopy(hex_matrix_new)'''
-
-    # need to use the python deepcopy in order to copy the inner lists of a 2D array
-    # TODO: Switch to alternating between two matrices
-
     # HOW TO GET CODE TO START:
         # press g key after running file to start the animation
         # press p to pause the animation
@@ -646,15 +628,9 @@ while run:
             state = "pause"
 
         if state == "pause" and keys[pygame.K_s]:
-            print("Swapping over temp in pause() 2")
             swap_matrices()
 
-            '''for x in range(0, 1):
-                hex_matrix = copy.deepcopy(hex_matrix_new)'''
-
     if state == "go":
-        # __ hex_matrix = copy.deepcopy(hex_matrix_new)
-        print("Swapping over temp in go()")
         swap_matrices()
 
 pygame.quit()
