@@ -247,16 +247,20 @@ class Hex:
    def hit_neighbor(self, future, my_neighbors, neighbors_movable, neighbors_wall, dir):
         # cases for individual side glancing walls
         if (neighbors_wall[(dir-1)%6] == 1) and not (neighbors_wall[(dir+1)%6] == 1):
+            print("hit neighbor case 1, dir = " + str(dir))
+            print("self color " + str(self.contains_direction(dir).color))
             ident_to_rotate = self.contains_direction(dir).copy()
             ident_to_rotate.state = (dir+1)%6
             future.take_ident(ident_to_rotate)
         elif (neighbors_wall[(dir+1)%6] == 1) and not (neighbors_wall[(dir-1)%6] == 1):
+            print("hit neighbor case 2, dir = " + str(dir))
             ident_to_rotate = self.contains_direction(dir).copy()
             ident_to_rotate.state = (dir-1)%6
             future.take_ident(ident_to_rotate)
 
         # if my neighbor is a wall (or if I have two neighors to the side in front), bounce off
         elif (neighbors_wall[dir] == 1) or ((neighbors_wall[(dir-1)%6] == 1) and (neighbors_wall[(dir+1)%6] == 1)):
+            print("hit neighbor case 3")
             ident_to_rotate = self.contains_direction(dir).copy()
             ident_to_rotate.state = (dir+3)%6
             future.take_ident(ident_to_rotate)
@@ -266,6 +270,7 @@ class Hex:
         # TODO: Discuss order in which rules are applied
         # TODO: Also discuss if collisions off of a side wall should take priority over head-on collisions
         elif neighbors_movable[dir] == 1:
+            print("hit neighbor case 4")
             # If I am hitting a stationary neighbor, I become stationary but maintain my identity
             ident_to_stop = self.contains_direction(dir).copy()
             ident_to_stop.state = -1
@@ -318,7 +323,7 @@ class Hex:
                 if my_ident != None:
                     # If in a head-on collision with a neighbor moving in the opposite direction, maintain identity and switch direction
                     print("case 1")
-                    ident_to_flip = my_ident
+                    ident_to_flip = my_ident.copy()
                     ident_to_flip.state = (ident_to_flip.state+3)%6
                     future.take_ident(ident_to_flip)
                 elif counterclockwise_neighbor_ident != None:
@@ -329,8 +334,8 @@ class Hex:
                     
                     #TODO: What if a wall blocks it?
                     if neighbors_wall[(dir+2)%6]:
-                        # Else take on identity of neighbor
-                        print("case 8 alt 1")
+                        # If a wall blocks it, take on identity of neighbor
+                        print("case 2 alt")
                         future.take_ident(neighbor_ident)
                     else:
                         ident_to_flip = counterclockwise_neighbor_ident.copy()
@@ -342,8 +347,8 @@ class Hex:
                     
                     #TODO: What if a wall blocks it?
                     if neighbors_wall[(dir-2)%6]:
-                        # Else take on identity of neighbor
-                        print("case 8 alt 2")
+                        # If a wall blocks it, take on identity of neighbor
+                        print("case 3 alt/")
                         future.take_ident(neighbor_ident)
                     else:
                         ident_to_flip = clockwise_neighbor_ident.copy()
@@ -353,16 +358,28 @@ class Hex:
                 # TODO: Deal with potential wall block for 120 degree collisions
                 elif counterclockwise_step_ident != None:
                     # Deal with 120-degree collision (version 1)
-                    print("case 4")
-                    ident_to_flip = counterclockwise_step_ident.copy()
-                    ident_to_flip.state = (ident_to_flip.state-2)%6
-                    future.take_ident(ident_to_flip)
+                    print("case 4, dir " + str(dir))
+
+                    # TODO: Explain wall influence
+                    if neighbors_wall[(dir+3)%6]:
+                        print("case 4 alt")
+                        future.take_ident(neighbor_ident)
+                    else:
+                        ident_to_flip = counterclockwise_step_ident.copy()
+                        ident_to_flip.state = (ident_to_flip.state-2)%6
+                        future.take_ident(ident_to_flip)
                 elif clockwise_step_ident != None:
                     # Deal with 120-degree collision (version 2)
-                    print("case 5")
-                    ident_to_flip = clockwise_step_ident.copy()
-                    ident_to_flip.state = (ident_to_flip.state+2)%6
-                    future.take_ident(ident_to_flip)
+                    print("case 5, dir " + str(dir))
+
+                    # TODO: Explain wall influence
+                    if neighbors_wall[(dir+3)%6]:
+                        print("case 5 alt")
+                        future.take_ident(neighbor_ident)
+                    else:
+                        ident_to_flip = clockwise_step_ident.copy()
+                        ident_to_flip.state = (ident_to_flip.state+2)%6
+                        future.take_ident(ident_to_flip)
                 elif dir_neighbor_ident and opp_neighbor_ident:
                     # Handle head-on collision with an empty hex in the middle
                     print("case 6")
