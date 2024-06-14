@@ -444,7 +444,7 @@ class Hex:
 
         # If the hex is a wall, it will remain occupied and not movable
         if(self.check_wall_hex()):
-            future.make_wall()
+            future.take_ident(self.contains_direction(-2))
             return
 
 
@@ -483,9 +483,17 @@ class Ident:
         if serial_number == -1:
             self.serial_number = Ident.idents_created
             print("Ident with serial number " + str(self.serial_number) + " created")
+            if state == -2:
+                print("Is a wall")
+            elif state == -1:
+                print("Is stationary")
+            else:
+                print("Is moving")
             Ident.idents_created += 1
         else:
             self.serial_number = serial_number
+            print("Ident with serial number " + str(self.serial_number) + " copied")
+
 
     def copy(self):
         # return copy.copy(self)
