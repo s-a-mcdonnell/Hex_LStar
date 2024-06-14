@@ -476,11 +476,11 @@ def get_color(color_text):
     elif color_text == "GREEN" or color_text == "GREEN\n":
         return(106, 232, 100)
     elif color_text == "BLUE" or color_text == "BLUE\n":
-        return(80, 183, 240)
+        return(45, 70, 181)
     elif color_text == "RED" or color_text == "RED\n":
         return(219, 24, 24)
     elif color_text == "PINK" or color_text == "PINK\n":
-        return(245, 127, 157)
+        return(230, 57, 129)
     else:
         return (100, 100, 100)
 
