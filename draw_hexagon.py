@@ -554,7 +554,7 @@ def check_for_repeat_identities():
                         for j_ident in hex_matrix[l][j].idents:
                             if j_ident.serial_number == i_ident.serial_number:
                                 print("Two idents with serial number " + str(i_ident.serial_number) + " at (" + str(k) + ", " + str(i) + ") and (" + str(l) + ", " + str(j) + ")")
-                                pygame.quit()
+                                # pygame.quit()
 
 import pygame
 
