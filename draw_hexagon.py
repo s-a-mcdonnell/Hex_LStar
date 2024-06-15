@@ -77,32 +77,6 @@ class Hex:
    def is_occupied(self):
        return len(self.idents != 0)
 
-   @staticmethod
-   # returns the average value of the number passed
-   def get_avg_value(nums):
-       total = 0
-       for num in nums:
-           total += num
-
-       return total/len(nums) 
-   
-   # returns a color that represents the average of the idents in the hex
-   def get_avg_color(self):
-       reds = []
-       greens = []
-       blues = []
-       for ident in self.idents:
-           reds.append(ident.color[0])
-           greens.append(ident.color[1])
-           blues.append(ident.color[2])
-
-       avg_red = Hex.get_avg_value(reds)
-       avg_green = Hex.get_avg_value(greens)
-       avg_blue = Hex.get_avg_value(blues)
-
-       return (avg_red, avg_green, avg_blue)  
-
-
     ##########################################################################################################
 
     # graphics
@@ -111,13 +85,10 @@ class Hex:
     # Default color (no idents): light blue
     my_color = (190, 240, 255)
 
-    if (len(self.idents) == 1):
+    if (len(self.idents) >= 1):
         # If a hex contains only one ident, take that color
+        # If a hex contains multiple idents, the ident stored first will be the outermost color
         my_color = self.idents[0].color
-    elif (len(self.idents) > 1):
-        # If a hex contains multiple idents, draw it as the average of the relevant colors
-        # TODO: Replace with drawing nested hexes, one of each relevant color? (would be clearer)
-        my_color = self.get_avg_color()
         
     # Draw the hexagon
     pygame.draw.polygon(screen, my_color, self.coordinates)
@@ -127,26 +98,19 @@ class Hex:
     if self.contains_direction(-1) != None:
         new_color = [max(0, c - 120) for c in my_color]
         pygame.draw.polygon(screen, new_color, new_coords)
-
-    # Draw a star explosion to visually show that a hexagon is in a state of superimposition (multiple states at once)
-    if len(self.idents) > 1:
-        # Using the already-calculated smaller hexagon coordinates as a starting point
-        explosion_tri_1 = [new_coords[0], new_coords[2], new_coords[4]]
-        explosion_tri_2 = [new_coords[1], new_coords[3], new_coords[5]]
-
-        # Red
-        explosion_color = (245, 27, 42)
-        pygame.draw.polygon(screen, explosion_color, explosion_tri_1)
-        pygame.draw.polygon(screen, explosion_color, explosion_tri_2)
-
+    
+    # Draw multiple nesting circles indicating colors for hexes with superimposed idents/states
+    for i in range(1, len(self.idents)):
+        pygame.draw.circle(screen, self.idents[i].color, (self.x+20, self.y+35), 33-5*i)
+    
     # Draw text object displaying axial hex coordiantes
     # self.display_surface.blit(self.text, self.textRect)
 
     # polygon rotation tips from: https://stackoverflow.com/questions/75116101/how-to-make-rotate-polygon-on-key-in-pygame
 
     # draw an arrow on the hex if the hex is moving
-    # TODO: Make smaller arrows for superimposed states?
-    if (self.is_moving):
+    # TODO: Make smaller arrows for superimposed states? (to not hide nested colors)
+    if self.is_moving:
         #pivot is the center of the hexagon
         pivot = pygame.Vector2(self.x + 20, self.y + 35)
         # set of arrow points should be the vectors from the pivot to the edge points of the arrow
