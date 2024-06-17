@@ -632,6 +632,9 @@ def check_for_repeat_identities():
 
 # Updates all the states
 def next_generation():
+    global frames_created
+    frames_created += 1
+
     print("---")
     print("Calculating next generation")
 
@@ -721,7 +724,6 @@ fast = True
 run = True
 frames_created = 0
 while run:
-    frames_created += 1
 
     if fast == False:
         pygame.time.delay(100)
@@ -748,8 +750,10 @@ while run:
 
     # HOW TO GET CODE TO START:
         # press g key after running file to start the animation
+        # press h to go into hyper mode
         # press p to pause the animation
         # press s while paused to step through the animation
+        # press f to print number of frames created so far
     if event.type == pygame.TEXTINPUT:
         # takes the key input
         keys = pygame.key.get_pressed()
@@ -766,6 +770,11 @@ while run:
             next_generation()
             dt = clock.tick(1) / 1000
             #TODO: Why is it taking two steps?
+        
+         # Print number of frames created so far (for debugging)
+         # TODO: make this only print once (need to edit keys[pygame.K_f], but I don't think I can)
+        if keys[pygame.K_f]:
+            print(str(frames_created) + " frame(s) created")
 
     if state == "go":
         fast = True
@@ -774,7 +783,7 @@ while run:
     elif state == "hyper":
         fast = True
         next_generation()
-        dt = clock.tick(2000) / 1000
+        dt = clock.tick(2000) / 1000        
     
     check_for_repeat_identities()
 
