@@ -91,6 +91,7 @@ class Hex:
        self.idents.append(Ident(color, -1))
 
    # returns a boolean indicating if a hex is occupied 
+   # TODO: Maybe have this return false for portals?
    def is_occupied(self):
        return len(self.idents != 0)
 
@@ -310,9 +311,6 @@ class Hex:
                 ident_to_stop = self.contains_direction(dir).copy()
                 ident_to_stop.state = -1
                 future.take_ident(ident_to_stop)
-    
-                future.occupied = True
-                future.movable = True
 
     ##########################################################################################################
 
@@ -321,7 +319,7 @@ class Hex:
         # straight_neighbor is the neighbor in that direction (ex. when dir = 0, straight_neighbor is the upper neighbor of self)
        straight_neighbor = my_neighbors[dir]
 
-        # TODO: Janky quick fix for portals
+        # TODO: Janky quick fix for portals (In this method, no collisions happen in/on portals)
        if self.contains_portal():
            neighbor_ident = straight_neighbor.contains_direction((dir+3)%6)
            if neighbor_ident:
@@ -446,15 +444,18 @@ class Hex:
                     ident_to_flip = dir_neighbor_ident.copy()
                     ident_to_flip.state = (ident_to_flip.state + 3)%6
                     future.take_ident(ident_to_flip)
-                elif self.check_movable_hex():
+                elif self.check_movable_hex() and not self.contains_portal():
                     print("case 7")
-                    # If I am currently stationary and none of the previous statements have been triggered, I will remain stationary in the next generation
+                    # If I am currently stationary and none of the previous statements have been triggered, I will be bumped
+                    # TODO: Check that the descriptive comment is accurate
+                    # TODO: What is there's superimposition on a portal?
+                    
                     ident_to_edit = self.contains_direction(-1).copy()
                     ident_to_edit.state = (dir+3)%6
                     future.take_ident(ident_to_edit)
                 else:
                     # Else take on identity of neighbor
-                    print("case 8")
+                    print("case 8, taking on ident " + str(neighbor_ident.serial_number) + " with state " + str(neighbor_ident.state))
                     future.take_ident(neighbor_ident)
         
         # handle impact of hitting occupied neighbor
@@ -581,6 +582,8 @@ class Ident:
                 print("Is a wall")
             elif state == -1:
                 print("Is stationary")
+                if self.property == "portal":
+                    print("Is a portal")
             else:
                 print("Is moving")
             Ident.idents_created += 1
