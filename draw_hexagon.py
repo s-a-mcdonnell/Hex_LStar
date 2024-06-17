@@ -300,22 +300,21 @@ class Hex:
                 # My identity pointing in the given direction, if it exists
                 my_ident = self.contains_direction(dir)
 
-                # TODO: Did I mess up the names clockwise and counterclockwise?
-                counterclockwise_neighbor_ident = None
-                if my_neighbors[(dir+1)%6] != None:
-                    counterclockwise_neighbor_ident = my_neighbors[(dir+1)%6].contains_direction((dir-2)%6)
-
                 clockwise_neighbor_ident = None
+                if my_neighbors[(dir+1)%6] != None:
+                    clockwise_neighbor_ident = my_neighbors[(dir+1)%6].contains_direction((dir-2)%6)
+
+                counterclockwise_neighbor_ident = None
                 if my_neighbors[(dir-1)%6] != None:
-                    clockwise_neighbor_ident = my_neighbors[(dir-1)%6].contains_direction((dir+2)%6)
-                
-                counterclockwise_step_ident = None
-                if my_neighbors[(dir+2)%6] != None:
-                    counterclockwise_step_ident = my_neighbors[(dir+2)%6].contains_direction((dir-1)%6)
+                    counterclockwise_neighbor_ident = my_neighbors[(dir-1)%6].contains_direction((dir+2)%6)
                 
                 clockwise_step_ident = None
+                if my_neighbors[(dir+2)%6] != None:
+                    clockwise_step_ident = my_neighbors[(dir+2)%6].contains_direction((dir-1)%6)
+                
+                counterclockwise_step_ident = None
                 if my_neighbors[(dir-2)%6] != None:
-                    clockwise_step_ident = my_neighbors[(dir-2)%6].contains_direction((dir+1)%6)
+                    counterclockwise_step_ident = my_neighbors[(dir-2)%6].contains_direction((dir+1)%6)
                 
                 # TODO: Is this just neighbor_ident?
                 dir_neighbor_ident = None
@@ -332,12 +331,12 @@ class Hex:
                     ident_to_flip = my_ident.copy()
                     ident_to_flip.state = (ident_to_flip.state+3)%6
                     future.take_ident(ident_to_flip)
-                elif clockwise_neighbor_ident != None and counterclockwise_neighbor_ident != None:
+                elif counterclockwise_neighbor_ident != None and clockwise_neighbor_ident != None:
                     # If three arrows are approaching at 60 degree angles and I am in the middle, I go straight
                     print("case 1.5")
                     future.take_ident(neighbor_ident)
     
-                elif counterclockwise_step_ident != None:
+                elif clockwise_step_ident != None:
                     # Deal with 120-degree collision (version 1)
                     print("case 4, dir " + str(dir))
 
@@ -347,10 +346,10 @@ class Hex:
                         future.take_ident(neighbor_ident)
                     else:
                         # Bounce
-                        ident_to_flip = counterclockwise_step_ident.copy()
+                        ident_to_flip = clockwise_step_ident.copy()
                         ident_to_flip.state = (ident_to_flip.state-2)%6
                         future.take_ident(ident_to_flip)
-                elif clockwise_step_ident != None:
+                elif counterclockwise_step_ident != None:
                     # Deal with 120-degree collision (version 2)
                     print("case 5, dir " + str(dir))
 
@@ -359,13 +358,13 @@ class Hex:
                         print("case 5 alt")
                         future.take_ident(neighbor_ident)
                     else:
-                        ident_to_flip = clockwise_step_ident.copy()
+                        ident_to_flip = counterclockwise_step_ident.copy()
                         ident_to_flip.state = (ident_to_flip.state+2)%6
                         future.take_ident(ident_to_flip)
                 
                 # TODO: Find more edge cases of 3+ hexes colliding
 
-                elif counterclockwise_neighbor_ident != None:
+                elif clockwise_neighbor_ident != None:
                     # Deal with 60-degree collision (version 1)
                     print("case 2, dir = " + str(dir))
                     # if I have two adjacent neighbors pointing at me
@@ -382,10 +381,10 @@ class Hex:
                         future.take_ident(ident_to_rotate)
                     else:
                         # Bounce
-                        ident_to_flip = counterclockwise_neighbor_ident.copy()
+                        ident_to_flip = clockwise_neighbor_ident.copy()
                         ident_to_flip.state = (ident_to_flip.state-1)%6
                         future.take_ident(ident_to_flip)
-                elif clockwise_neighbor_ident != None:
+                elif counterclockwise_neighbor_ident != None:
                     # Deal with 60-degree collision (version 2)
                     print("case 3, dir = " + str(dir))
                     
@@ -400,7 +399,7 @@ class Hex:
                         future.take_ident(ident_to_rotate)
                     else:
                         # Bounce
-                        ident_to_flip = clockwise_neighbor_ident.copy()
+                        ident_to_flip = counterclockwise_neighbor_ident.copy()
                         print("I am hex (" + str(self.matrix_index) + ", " + str(self.list_index) + ")")
                         print("flipping ident with color " + str(ident_to_flip.color) + ", original direction " + str(ident_to_flip.state))
                         ident_to_flip.state = (ident_to_flip.state+1)%6
