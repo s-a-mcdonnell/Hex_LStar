@@ -718,7 +718,7 @@ SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 600
 
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-pygame.display.set_caption("Draw Hexagon")
+pygame.display.set_caption("Hex Simulator")
 
 # set up pygame timer
 clock = pygame.time.Clock()
