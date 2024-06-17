@@ -67,12 +67,10 @@ class Hex:
     # sets the given hex to act as a portal
     # TODO: How to set destiantion?
    def make_portal(self, pair_matrix_index, pair_list_index):
-       # Wipe idents currently stored
-       self.idents = None
-       self.idents = []
        # Portals are dark purple
        # TODO: What state to pass?
        # TODO: Rename variables
+       # TODO: Ideally, portals should be linked just to idents, not to hexes (so they can move)
        self.idents.append(Ident((75, 4, 122), property="portal", pair_matrix_index=pair_matrix_index, pair_list_index=pair_list_index))
 
     ##########################################################################################################
@@ -194,15 +192,6 @@ class Hex:
 
     ##########################################################################################################
 
-    # returns a boolean indicating if the given hex is a wall (occupied and not movable)
-   def check_wall_hex(self):
-       # There should never be a wall hex containing multiple idents
-       # If the one ident isn't state -2, it's not a wall
-       if (len(self.idents) != 1) or (self.idents[0].state != -2):
-           return False
-       else:
-           return True
-
 # Checks if a hex contains an ident heading in the given directon
    # If it does, returns that ident
    # Else returns None
@@ -213,10 +202,18 @@ class Hex:
                return ident
 
        return None 
+   
+   # Returns true if the given hex contains a wall ident, else returns false
+   def contains_wall(self):
+       for ident in self.idents:
+           if ident.state == -2:
+                return True
+           
+       return False    
 
     ##########################################################################################################
 
-    # Checks if a hex contains a potral ident
+    # Checks if a hex contains a portal ident
     # If it does, returns that ident
     # Else returns None
    def contains_portal(self):
@@ -239,36 +236,36 @@ class Hex:
         # check upper hex (pos 0)
         if self.list_index - 1 >= 0:
            hexToCheck = hex_matrix[self.matrix_index][self.list_index - 1]
-           hex_walls[0] = hexToCheck.check_wall_hex()
+           hex_walls[0] = hexToCheck.contains_wall()
 
          # check northeast hex (pos 1)
         if (self.matrix_index + 1 < len(hex_matrix)) and (self.list_index - 1 >= 0):
            hexToCheck = hex_matrix[self.matrix_index + 1][self.list_index - 1]
-           hex_walls[1] = hexToCheck.check_wall_hex()
+           hex_walls[1] = hexToCheck.contains_wall()
 
 
         # check southeast hex (pos 2)
         if self.matrix_index + 1 < len(hex_matrix):
             hexToCheck = hex_matrix[self.matrix_index + 1][self.list_index]
-            hex_walls[2] = hexToCheck.check_wall_hex()
+            hex_walls[2] = hexToCheck.contains_wall()
 
 
         # check down hex (pos 3)
         if self.list_index + 1 < len(hex_list):
             hexToCheck = hex_matrix[self.matrix_index][self.list_index + 1]
-            hex_walls[3] = hexToCheck.check_wall_hex()
+            hex_walls[3] = hexToCheck.contains_wall()
 
 
         # check southwest hex (pos 4)
         if (self.matrix_index - 1 >= 0) and (self.list_index + 1 < len(hex_list)):
             hexToCheck = hex_matrix[self.matrix_index - 1][self.list_index + 1]
-            hex_walls[4] = hexToCheck.check_wall_hex()
+            hex_walls[4] = hexToCheck.contains_wall()
 
 
          # check northwest hex (pos 5)
         if self.matrix_index - 1 >= 0:
             hexToCheck = hex_matrix[self.matrix_index - 1][self.list_index]
-            hex_walls[5] = hexToCheck.check_wall_hex()
+            hex_walls[5] = hexToCheck.contains_wall()
 
 
         return hex_walls
@@ -302,15 +299,20 @@ class Hex:
         # if I am moving toward my neighbor, and my neighbor is occupied but not moving, then I become occupied but not moving
         # TODO: Discuss order in which rules are applied
         # TODO: Also discuss if collisions off of a side wall should take priority over head-on collisions
+        # TODO: Also explain and de-jankify portal patch
         elif neighbors_movable[dir] == 1:
-            print("hit neighbor case 4, dir = " + str(dir))
-            # If I am hitting a stationary neighbor, I become stationary but maintain my identity
-            ident_to_stop = self.contains_direction(dir).copy()
-            ident_to_stop.state = -1
-            future.take_ident(ident_to_stop)
-   
-            future.occupied = True
-            future.movable = True
+
+            if my_neighbors[dir].contains_portal():
+                print("hit portal neighbor")
+            else:
+                print("hit neighbor case 4, dir = " + str(dir))
+                # If I am hitting a stationary neighbor, I become stationary but maintain my identity
+                ident_to_stop = self.contains_direction(dir).copy()
+                ident_to_stop.state = -1
+                future.take_ident(ident_to_stop)
+    
+                future.occupied = True
+                future.movable = True
 
     ##########################################################################################################
 
@@ -318,6 +320,13 @@ class Hex:
    def motion_handler(self, future, my_neighbors, neighbors_movable, neighbors_wall, dir):
         # straight_neighbor is the neighbor in that direction (ex. when dir = 0, straight_neighbor is the upper neighbor of self)
        straight_neighbor = my_neighbors[dir]
+
+        # TODO: Janky quick fix for portals
+       if self.contains_portal():
+           neighbor_ident = straight_neighbor.contains_direction((dir+3)%6)
+           if neighbor_ident:
+                future.take_ident(neighbor_ident)
+           return
 
         # if my neighbor is moving toward me and is not blocked by either of two side walls, I will gain motion
        if (not neighbors_wall[(dir+1)%6]) and (not neighbors_wall[(dir-1)%6]):
@@ -503,19 +512,19 @@ class Hex:
    def update(self):
         # determine the state of the current hex based on the states of the hexes around it
         future = hex_matrix_new[self.matrix_index][self.list_index]
+        future.idents = []
 
         # TODO: If self is a portal, future is its paired location
-        paired_portal = self.contains_portal()
-        if paired_portal:
-            future = hex_matrix_new[paired_portal.pair_matrix_index][paired_portal.pair_list_index]
-
-        future.idents = []
+        paired_portal_ident = self.contains_portal()
+        if paired_portal_ident:
+            future.take_ident(paired_portal_ident)
+            future = hex_matrix_new[ paired_portal_ident.pair_matrix_index][ paired_portal_ident.pair_list_index]
 
         neighbors_movable = self.check_movables()
         neighbors_wall = self.check_walls()
 
         # If the hex is a wall, it will remain occupied and not movable
-        if(self.check_wall_hex()):
+        if(self.contains_wall()):
             future.take_ident(self.contains_direction(-2))
             return
 
@@ -523,7 +532,8 @@ class Hex:
         my_neighbors = self.get_neighbors()
         
         # TODO: Convert if self.movable: to ident
-        if (len(self.idents) == 0) or (self.idents[0].state != -2):
+        # If the hex does not contains a wall
+        if not self.contains_wall():
             # TODO: Adjust to account for idents
 
             for i in range(6):
@@ -548,7 +558,13 @@ class Ident:
 
     def __init__(self, color=(255, 255, 255), state=-1, serial_number=-1, property=None, pair_matrix_index=-1, pair_list_index=-1):
         self.color = color
+
+        # States:
+        # -2 = wall
+        # -1 = stationary but movable
+        # 0 through 5 = directions of motion (0 = 12 o'clock)
         self.state = state
+        
         self.property = property
 
         # For portals
