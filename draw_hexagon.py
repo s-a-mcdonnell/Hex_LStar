@@ -326,8 +326,6 @@ class Hex:
                 if my_neighbors[(dir+3)%6] != None:
                     opp_neighbor_ident = my_neighbors[(dir+3)%6].contains_direction(dir)
 
-                # TODO: What if I contain multiple identities? (Do elif statements really make sense here?)
-
                 if my_ident != None:
                     # If in a head-on collision with a neighbor moving in the opposite direction, maintain identity and switch direction
                     print("case 1")
@@ -343,12 +341,12 @@ class Hex:
                     # Deal with 120-degree collision (version 1)
                     print("case 4, dir " + str(dir))
 
-                    # TODO: Explain wall influence
-                    # TODO: What if the other arrow it would collide with bounces off of an arrow in self?
                     if neighbors_wall[(dir+3)%6] or self.contains_direction((dir+2)%6):
+                        # If a wall gets in the way or I contain an arrow that will collide with the incoming arrow, do not bounce
                         print("case 4 alt")
                         future.take_ident(neighbor_ident)
                     else:
+                        # Bounce
                         ident_to_flip = counterclockwise_step_ident.copy()
                         ident_to_flip.state = (ident_to_flip.state-2)%6
                         future.take_ident(ident_to_flip)
@@ -356,9 +354,8 @@ class Hex:
                     # Deal with 120-degree collision (version 2)
                     print("case 5, dir " + str(dir))
 
-                    # TODO: Explain wall influence
-                     # TODO: What if the other arrow it would collide with bounces off of an arrow in self?
                     if neighbors_wall[(dir+3)%6] or self.contains_direction((dir-2)%6):
+                        # If a wall gets in the way or I contain an arrow that will collide with the incoming arrow, do not bounce
                         print("case 5 alt")
                         future.take_ident(neighbor_ident)
                     else:
@@ -374,7 +371,6 @@ class Hex:
                     # if I have two adjacent neighbors pointing at me
                     # take the ident from the straight_neighbor but flip its state to match that from the other neighbor (adjacent to straight_neighbor)
                     
-                    # TODO: what if there's a collision of 3 hexes at 120 and 60 degrees?
                     if neighbors_wall[(dir+2)%6] or self.contains_direction((dir+1)%6):
                         # If a wall blocks it or it collides with an arrow in self, take on identity of neighbor
                         print("case 2 alt")
@@ -393,7 +389,6 @@ class Hex:
                     # Deal with 60-degree collision (version 2)
                     print("case 3, dir = " + str(dir))
                     
-                    # TODO: what if there's a collision of 3 hexes at 120 and 60 degrees?
                     if neighbors_wall[(dir-2)%6] or self.contains_direction((dir-1)%6):
                         # If a wall blocks it of it collides with an arrow in self, take on identity of neighbor
                         print("case 3 alt/")
@@ -419,8 +414,7 @@ class Hex:
                     future.take_ident(ident_to_flip)
                 elif self.check_movable_hex():
                     print("case 7")
-                    # If I am currently stationary
-                    # TODO: Describe logic here
+                    # If I am currently stationary and none of the previous statements have been triggered, I will remain stationary in the next generation
                     ident_to_edit = self.contains_direction(-1).copy()
                     ident_to_edit.state = (dir+3)%6
                     future.take_ident(ident_to_edit)
