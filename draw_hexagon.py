@@ -66,12 +66,12 @@ class Hex:
 
     # sets the given hex to act as a portal
     # TODO: How to set destiantion?
-   def make_portal(self, pair_matrix_index, pair_list_index):
+   def make_portal(self, pmi, pli):
        # Portals are dark purple
        # TODO: What state to pass?
        # TODO: Rename variables
        # TODO: Ideally, portals should be linked just to idents, not to hexes (so they can move)
-       self.idents.append(Ident((75, 4, 122), property="portal", pair_matrix_index=pair_matrix_index, pair_list_index=pair_list_index))
+       self.idents.append(Ident((75, 4, 122), property="portal", pair_matrix_index=pmi, pair_list_index=pli))
 
     ##########################################################################################################
 
@@ -84,6 +84,8 @@ class Hex:
 
     # Appends the passed ident to the given hex
    def take_ident(self, ident):
+       if ident.state != -2:
+            print("hex at " + str(self.matrix_index) + ", " + str(self.list_index) + " taking ident " + str(ident.serial_number))
        self.idents.append(ident)    
 
    def make_occupied(self, color=(0, 255, 0)):
@@ -516,10 +518,10 @@ class Hex:
         future.idents = []
 
         # TODO: If self is a portal, future is its paired location
-        paired_portal_ident = self.contains_portal()
-        if paired_portal_ident:
-            future.take_ident(paired_portal_ident)
-            future = hex_matrix_new[ paired_portal_ident.pair_matrix_index][ paired_portal_ident.pair_list_index]
+        portal_ident = self.contains_portal()
+        if portal_ident:
+            future.take_ident(portal_ident)
+            future = hex_matrix_new[portal_ident.pair_matrix_index][portal_ident.pair_list_index]
 
         neighbors_movable = self.check_movables()
         neighbors_wall = self.check_walls()

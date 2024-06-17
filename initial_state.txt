@@ -1,2 +1,2 @@
-4 8 move GREEN 3
-4 10 portal 7 8
+9 8 move GREEN 5
+7 8 portal 4 10
