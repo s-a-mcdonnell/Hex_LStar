@@ -64,6 +64,21 @@ class Hex:
 
     ##########################################################################################################
 
+    # sets the given hex to act as a portal
+    # TODO: How to set destiantion?
+   def make_portal(self, pair_matrix_index, pair_list_index):
+       # Wipe idents currently stored
+       self.idents = None
+       self.idents = []
+       # Portals are dark purple
+       # TODO: What state to pass?
+       # TODO: Rename variables
+       self.idents.append(Ident((75, 4, 122), property="portal", pair_matrix_index=pair_matrix_index, pair_list_index=pair_list_index))
+
+    ##########################################################################################################
+
+    ##########################################################################################################
+
     # sets the given hex to move in a given direction
    def make_move(self, dir, color=(255,0,0)):
        # Note: Does not overwrite idents currently stored
@@ -200,6 +215,17 @@ class Hex:
        return None 
 
     ##########################################################################################################
+
+    # Checks if a hex contains a potral ident
+    # If it does, returns that ident
+    # Else returns None
+   def contains_portal(self):
+       for ident in self.idents:
+           # TODO: Use int insteal of string for faster processing
+           if ident.property == "portal":
+                return ident
+
+       return None    
 
     ##########################################################################################################
 
@@ -478,6 +504,11 @@ class Hex:
         # determine the state of the current hex based on the states of the hexes around it
         future = hex_matrix_new[self.matrix_index][self.list_index]
 
+        # TODO: If self is a portal, future is its paired location
+        paired_portal = self.contains_portal()
+        if paired_portal:
+            future = hex_matrix_new[paired_portal.pair_matrix_index][paired_portal.pair_list_index]
+
         future.idents = []
 
         neighbors_movable = self.check_movables()
@@ -515,10 +546,14 @@ class Ident:
     # Default state -1 (movable but not moving)
     idents_created = 0
 
-    def __init__(self, color=(255, 255, 255), state=-1, serial_number=-1, property=None):
+    def __init__(self, color=(255, 255, 255), state=-1, serial_number=-1, property=None, pair_matrix_index=-1, pair_list_index=-1):
         self.color = color
         self.state = state
         self.property = property
+
+        # For portals
+        self.pair_matrix_index = pair_matrix_index
+        self.pair_list_index=pair_list_index
 
         # Record serial number and iterate
         if serial_number == -1:
@@ -591,6 +626,11 @@ def read_line(line):
         hex_matrix[matrix_index][list_index].make_occupied(color)
     elif command == "wall" or command == "wall\n":
         hex_matrix[matrix_index][list_index].make_wall()
+    elif command == "portal" or command == "portal\n":  
+        pair_matrix_index = int(line_parts[3])
+        pair_list_index = int(line_parts[4])  
+        hex_matrix[matrix_index][list_index].make_portal(pair_matrix_index, pair_list_index)
+        hex_matrix[pair_matrix_index][pair_list_index].make_portal(matrix_index, list_index)
 
 def swap_matrices():
     global hex_matrix
