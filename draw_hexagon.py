@@ -561,8 +561,12 @@ def get_color(color_text):
         return(106, 232, 100)
     elif color_text == "BLUE" or color_text == "BLUE\n":
         return(45, 70, 181)
+    elif color_text == "CYAN" or color_text == "CYAN\n":
+        return (71, 230, 216) 
     elif color_text == "RED" or color_text == "RED\n":
         return(219, 24, 24)
+    elif color_text == "MAROON" or color_text == "MAROON\n":
+        return (143, 6, 15)
     elif color_text == "PINK" or color_text == "PINK\n":
         return(230, 57, 129)
     else:
