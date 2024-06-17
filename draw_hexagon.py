@@ -317,6 +317,7 @@ class Hex:
                 if my_neighbors[(dir-2)%6] != None:
                     clockwise_step_ident = my_neighbors[(dir-2)%6].contains_direction((dir+1)%6)
                 
+                # TODO: Is this just neighbor_ident?
                 dir_neighbor_ident = None
                 if my_neighbors[dir] != None:
                     dir_neighbor_ident = my_neighbors[dir].contains_direction((dir+3)%6)
@@ -365,19 +366,26 @@ class Hex:
                         ident_to_flip.state = (ident_to_flip.state+2)%6
                         future.take_ident(ident_to_flip)
                 
+                # TODO: Find more edge cases of 3+ hexes colliding
+
                 elif counterclockwise_neighbor_ident != None:
                     # Deal with 60-degree collision (version 1)
                     print("case 2, dir = " + str(dir))
                     # if I have two adjacent neighbors pointing at me
                     # take the ident from the straight_neighbor but flip its state to match that from the other neighbor (adjacent to straight_neighbor)
                     
-                    #TODO: What if a wall blocks it?
-                    # TODO: What if the other arrow it would collide with bounces off of an arrow in self?
+                    # TODO: what if there's a collision of 3 hexes at 120 and 60 degrees?
                     if neighbors_wall[(dir+2)%6] or self.contains_direction((dir+1)%6):
-                        # If a wall blocks it, take on identity of neighbor
+                        # If a wall blocks it or it collides with an arrow in self, take on identity of neighbor
                         print("case 2 alt")
                         future.take_ident(neighbor_ident)
+                    elif opp_neighbor_ident != None:
+                        # If our direct neighbor will be colliding in a 120 degree collision (and thus not colliding with us), rotate
+                        ident_to_rotate = neighbor_ident.copy()
+                        ident_to_rotate.state = (ident_to_rotate.state + 2)%6
+                        future.take_ident(ident_to_rotate)
                     else:
+                        # Bounce
                         ident_to_flip = counterclockwise_neighbor_ident.copy()
                         ident_to_flip.state = (ident_to_flip.state-1)%6
                         future.take_ident(ident_to_flip)
@@ -385,13 +393,18 @@ class Hex:
                     # Deal with 60-degree collision (version 2)
                     print("case 3, dir = " + str(dir))
                     
-                    #TODO: What if a wall blocks it?
-                    # TODO: What if the other arrow it would collide with bounces off of an arrow in self?
+                    # TODO: what if there's a collision of 3 hexes at 120 and 60 degrees?
                     if neighbors_wall[(dir-2)%6] or self.contains_direction((dir-1)%6):
-                        # If a wall blocks it, take on identity of neighbor
+                        # If a wall blocks it of it collides with an arrow in self, take on identity of neighbor
                         print("case 3 alt/")
                         future.take_ident(neighbor_ident)
+                    elif opp_neighbor_ident != None:
+                        # If our direct neighbor will be colliding in a 120 degree collision (and thus not colliding with us), rotate
+                        ident_to_rotate = neighbor_ident.copy()
+                        ident_to_rotate.state = (ident_to_rotate.state - 2)%6
+                        future.take_ident(ident_to_rotate)
                     else:
+                        # Bounce
                         ident_to_flip = clockwise_neighbor_ident.copy()
                         print("I am hex (" + str(self.matrix_index) + ", " + str(self.list_index) + ")")
                         print("flipping ident with color " + str(ident_to_flip.color) + ", original direction " + str(ident_to_flip.state))
