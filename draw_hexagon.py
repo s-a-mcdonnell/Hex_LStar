@@ -44,6 +44,10 @@ class Hex:
        self.arrows = []
        for i in range(6):
             self.arrows.append([(pygame.math.Vector2(x, y)).rotate(60.0*i) + pivot for x, y in arrow]) 
+    
+        # Coordinates used to draw smaller hexagon later if the hex becomes stationary
+       self.small_hexagon = [(self.x+9, self.y+11), (self.x+31, self.y+11), (self.x+47, self.y+35), (self.x+31, self.y+59), (self.x+9, self.y+59), (self.x-7, self.y+35)]
+ 
 
     ##########################################################################################################
 
@@ -94,14 +98,14 @@ class Hex:
     pygame.draw.polygon(screen, my_color, self.coordinates)
 
     # Draw an extra hexagon to visually show that a hexagon is stationary even with the different colors
-    new_coords = [(self.x+9, self.y+11), (self.x+31, self.y+11), (self.x+47, self.y+35), (self.x+31, self.y+59), (self.x+9, self.y+59), (self.x-7, self.y+35)]
     if self.contains_direction(-1) != None:
         new_color = [max(0, c - 120) for c in my_color]
-        pygame.draw.polygon(screen, new_color, new_coords)
+        pygame.draw.polygon(screen, new_color, self.small_hexagon)
     
     # Draw multiple nesting circles indicating colors for hexes with superimposed idents/states
     for i in range(1, len(self.idents)):
-        pygame.draw.circle(screen, self.idents[i].color, (self.x+20, self.y+35), 33-5*i)
+        if (33 - 5*i) > 0:
+            pygame.draw.circle(screen, self.idents[i].color, (self.x+20, self.y+35), 33-5*i)
     
     # Draw text object displaying axial hex coordiantes
     # self.display_surface.blit(self.text, self.textRect)
