@@ -269,7 +269,8 @@ class Hex:
             # If I am hitting a stationary neighbor, I become stationary but maintain my identity
             ident_to_stop = self.contains_direction(dir).copy()
             ident_to_stop.state = -1
-            future.take_ident(ident_to_stop)
+            if(future.contains_direction(-1) is None):
+                future.take_ident(ident_to_stop)
    
             future.occupied = True
             future.movable = True
@@ -280,6 +281,76 @@ class Hex:
    def motion_handler(self, future, my_neighbors, neighbors_movable, neighbors_wall, dir):
         # straight_neighbor is the neighbor in that direction (ex. when dir = 0, straight_neighbor is the upper neighbor of self)
        straight_neighbor = my_neighbors[dir]
+
+
+        # if I am in a collision state (with multiple idents) and the neighbors in the direction I came from are stationary, move me up
+        # HOWEVER if I am in a collision state that resulted from people hitting me stationary from opposite sides, I act as a wall
+       if (len(self.idents) > 1):
+            stationary_left_behind = [] # list of booleans for each ident if there is a neighbor in its opposite direction 
+            for i in self.idents:
+                direction = i.state
+                if(direction >= 0):
+                    stationary_left_behind.append(neighbors_movable[(int(direction) + 3) % 6])
+            # checks if all elements that current states are pointing away from are in fact movable
+            # if so, special case!!!
+
+            # resolving cases of two hexes colliding into one stationary hex
+            if "True, False, False, True" in str(neighbors_movable) and len(stationary_left_behind) == 2:
+                # if this is true, the collision was from opposing sides (180 degrees)
+                # print("180")
+                # then, the center immovable object acts as a wall
+                future_to_store = []
+                for i in self.idents:
+                    if(i.state >= 0):
+                        i.state = (i.state + 3) % 6
+                        future_to_store.append(i)
+                # passing stationary hex of the correct color to the future
+                forward = self.contains_direction(-1).color
+                self.idents.clear()
+                future.idents.clear()
+                self.take_ident(Ident(forward, -1))
+                future.take_ident(Ident(forward, -1))
+                for i in future_to_store:
+                    self.take_ident(i)
+
+
+            elif ("True, True" in str(neighbors_movable) or str(neighbors_movable) == "[True, False, False, False, False, True]") and len(stationary_left_behind) == 2:
+                # if this is true, the collision had its two incoming hexes at a 60 degree angle from each other
+                # print("60!!!")
+                if(all(flag == 1 for flag in stationary_left_behind)):
+                    # for 60 degree case, the stationary object moves in the direction that the more counterclockwise hex shows
+                    future_direction = 0
+                    if str(neighbors_movable) == "[True, False, False, False, False, True]":
+                        future_direction = 2
+                    else:
+                        future_direction = min([i for i, val in enumerate(neighbors_movable) if val]) - 3
+                        # minimum true value => clockwise movable neighbor
+                    forward = Ident((self.contains_direction(-1).color), future_direction)
+                    self.idents.clear()
+                    self.take_ident(forward)
+
+            elif len(stationary_left_behind) == 2:
+                # print("120 :)")
+                # this picks the direction correctly for 120 degreee collisions, but perhaps this should be done upon the initial collision???
+                if(all(flag == 1 for flag in stationary_left_behind)):
+                    future_direction = []
+                    for i in self.idents:
+                        # perhaps only append if we have a neighbor in that direction
+                        if(neighbors_movable[int(i.state) - 3 % 6] == 1):
+                            future_direction.append((i.state - 3) % 6)
+                    # different cases for future_direction_real
+                    # both of these are just for 120 degree differences 
+                    if(max(future_direction) - min(future_direction) == 2):
+                        future_direction_real = ((min(future_direction) - 2) % 6)
+                    elif(max(future_direction) - min(future_direction) == 4):
+                        future_direction_real = ((max(future_direction) - 2) % 6)
+                    forward = Ident(self.contains_direction(-1).color, future_direction_real)
+                    self.idents.clear()
+                    self.take_ident(forward)
+        # --- END CASES FOR TWO HEXES COLLIDING WITH ONE STATIONARY CASE
+        # TODO: possibly generalize the above cases for multiple hexes colliding with a stationary hex?
+
+
 
         # if my neighbor is moving toward me and is not blocked by either of two side walls, I will gain motion
        if (not neighbors_wall[(dir+1)%6]) and (not neighbors_wall[(dir-1)%6]):
@@ -336,6 +407,8 @@ class Hex:
                         ident_to_flip = counterclockwise_neighbor_ident.copy()
                         ident_to_flip.state = (ident_to_flip.state-1)%6
                         future.take_ident(ident_to_flip)
+                        if self.contains_direction(-1) is not None:
+                            future.take_ident(self.contains_direction(-1))
                 elif clockwise_neighbor_ident != None:
                     # Deal with 60-degree collision (version 2)
                     print("case 3")
@@ -349,6 +422,8 @@ class Hex:
                         ident_to_flip = clockwise_neighbor_ident.copy()
                         ident_to_flip.state = (ident_to_flip.state+1)%6
                         future.take_ident(ident_to_flip)
+                        if self.contains_direction(-1) is not None:
+                            future.take_ident(self.contains_direction(-1))
 
                 # TODO: Deal with potential wall block for 120 degree collisions
                 elif counterclockwise_step_ident != None:
@@ -357,18 +432,24 @@ class Hex:
                     ident_to_flip = counterclockwise_step_ident.copy()
                     ident_to_flip.state = (ident_to_flip.state-2)%6
                     future.take_ident(ident_to_flip)
+                    if self.contains_direction(-1) is not None:
+                            future.take_ident(self.contains_direction(-1))
                 elif clockwise_step_ident != None:
                     # Deal with 120-degree collision (version 2)
                     print("case 5")
                     ident_to_flip = clockwise_step_ident.copy()
                     ident_to_flip.state = (ident_to_flip.state+2)%6
                     future.take_ident(ident_to_flip)
+                    if self.contains_direction(-1) is not None:
+                            future.take_ident(self.contains_direction(-1))
                 elif dir_neighbor_ident and opp_neighbor_ident:
                     # Handle head-on collision with an empty hex in the middle
                     print("case 6")
                     ident_to_flip = dir_neighbor_ident.copy()
                     ident_to_flip.state = (ident_to_flip.state + 3)%6
                     future.take_ident(ident_to_flip)
+                    if self.contains_direction(-1) and (future.contains_direction(-1) == None):
+                        future.take_ident(self.contains_direction(-1).copy())
                 elif self.check_movable_hex():
                     print("case 7")
                     # If I am currently stationary
@@ -380,6 +461,8 @@ class Hex:
                     # Else take on identity of neighbor
                     print("case 8")
                     future.take_ident(neighbor_ident)
+                    if self.contains_direction(-1) and (future.contains_direction(-1) == None):
+                        future.take_ident(self.contains_direction(-1).copy())
         
         # handle impact of hitting occupied neighbor
        if self.contains_direction(dir): 
