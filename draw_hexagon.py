@@ -333,6 +333,38 @@ class Hex:
                     ident_to_flip = my_ident.copy()
                     ident_to_flip.state = (ident_to_flip.state+3)%6
                     future.take_ident(ident_to_flip)
+                elif clockwise_neighbor_ident != None and counterclockwise_neighbor_ident != None:
+                    # If three arrows are approaching at 60 degree angles and I am in the middle, I go straight
+                    print("case 1.5")
+                    future.take_ident(neighbor_ident)
+    
+                elif counterclockwise_step_ident != None:
+                    # Deal with 120-degree collision (version 1)
+                    print("case 4, dir " + str(dir))
+
+                    # TODO: Explain wall influence
+                    # TODO: What if the other arrow it would collide with bounces off of an arrow in self?
+                    if neighbors_wall[(dir+3)%6] or self.contains_direction((dir+2)%6):
+                        print("case 4 alt")
+                        future.take_ident(neighbor_ident)
+                    else:
+                        ident_to_flip = counterclockwise_step_ident.copy()
+                        ident_to_flip.state = (ident_to_flip.state-2)%6
+                        future.take_ident(ident_to_flip)
+                elif clockwise_step_ident != None:
+                    # Deal with 120-degree collision (version 2)
+                    print("case 5, dir " + str(dir))
+
+                    # TODO: Explain wall influence
+                     # TODO: What if the other arrow it would collide with bounces off of an arrow in self?
+                    if neighbors_wall[(dir+3)%6] or self.contains_direction((dir-2)%6):
+                        print("case 5 alt")
+                        future.take_ident(neighbor_ident)
+                    else:
+                        ident_to_flip = clockwise_step_ident.copy()
+                        ident_to_flip.state = (ident_to_flip.state+2)%6
+                        future.take_ident(ident_to_flip)
+                
                 elif counterclockwise_neighbor_ident != None:
                     # Deal with 60-degree collision (version 1)
                     print("case 2, dir = " + str(dir))
@@ -366,33 +398,6 @@ class Hex:
                         ident_to_flip.state = (ident_to_flip.state+1)%6
                         future.take_ident(ident_to_flip)
 
-                # TODO: Deal with potential wall block for 120 degree collisions
-                elif counterclockwise_step_ident != None:
-                    # Deal with 120-degree collision (version 1)
-                    print("case 4, dir " + str(dir))
-
-                    # TODO: Explain wall influence
-                    # TODO: What if the other arrow it would collide with bounces off of an arrow in self?
-                    if neighbors_wall[(dir+3)%6] or self.contains_direction((dir+2)%6):
-                        print("case 4 alt")
-                        future.take_ident(neighbor_ident)
-                    else:
-                        ident_to_flip = counterclockwise_step_ident.copy()
-                        ident_to_flip.state = (ident_to_flip.state-2)%6
-                        future.take_ident(ident_to_flip)
-                elif clockwise_step_ident != None:
-                    # Deal with 120-degree collision (version 2)
-                    print("case 5, dir " + str(dir))
-
-                    # TODO: Explain wall influence
-                     # TODO: What if the other arrow it would collide with bounces off of an arrow in self?
-                    if neighbors_wall[(dir+3)%6] or self.contains_direction((dir-2)%6):
-                        print("case 5 alt")
-                        future.take_ident(neighbor_ident)
-                    else:
-                        ident_to_flip = clockwise_step_ident.copy()
-                        ident_to_flip.state = (ident_to_flip.state+2)%6
-                        future.take_ident(ident_to_flip)
                 elif dir_neighbor_ident and opp_neighbor_ident:
                     # Handle head-on collision with an empty hex in the middle
                     print("case 6")
