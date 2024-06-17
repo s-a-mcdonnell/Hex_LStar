@@ -613,8 +613,10 @@ def check_for_repeat_identities():
                     for j in range(i+1, len(hex_matrix[l])):
                         for j_ident in hex_matrix[l][j].idents:
                             if j_ident.serial_number == i_ident.serial_number:
+                                # Debugging message
                                 print("Two idents with serial number " + str(i_ident.serial_number) + " at (" + str(k) + ", " + str(i) + ") and (" + str(l) + ", " + str(j) + ")")
-                                # pygame.quit()
+                                print(str(frames_created) + " frame(s) created")
+
                                 # TODO: De-jankify this (there must be a better way than like 10 for-loops)
 
                                 # Attempt to go back in time by one frame (not working):
@@ -631,7 +633,6 @@ def check_for_repeat_identities():
 
                                 # flips to the next frame
                                 pygame.display.flip()'''
-
 
                                 time.sleep(100000)
 
@@ -724,7 +725,10 @@ fast = True
 ##########################################################################################################
 
 run = True
+frames_created = 0
 while run:
+    frames_created += 1
+
     if fast == False:
         pygame.time.delay(100)
     # Reset screen

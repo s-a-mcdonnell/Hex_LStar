@@ -1,3 +1,6 @@
 8 5 move YELLOW 3
 7 7 move GREEN 1
-8 7 move BLUE 0 
+8 7 move BLUE 0
+5 8 move PURPLE 2
+8 4 move PINK 5
+5 10 move RED 2
