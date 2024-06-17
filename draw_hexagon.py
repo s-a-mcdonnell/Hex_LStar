@@ -764,8 +764,10 @@ while run:
         if state == "pause" and keys[pygame.K_s]:
             fast = False
             next_generation()
-            dt = clock.tick(1) / 1000
+            pygame.time.delay(1000)
             #TODO: Why is it taking two steps?
+                # it was taking 2 steps becaue the pygame clock runs so dfast that it was taking multiple inputs of s for every click
+                # solved by adding a 1 second delay after step input
 
     if state == "go":
         fast = True
