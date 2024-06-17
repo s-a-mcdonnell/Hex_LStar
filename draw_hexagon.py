@@ -515,13 +515,21 @@ class Hex:
    def update(self):
         # determine the state of the current hex based on the states of the hexes around it
         future = hex_matrix_new[self.matrix_index][self.list_index]
-        future.idents = []
+        future.idents = []    
 
         # TODO: If self is a portal, future is its paired location
         portal_ident = self.contains_portal()
         if portal_ident:
             future.take_ident(portal_ident)
             future = hex_matrix_new[portal_ident.pair_matrix_index][portal_ident.pair_list_index]
+            # TODO: This is janky (I actually want to keep the same portal ident as before)
+            if not future.contains_portal():
+                future.take_ident(hex_matrix[portal_ident.pair_matrix_index][portal_ident.pair_list_index].contains_portal())
+            print("portal status maintained")
+        '''else:
+            # Reset future idents if not a portal
+            # TODO: Does this make sense?
+            future.idents = []'''
 
         neighbors_movable = self.check_movables()
         neighbors_wall = self.check_walls()
