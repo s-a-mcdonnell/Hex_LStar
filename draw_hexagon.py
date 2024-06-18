@@ -156,9 +156,6 @@ class Hex:
    def check_movables(self, neighbors): 
         hex_movable = []
 
-        '''# Initializing hexToCheck with default value (reducing repeated memory allocation and deallocation)
-        hexToCheck = self'''
-
         # Check if each neighboring hex is movable
         for hex in neighbors:
             if hex != None:
@@ -701,7 +698,6 @@ class Ident:
 
 
     def copy(self):
-        # return copy.copy(self)
         # TODO: Review copy method
         new_copy = Ident(self.color, self.state, self.serial_number, self.property)
         return new_copy
@@ -793,21 +789,6 @@ def check_for_repeat_identities():
 
                                 # TODO: De-jankify this (there must be a better way than like 10 for-loops)
 
-                                # Attempt to go back in time by one frame (not working):
-                                '''swap_matrices()
-                                print("matrices swapped back")
-
-                                # Reset screen
-                                screen.fill((0, 0, 0))
-
-                                 # Draw all hexagons
-                                for hex_list in hex_matrix:
-                                    for hexagon in hex_list:
-                                        hexagon.draw(screen)
-
-                                # flips to the next frame
-                                pygame.display.flip()'''
-
                                 time.sleep(100000)
 
 # Transfers identities between paired portals
@@ -878,13 +859,6 @@ def portal_handler():
         assert(origin_portal)
 
         destination_hex = hex_matrix_new[origin_portal.pair_matrix_index][origin_portal.pair_list_index]
-
-        '''# TODO: Check this alt way of accessing portal_list (will only work if things are added to the portal_list in the order I expect)
-        if ((i%2) == 0):
-            destination_hex = hex_matrix_new[portal_list[i+1][0]][portal_list[i+1][1]]
-        else:
-            destination_hex = hex_matrix_new[portal_list[i-1][0]][portal_list[i-1][1]]'''
-
 
         # Pass idents from temp storage to destination hex
         
