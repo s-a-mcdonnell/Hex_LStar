@@ -44,6 +44,10 @@ class Hex:
        self.arrows = []
        for i in range(6):
             self.arrows.append([(pygame.math.Vector2(x, y)).rotate(60.0*i) + pivot for x, y in arrow]) 
+    
+        # Coordinates used to draw smaller hexagon later if the hex becomes stationary
+       self.small_hexagon = [(self.x+9, self.y+11), (self.x+31, self.y+11), (self.x+47, self.y+35), (self.x+31, self.y+59), (self.x+9, self.y+59), (self.x-7, self.y+35)]
+ 
 
     ##########################################################################################################
 
@@ -75,7 +79,7 @@ class Hex:
 
    # returns a boolean indicating if a hex is occupied 
    def is_occupied(self):
-       return len(self.idents != 0)   
+       return len(self.idents != 0)
 
     ##########################################################################################################
 
@@ -85,30 +89,32 @@ class Hex:
     # Default color (no idents): light blue
     my_color = (190, 240, 255)
 
-    if (len(self.idents) == 1):
+    if (len(self.idents) >= 1):
         # If a hex contains only one ident, take that color
+        # If a hex contains multiple idents, the ident stored first will be the outermost color
         my_color = self.idents[0].color
-    elif (len(self.idents) > 1):
-        # If a hex contains multiple idents, draw it green
-        my_color = (0, 255, 0)
-        # TODO: Add cool animation here?
         
     # Draw the hexagon
     pygame.draw.polygon(screen, my_color, self.coordinates)
 
     # Draw an extra hexagon to visually show that a hexagon is stationary even with the different colors
     if self.contains_direction(-1) != None:
-        new_coords = [(self.x+9, self.y+11), (self.x+31, self.y+11), (self.x+47, self.y+35), (self.x+31, self.y+59), (self.x+9, self.y+59), (self.x-7, self.y+35)]
         new_color = [max(0, c - 120) for c in my_color]
-        pygame.draw.polygon(screen, new_color, new_coords)
-
+        pygame.draw.polygon(screen, new_color, self.small_hexagon)
+    
+    # Draw multiple nesting circles indicating colors for hexes with superimposed idents/states
+    for i in range(1, len(self.idents)):
+        if (33 - 5*i) > 0:
+            pygame.draw.circle(screen, self.idents[i].color, (self.x+20, self.y+35), 33-5*i)
+    
     # Draw text object displaying axial hex coordiantes
     # self.display_surface.blit(self.text, self.textRect)
 
     # polygon rotation tips from: https://stackoverflow.com/questions/75116101/how-to-make-rotate-polygon-on-key-in-pygame
 
     # draw an arrow on the hex if the hex is moving
-    if (self.is_moving):
+    # TODO: Make smaller arrows for superimposed states? (to not hide nested colors)
+    if self.is_moving:
         #pivot is the center of the hexagon
         pivot = pygame.Vector2(self.x + 20, self.y + 35)
         # set of arrow points should be the vectors from the pivot to the edge points of the arrow
@@ -247,16 +253,21 @@ class Hex:
    def hit_neighbor(self, future, my_neighbors, neighbors_movable, neighbors_wall, dir):
         # cases for individual side glancing walls
         if (neighbors_wall[(dir-1)%6] == 1) and not (neighbors_wall[(dir+1)%6] == 1):
+            print("hit neighbor case 1, dir = " + str(dir))
+            print("self color " + str(self.contains_direction(dir).color))
+            print("self location (" + str(self.matrix_index) + ", " + str(self.list_index) + ")")
             ident_to_rotate = self.contains_direction(dir).copy()
             ident_to_rotate.state = (dir+1)%6
             future.take_ident(ident_to_rotate)
         elif (neighbors_wall[(dir+1)%6] == 1) and not (neighbors_wall[(dir-1)%6] == 1):
+            print("hit neighbor case 2, dir = " + str(dir))
             ident_to_rotate = self.contains_direction(dir).copy()
             ident_to_rotate.state = (dir-1)%6
             future.take_ident(ident_to_rotate)
 
         # if my neighbor is a wall (or if I have two neighors to the side in front), bounce off
         elif (neighbors_wall[dir] == 1) or ((neighbors_wall[(dir-1)%6] == 1) and (neighbors_wall[(dir+1)%6] == 1)):
+            print("hit neighbor case 3, dir = " + str(dir))
             ident_to_rotate = self.contains_direction(dir).copy()
             ident_to_rotate.state = (dir+3)%6
             future.take_ident(ident_to_rotate)
@@ -266,6 +277,7 @@ class Hex:
         # TODO: Discuss order in which rules are applied
         # TODO: Also discuss if collisions off of a side wall should take priority over head-on collisions
         elif neighbors_movable[dir] == 1:
+            print("hit neighbor case 4, dir = " + str(dir))
             # If I am hitting a stationary neighbor, I become stationary but maintain my identity
             ident_to_stop = self.contains_direction(dir).copy()
             ident_to_stop.state = -1
@@ -359,23 +371,23 @@ class Hex:
                 # My identity pointing in the given direction, if it exists
                 my_ident = self.contains_direction(dir)
 
-                # TODO: Did I mess up the names clockwise and counterclockwise?
-                counterclockwise_neighbor_ident = None
-                if my_neighbors[(dir+1)%6] != None:
-                    counterclockwise_neighbor_ident = my_neighbors[(dir+1)%6].contains_direction((dir-2)%6)
-
                 clockwise_neighbor_ident = None
+                if my_neighbors[(dir+1)%6] != None:
+                    clockwise_neighbor_ident = my_neighbors[(dir+1)%6].contains_direction((dir-2)%6)
+
+                counterclockwise_neighbor_ident = None
                 if my_neighbors[(dir-1)%6] != None:
-                    clockwise_neighbor_ident = my_neighbors[(dir-1)%6].contains_direction((dir+2)%6)
-                
-                counterclockwise_step_ident = None
-                if my_neighbors[(dir+2)%6] != None:
-                    counterclockwise_step_ident = my_neighbors[(dir+2)%6].contains_direction((dir-1)%6)
+                    counterclockwise_neighbor_ident = my_neighbors[(dir-1)%6].contains_direction((dir+2)%6)
                 
                 clockwise_step_ident = None
-                if my_neighbors[(dir-2)%6] != None:
-                    clockwise_step_ident = my_neighbors[(dir-2)%6].contains_direction((dir+1)%6)
+                if my_neighbors[(dir+2)%6] != None:
+                    clockwise_step_ident = my_neighbors[(dir+2)%6].contains_direction((dir-1)%6)
                 
+                counterclockwise_step_ident = None
+                if my_neighbors[(dir-2)%6] != None:
+                    counterclockwise_step_ident = my_neighbors[(dir-2)%6].contains_direction((dir+1)%6)
+                
+                # TODO: Is this just neighbor_ident?
                 dir_neighbor_ident = None
                 if my_neighbors[dir] != None:
                     dir_neighbor_ident = my_neighbors[dir].contains_direction((dir+3)%6)
@@ -384,64 +396,90 @@ class Hex:
                 if my_neighbors[(dir+3)%6] != None:
                     opp_neighbor_ident = my_neighbors[(dir+3)%6].contains_direction(dir)
 
-                # TODO: What if I contain multiple identities? (Do elif statements really make sense here?)
-
                 if my_ident != None:
                     # If in a head-on collision with a neighbor moving in the opposite direction, maintain identity and switch direction
                     print("case 1")
-                    ident_to_flip = my_ident
+                    ident_to_flip = my_ident.copy()
                     ident_to_flip.state = (ident_to_flip.state+3)%6
                     future.take_ident(ident_to_flip)
-                elif counterclockwise_neighbor_ident != None:
+                elif counterclockwise_neighbor_ident != None and clockwise_neighbor_ident != None:
+                    # If three arrows are approaching at 60 degree angles and I am in the middle, I go straight
+                    print("case 1.5")
+                    future.take_ident(neighbor_ident)
+    
+                elif clockwise_step_ident != None:
+                    # Deal with 120-degree collision (version 1)
+                    print("case 4, dir " + str(dir))
+
+                    if neighbors_wall[(dir+3)%6] or self.contains_direction((dir+2)%6):
+                        # If a wall gets in the way or I contain an arrow that will collide with the incoming arrow, do not bounce
+                        print("case 4 alt")
+                        future.take_ident(neighbor_ident)
+                    else:
+                        # Bounce
+                        ident_to_flip = clockwise_step_ident.copy()
+                        ident_to_flip.state = (ident_to_flip.state-2)%6
+                        future.take_ident(ident_to_flip)
+                elif counterclockwise_step_ident != None:
+                    # Deal with 120-degree collision (version 2)
+                    print("case 5, dir " + str(dir))
+
+                    if neighbors_wall[(dir+3)%6] or self.contains_direction((dir-2)%6):
+                        # If a wall gets in the way or I contain an arrow that will collide with the incoming arrow, do not bounce
+                        print("case 5 alt")
+                        future.take_ident(neighbor_ident)
+                    else:
+                        ident_to_flip = counterclockwise_step_ident.copy()
+                        ident_to_flip.state = (ident_to_flip.state+2)%6
+                        future.take_ident(ident_to_flip)
+                
+                # TODO: Find more edge cases of 3+ hexes colliding
+
+                elif clockwise_neighbor_ident != None:
                     # Deal with 60-degree collision (version 1)
-                    print("case 2")
+                    print("case 2, dir = " + str(dir))
                     # if I have two adjacent neighbors pointing at me
                     # take the ident from the straight_neighbor but flip its state to match that from the other neighbor (adjacent to straight_neighbor)
                     
-                    #TODO: What if a wall blocks it?
-                    if neighbors_wall[(dir+2)%6]:
-                        # Else take on identity of neighbor
-                        print("case 8 alt 1")
+                    if neighbors_wall[(dir+2)%6] or self.contains_direction((dir+1)%6):
+                        # If a wall blocks it or it collides with an arrow in self, take on identity of neighbor
+                        print("case 2 alt")
                         future.take_ident(neighbor_ident)
+                    elif opp_neighbor_ident != None:
+                        # If our direct neighbor will be colliding in a 120 degree collision (and thus not colliding with us), rotate
+                        ident_to_rotate = neighbor_ident.copy()
+                        ident_to_rotate.state = (ident_to_rotate.state + 2)%6
+                        future.take_ident(ident_to_rotate)
                     else:
-                        ident_to_flip = counterclockwise_neighbor_ident.copy()
+                        # Bounce
+                        ident_to_flip = clockwise_neighbor_ident.copy()
                         ident_to_flip.state = (ident_to_flip.state-1)%6
                         future.take_ident(ident_to_flip)
                         if self.contains_direction(-1) is not None:
                             future.take_ident(self.contains_direction(-1))
-                elif clockwise_neighbor_ident != None:
+                elif counterclockwise_neighbor_ident != None:
                     # Deal with 60-degree collision (version 2)
-                    print("case 3")
+                    print("case 3, dir = " + str(dir))
                     
-                    #TODO: What if a wall blocks it?
-                    if neighbors_wall[(dir-2)%6]:
-                        # Else take on identity of neighbor
-                        print("case 8 alt 2")
+                    if neighbors_wall[(dir-2)%6] or self.contains_direction((dir-1)%6):
+                        # If a wall blocks it of it collides with an arrow in self, take on identity of neighbor
+                        print("case 3 alt/")
                         future.take_ident(neighbor_ident)
+                    elif opp_neighbor_ident != None:
+                        # If our direct neighbor will be colliding in a 120 degree collision (and thus not colliding with us), rotate
+                        ident_to_rotate = neighbor_ident.copy()
+                        ident_to_rotate.state = (ident_to_rotate.state - 2)%6
+                        future.take_ident(ident_to_rotate)
                     else:
-                        ident_to_flip = clockwise_neighbor_ident.copy()
+                        # Bounce
+                        ident_to_flip = counterclockwise_neighbor_ident.copy()
+                        print("I am hex (" + str(self.matrix_index) + ", " + str(self.list_index) + ")")
+                        print("flipping ident with color " + str(ident_to_flip.color) + ", original direction " + str(ident_to_flip.state))
                         ident_to_flip.state = (ident_to_flip.state+1)%6
                         future.take_ident(ident_to_flip)
                         if self.contains_direction(-1) is not None:
                             future.take_ident(self.contains_direction(-1))
 
-                # TODO: Deal with potential wall block for 120 degree collisions
-                elif counterclockwise_step_ident != None:
-                    # Deal with 120-degree collision (version 1)
-                    print("case 4")
-                    ident_to_flip = counterclockwise_step_ident.copy()
-                    ident_to_flip.state = (ident_to_flip.state-2)%6
-                    future.take_ident(ident_to_flip)
-                    if self.contains_direction(-1) is not None:
-                            future.take_ident(self.contains_direction(-1))
-                elif clockwise_step_ident != None:
-                    # Deal with 120-degree collision (version 2)
-                    print("case 5")
-                    ident_to_flip = clockwise_step_ident.copy()
-                    ident_to_flip.state = (ident_to_flip.state+2)%6
-                    future.take_ident(ident_to_flip)
-                    if self.contains_direction(-1) is not None:
-                            future.take_ident(self.contains_direction(-1))
                 elif dir_neighbor_ident and opp_neighbor_ident:
                     # Handle head-on collision with an empty hex in the middle
                     print("case 6")
@@ -452,8 +490,7 @@ class Hex:
                         future.take_ident(self.contains_direction(-1).copy())
                 elif self.check_movable_hex():
                     print("case 7")
-                    # If I am currently stationary
-                    # TODO: Describe logic here
+                    # If I am currently stationary and none of the previous statements have been triggered, I will remain stationary in the next generation
                     ident_to_edit = self.contains_direction(-1).copy()
                     ident_to_edit.state = (dir+3)%6
                     future.take_ident(ident_to_edit)
@@ -527,7 +564,8 @@ class Hex:
 
         # If the hex is a wall, it will remain occupied and not movable
         if(self.check_wall_hex()):
-            future.make_wall()
+            future.take_ident(self.contains_direction(-2))
+            return
 
 
         my_neighbors = self.get_neighbors()
@@ -554,13 +592,37 @@ class Ident:
     # Constructor
     # Default color white
     # Default state -1 (movable but not moving)
-    def __init__(self, color=(255, 255, 255), state=-1):
+    idents_created = 0
+
+    def __init__(self, color=(255, 255, 255), state=-1, serial_number=-1, property=None):
         self.color = color
         self.state = state
-        self.property = None
+        self.property = property
+
+        # Record serial number and iterate
+        if serial_number == -1:
+            # If no serial number is provided
+            self.serial_number = Ident.idents_created
+
+            print("Ident with serial number " + str(self.serial_number) + " created")
+            if state == -2:
+                print("Is a wall")
+            elif state == -1:
+                print("Is stationary")
+            else:
+                print("Is moving")
+            Ident.idents_created += 1
+        else:
+            self.serial_number = serial_number
+            print("Ident with serial number " + str(self.serial_number) + " copied")
+            print("color: " + str(self.color))
+
 
     def copy(self):
-        return copy.copy(self)
+        # return copy.copy(self)
+        # TODO: Review copy method
+        new_copy = Ident(self.color, self.state, self.serial_number, self.property)
+        return new_copy
     
 
 ###############################################################################################################
@@ -577,8 +639,12 @@ def get_color(color_text):
         return(106, 232, 100)
     elif color_text == "BLUE" or color_text == "BLUE\n":
         return(45, 70, 181)
+    elif color_text == "CYAN" or color_text == "CYAN\n":
+        return (71, 230, 216) 
     elif color_text == "RED" or color_text == "RED\n":
         return(219, 24, 24)
+    elif color_text == "MAROON" or color_text == "MAROON\n":
+        return (143, 6, 15)
     elif color_text == "PINK" or color_text == "PINK\n":
         return(230, 57, 129)
     else:
@@ -612,6 +678,54 @@ def swap_matrices():
     temp_matrix = hex_matrix
     hex_matrix = hex_matrix_new
     hex_matrix_new = temp_matrix
+
+# Traverses hex_matrix and check for repeated identities (identified by serial number), issuing error message
+def check_for_repeat_identities():
+    # TODO: make this work and make it less ugly (maintain list of hexes with identities?)
+    for k in range(len(hex_matrix)):
+        for i in range(len(hex_matrix[k])):
+            for i_ident in hex_matrix[k][i].idents:
+                for l in range(k+1, len(hex_matrix)):
+                    for j in range(i+1, len(hex_matrix[l])):
+                        for j_ident in hex_matrix[l][j].idents:
+                            if j_ident.serial_number == i_ident.serial_number:
+                                # Debugging message
+                                print("Two idents with serial number " + str(i_ident.serial_number) + " at (" + str(k) + ", " + str(i) + ") and (" + str(l) + ", " + str(j) + ")")
+                                print(str(frames_created) + " frame(s) created")
+
+                                # TODO: De-jankify this (there must be a better way than like 10 for-loops)
+
+                                # Attempt to go back in time by one frame (not working):
+                                '''swap_matrices()
+                                print("matrices swapped back")
+
+                                # Reset screen
+                                screen.fill((0, 0, 0))
+
+                                 # Draw all hexagons
+                                for hex_list in hex_matrix:
+                                    for hexagon in hex_list:
+                                        hexagon.draw(screen)
+
+                                # flips to the next frame
+                                pygame.display.flip()'''
+
+                                time.sleep(100000)
+
+# Updates all the states
+def next_generation():
+    global frames_created
+    frames_created += 1
+
+    print("---")
+    print("Calculating next generation")
+
+    # Iterates through the hexagons, determining what their next state should be
+    for hex_list in hex_matrix:
+                for hexagon in hex_list:
+                    hexagon.update()
+    
+    swap_matrices()
 
 import pygame
 
@@ -685,11 +799,16 @@ for i in range(6):
     hex_matrix[1+2*i][15-i].make_wall()
     hex_matrix[2+2*i][14-i].make_wall()
 
+
+fast = True
 ##########################################################################################################
 
 run = True
+frames_created = 0
 while run:
 
+    if fast == False:
+        pygame.time.delay(100)
     # Reset screen
     screen.fill((0, 0, 0))
 
@@ -708,16 +827,15 @@ while run:
     pygame.display.flip()
 
     # sets animation to n frames per second where n is inside the parentheses (feel free to change)
-    dt = clock.tick(5) / 1000
+    #dt = clock.tick(5) / 1000
 
-    for hex_list in hex_matrix:
-        for hexagon in hex_list:
-            hexagon.update()
 
     # HOW TO GET CODE TO START:
         # press g key after running file to start the animation
+        # press h to go into hyper mode
         # press p to pause the animation
         # press s while paused to step through the animation
+        # press f to print number of frames created so far
     if event.type == pygame.TEXTINPUT:
         # takes the key input
         keys = pygame.key.get_pressed()
@@ -726,12 +844,32 @@ while run:
             state = "go"
         elif keys[pygame.K_p]:
             state = "pause"
+        elif keys[pygame.K_h]:
+            state = "hyper"
 
         if state == "pause" and keys[pygame.K_s]:
-            swap_matrices()
+            fast = False
+            next_generation()
+            pygame.time.delay(1000)
+            # Take one second pause
+        
+         # Print number of frames created so far (for debugging)
+         # TODO: make this only print once (need to edit keys[pygame.K_f], but I don't think I can)
+        if keys[pygame.K_f]:
+            print(str(frames_created) + " frame(s) created")
+                
 
     if state == "go":
-        swap_matrices()
+        fast = True
+        next_generation()
+        dt = clock.tick(5) / 1000
+    elif state == "hyper":
+        fast = True
+        next_generation()
+        dt = clock.tick(2000) / 1000        
+    
+    check_for_repeat_identities()
+
 
 pygame.quit()
 
