@@ -658,8 +658,6 @@ def check_for_repeat_identities():
 
 # Transfers identities between paired portals
 def portal_handler():
-    print("start of portal_handler")
-    print(str(portal_list))
 
     # TODO: Is this a necessary declaration?
     global hex_matrix_new
@@ -671,15 +669,12 @@ def portal_handler():
     for i in range(len(portal_list)):
         sub_list = []
         updated_portal_idents.append(sub_list)
-    print("after setup:" + str(updated_portal_idents))
 
 
     # Fill temp storage
     for i in range(len(portal_list)):
-        print("first loop, i = " + str(i))
         coords = portal_list[i]
 
-        print("examining portal opening at " + str(coords[0]) + ", " + str(coords[1]))        
         origin_hex = hex_matrix_new[coords[0]][coords[1]]
         assert(origin_hex)
 
@@ -688,14 +683,10 @@ def portal_handler():
         # Pass all non-portal idents to temp storage
         for ident in origin_hex.idents:
             if ident.property != "portal":
-                print("passing ident to temp storage")
                 sub_list_temp.append(ident)
-
-    print("after loop 1:" + str(updated_portal_idents))
 
     for i in range(len(portal_list)):
         coords = portal_list[i]
-        print("second loop, i = " + str(i))
 
         origin_hex = hex_matrix_new[coords[0]][coords[1]]
         assert(origin_hex)
@@ -726,13 +717,12 @@ def portal_handler():
         assert(len(hex_to_check.idents)==1)
 
     for i in range(len(portal_list)):
-        print("third loop, i = " + str(i))
         coords = portal_list[i]
         
         origin_portal = hex_matrix_new[coords[0]][coords[1]].contains_portal()
-        if not origin_portal:
-            print("portal_list contains non-portal")
         
+        assert(origin_portal)
+
         destination_hex = hex_matrix_new[origin_portal.pair_matrix_index][origin_portal.pair_list_index]
 
         '''# TODO: Check this alt way of accessing portal_list (will only work if things are added to the portal_list in the order I expect)
@@ -744,12 +734,9 @@ def portal_handler():
 
         # Pass idents from temp storage to destination hex
         
-        print("temp storage size " + str(len(updated_portal_idents[i])))
         for ident in updated_portal_idents[i]:
-            print("passing ident from temp storage")
             destination_hex.take_ident(ident)
 
-    print("end of portal_handler")
 
 # Updates all the states
 def next_generation():
