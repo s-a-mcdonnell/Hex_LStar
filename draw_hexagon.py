@@ -717,14 +717,8 @@ def check_for_repeat_identities():
 # Transfers identities between paired portals
 def portal_handler():
     # Set up temp storage for idents to be moved
-    updated_portal_idents = [[None]] * len(portal_list)
-    for ident_list in updated_portal_idents:
-        ident_list = []
+    updated_portal_idents = [[]] * len(portal_list)
 
-        # TODO: This shouldn't be necessary to make python accept the 2d array
-        useless_ident = Ident(serial_number=-2)
-        ident_list.append(useless_ident)
-        ident_list.remove(useless_ident)
 
     for i in range(len(portal_list)):
         coords = portal_list[i]
@@ -754,8 +748,7 @@ def portal_handler():
         # Pass idents from temp storage to destination hex
         
         for ident in updated_portal_idents[i]:
-            if ident != None:
-                destination_hex.take_ident(ident)
+            destination_hex.take_ident(ident)
 
 
 
