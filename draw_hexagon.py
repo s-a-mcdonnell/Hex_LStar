@@ -65,17 +65,50 @@ class Hex:
     ##########################################################################################################
 
     # sets the given hex to move in a given direction
+
+   def take_ident(self, ident):
+        # for backtracing, we want to store each hex an item visits, so we mark it when an ident is taken:
+        # don't actually need the check for wall, but for fail-safe
+        if ident.state != -2:
+            ident.visited(self.list_index, self.matrix_index)
+
+        self.idents.append(ident)
+
    def make_move(self, dir, color=(255,0,0)):
+       # we want to make the creation of a space redundent fot the limit tic
+       # this is for backtracing later
+       global limit_tic
+       limit_tic = limit_tic-1
+
+       # storing this into am object makes it easier to mark
+       ident = Ident(color, dir)
+
+       # just like when taking, we want to store the first instance of an ident
+       # don't actually need the check for wall, but for fail-safe
+       if ident.state != -2:
+           ident.visited(self.list_index, self.matrix_index)
+
        # Note: Does not overwrite idents currently stored
-       self.idents.append(Ident(color, dir))
+       self.idents.append(ident)
 
     # Appends the passed ident to the given hex
-   def take_ident(self, ident):
-       self.idents.append(ident)    
 
    def make_occupied(self, color=(0, 255, 0)):
+       # we want to make the creation of a space redundent fot the limit tic
+       # this is for backtracing later
+       global limit_tic
+       limit_tic = limit_tic - 1
+
+       # same reasoning as in make move
+       ident = Ident(color, -1)
+
+       # just like when taking, we want to store the first instance of an ident
+       # don't actually need the check for wall, but for fail-safe
+       if ident.state != -2:
+           ident.visited(self.list_index, self.matrix_index)
+
        # TODO: Clear out current idents? (does not currently overwrite pre-existing idents)
-       self.idents.append(Ident(color, -1))
+       self.idents.append(ident)
 
    # returns a boolean indicating if a hex is occupied 
    def is_occupied(self):
@@ -509,16 +542,25 @@ class Hex:
 
 
 
+limit_tic = 0
+
 class Ident:
     # Constructor
     # Default color white
     # Default state -1 (movable but not moving)
     idents_created = 0
 
-    def __init__(self, color=(255, 255, 255), state=-1, serial_number=-1, property=None):
+    def __init__(self, color=(255, 255, 255), state=-1, serial_number=-1, property=None, hist=None):
+        # history needs to be kept, and is only empty at initial creation
+        if hist is None:
+            hist = []
+
         self.color = color
         self.state = state
         self.property = property
+
+        # this lets us be able to update history
+        self.hist = hist
 
         # Record serial number and iterate
         if serial_number == -1:
@@ -542,8 +584,41 @@ class Ident:
     def copy(self):
         # return copy.copy(self)
         # TODO: Review copy method
-        new_copy = Ident(self.color, self.state, self.serial_number, self.property)
+        new_copy = Ident(self.color, self.state, self.serial_number, self.property, self.hist)
+
         return new_copy
+
+    def visited(self, x, y):
+        # using limit_tic to stop user from going backwards too much
+        global limit_tic
+
+        # push onto stack history
+            # pushed onto the history is
+            # hex matix index (x,y)
+            # current state
+
+        # note, we want to keep up to 5 past states at a time
+        # to change amount, just change limit #
+        limit = 5
+
+        if len(self.hist) == limit+1:
+            self.hist.pop(0)
+            self.hist.append((x, y, self.state))
+        else:
+            self.hist.append((x, y, self.state))
+            limit_tic += 1
+
+
+    def back(self):
+
+        # first we want to clear out our current state
+        self.hist.pop()
+
+        # then we want to pop off the code we are going back to
+        # because the code is deterministic, we will go down the same path again, so we can delete the last one
+        gohere = self.hist.pop()
+
+        return gohere
     
 
 ###############################################################################################################
@@ -647,6 +722,47 @@ def next_generation():
                     hexagon.update()
     
     swap_matrices()
+
+
+def past_generation():
+    # updating limit_tic
+    global limit_tic
+
+    if limit_tic > 0:
+        # when paused, we can go back up to all steps
+        print("---")
+        print("Going back 1")
+
+        # to execute, we want to collect every item that exists and push them back 1 space
+        items = []
+
+        for hex_list in hex_matrix:
+            for hexagon in hex_list:
+                # find all items, store into list
+                if len(hexagon.idents) != 0:
+                    # a hexagon might have multiple identities, we collect them all in a list
+                    check = hexagon.idents
+                    # we iterate thorugh the list of idents
+                    for c in check:
+                        # we don't want to change walls, so check if it is one
+                        if c.state != -2:
+                            # ince we find items, add them to our item list
+                            items.append(c)
+                            # erase current state
+                            hexagon.idents = []
+
+        for item in items:
+            # item.back pops off 2 states and returns the 'previous' one
+            past = item.back()
+            limit_tic = limit_tic - 2
+            # first we change the state to the state it was at that point in time
+            item.state = past[2]
+            # then we put the ident into the hex it was before
+            hex_matrix[past[1]][past[0]].take_ident(item)
+            print("this is limit tic", limit_tic)
+    else:
+        print("ran out of memory")
+
 
 import pygame
 
@@ -771,7 +887,15 @@ while run:
         if state == "pause" and keys[pygame.K_s]:
             fast = False
             next_generation()
-            pygame.time.delay(1000)
+            pygame.time.delay(100)
+            # Take one second pause
+
+        if state == "pause" and keys[pygame.K_b]:
+            fast = False
+            # go back a generation
+            past_generation()
+
+            pygame.time.delay(100)
             # Take one second pause
         
          # Print number of frames created so far (for debugging)
