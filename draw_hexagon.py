@@ -154,13 +154,21 @@ class Hex:
         return self.contains_direction(0) or self.contains_direction(1) or self.contains_direction(2) or self.contains_direction(3) or self.contains_direction(4) or self.contains_direction(5)
    
    # returns a list of length six representing the six neighboring hexes of self, with 1 if the hex neighboring in that direction is movable, nonmoving, and occupied
-   def check_movables(self): 
-        hex_movable = [0, 0, 0, 0, 0, 0]
+   def check_movables(self, neighbors): 
+        # hex_movable = [0, 0, 0, 0, 0, 0]
+        hex_movable = []
 
-        # Initializing hexToCheck with default value (reducing repeated memory allocation and deallocation)
-        hexToCheck = self
+        '''# Initializing hexToCheck with default value (reducing repeated memory allocation and deallocation)
+        hexToCheck = self'''
 
-        # check upper hex (pos 0)
+        # Check if each neighboring hex is movable
+        for hex in neighbors:
+            if hex != None:
+                hex_movable.append(hex.check_movable_hex())
+            else:
+                hex_movable.append(False)
+
+        '''# check upper hex (pos 0)
         # If the upper hex exists and is occupied, moving, and stationary, flip the boolean in the array
         if self.list_index - 1 >= 0:
            hexToCheck = hex_matrix[self.matrix_index][self.list_index - 1]
@@ -189,7 +197,7 @@ class Hex:
         # check northwest hex (pos 5)
         if self.matrix_index - 1 >= 0:
             hexToCheck = hex_matrix[self.matrix_index - 1][self.list_index]
-            hex_movable[5] = hexToCheck.check_movable_hex()
+            hex_movable[5] = hexToCheck.check_movable_hex()'''
 
         return hex_movable
 
@@ -210,6 +218,10 @@ class Hex:
    def contains_wall(self):
        for ident in self.idents:
            if ident.state == -2:
+                # For debugging
+                if len(self.idents) > 1:
+                    print("Wall hex contains multiple idents")
+
                 return True
            
        return False    
@@ -223,6 +235,10 @@ class Hex:
        for ident in self.idents:
            # TODO: Use int insteal of string for faster processing
            if ident.property == "portal":
+                # For debugging
+                if len(self.idents) > 1:
+                    print("Portal contains multiple idents")
+
                 return ident
 
        return None    
@@ -230,8 +246,16 @@ class Hex:
     ##########################################################################################################
 
    # returns a list of length 6 to determine which of the neighbors around self hex are walls
-   def check_walls(self):
-        hex_walls = [0, 0, 0, 0, 0, 0]
+   def check_walls(self, neighbors):
+        hex_walls = []
+
+        # Check if each neighboring hex is a wall
+        for hex in neighbors:
+            if hex != None:
+                hex_walls.append(hex.contains_wall())
+            else:
+                hex_walls.append(False)
+        '''hex_walls = [0, 0, 0, 0, 0, 0]
 
         # Default value of hexToCheck (not used)
         hexToCheck = self
@@ -268,7 +292,7 @@ class Hex:
          # check northwest hex (pos 5)
         if self.matrix_index - 1 >= 0:
             hexToCheck = hex_matrix[self.matrix_index - 1][self.list_index]
-            hex_walls[5] = hexToCheck.contains_wall()
+            hex_walls[5] = hexToCheck.contains_wall()'''
 
 
         return hex_walls
@@ -515,32 +539,48 @@ class Hex:
    def update(self):
         # determine the state of the current hex based on the states of the hexes around it
         future = hex_matrix_new[self.matrix_index][self.list_index]
-        future.idents = []    
+        
+        # TODO: Is this what's causing the left-right right-left issue?
+        # Reset the hex
+        if not future.contains_portal():
+            future.idents = []
 
-        # TODO: If self is a portal, future is its paired location
-        portal_ident = self.contains_portal()
-        if portal_ident:
-            future.take_ident(portal_ident)
-            future = hex_matrix_new[portal_ident.pair_matrix_index][portal_ident.pair_list_index]
-            # TODO: This is janky (I actually want to keep the same portal ident as before)
-            if not future.contains_portal():
-                future.take_ident(hex_matrix[portal_ident.pair_matrix_index][portal_ident.pair_list_index].contains_portal())
-            print("portal status maintained")
-        '''else:
-            # Reset future idents if not a portal
-            # TODO: Does this make sense?
-            future.idents = []'''
-
-        neighbors_movable = self.check_movables()
-        neighbors_wall = self.check_walls()
+      
 
         # If the hex is a wall, it will remain occupied and not movable
         if(self.contains_wall()):
             future.take_ident(self.contains_direction(-2))
             return
 
+        # TODO: If self is a portal, future is its paired location
+        portal_ident = self.contains_portal()
+        if portal_ident:
+            print("Updating portal at " + str(self.matrix_index) + ", " + str(self.list_index))
+            # TODO: Jankiness (trying not to create double portals)
+            if not future.contains_portal():
+                future.take_ident(portal_ident)
+            future = hex_matrix_new[portal_ident.pair_matrix_index][portal_ident.pair_list_index]
+            # TODO: This is janky and also doesn't work
+            if not future.contains_portal():
+                print("Adding status back into portal")
+                future.take_ident(hex_matrix[portal_ident.pair_matrix_index][portal_ident.pair_list_index].contains_portal())
+            
+            '''# Force overwrite future idents with portal ident
+            # TODO: De-jankify
+            future.idents = [hex_matrix[portal_ident.pair_matrix_index][portal_ident.pair_list_index].contains_portal()]'''
+
+            print("portal status maintained")
+        '''else:
+            # Reset future idents if not a portal
+            # TODO: Does this make sense?
+            future.idents = []'''
+
+
 
         my_neighbors = self.get_neighbors()
+
+        neighbors_movable = self.check_movables(my_neighbors)
+        neighbors_wall = self.check_walls(my_neighbors)
         
         # TODO: Convert if self.movable: to ident
         # If the hex does not contains a wall
@@ -555,7 +595,8 @@ class Hex:
         # If that hasn't already been seen to by the motion handler, that must mean that the hex is occupied and stationary in the next generation
         # TODO: It is not necessarily true, however, that it will still be occupied and STATIONARY in the next generation, which is what I'm going here
         # TODO: Explain logic better --> Could this be the cause of the stationary hex being obliterated when hit by two moving hexes?
-        is_stationary = self.contains_direction(-1)
+        # TODO: Does it make sense to make an exception for portals?
+        is_stationary = (self.contains_direction(-1) and not self.contains_portal())
         if is_stationary and (len(future.idents) == 0):
             future.idents.append(is_stationary.copy())
 
@@ -659,7 +700,10 @@ def read_line(line):
         pair_matrix_index = int(line_parts[3])
         pair_list_index = int(line_parts[4])  
         hex_matrix[matrix_index][list_index].make_portal(pair_matrix_index, pair_list_index)
+        hex_matrix_new[matrix_index][list_index].make_portal(pair_matrix_index, pair_list_index)
         hex_matrix[pair_matrix_index][pair_list_index].make_portal(matrix_index, list_index)
+        hex_matrix_new[pair_matrix_index][pair_list_index].make_portal(matrix_index, list_index)
+
 
 def swap_matrices():
     global hex_matrix
