@@ -479,31 +479,6 @@ class Hex:
             future.take_ident(wall_ident)
             return
 
-        '''# TODO: If self is a portal, future is its paired location
-        portal_ident = self.contains_portal()
-        if portal_ident:
-            print("Updating portal at " + str(self.matrix_index) + ", " + str(self.list_index))
-            # TODO: Jankiness (trying not to create double portals)
-            if not future.contains_portal():
-                future.take_ident(portal_ident)
-            future = hex_matrix_new[portal_ident.pair_matrix_index][portal_ident.pair_list_index]
-            # TODO: This is janky and also doesn't work
-            if not future.contains_portal():
-                print("Adding status back into portal")
-                future.take_ident(hex_matrix[portal_ident.pair_matrix_index][portal_ident.pair_list_index].contains_portal())
-            
-            # Force overwrite future idents with portal ident
-            # TODO: De-jankify
-            future.idents = [hex_matrix[portal_ident.pair_matrix_index][portal_ident.pair_list_index].contains_portal()]
-
-            print("portal status maintained")
-        else:
-            # Reset future idents if not a portal
-            # TODO: Does this make sense?
-            future.idents.clear()'''
-
-
-
         my_neighbors = self.get_neighbors()
 
         neighbors_movable = self.check_movables(my_neighbors)
@@ -726,13 +701,16 @@ def portal_handler():
         # Remove all non-portal idents from the origin hex
         origin_portal = origin_hex.contains_portal()
         origin_hex.idents.clear()
+
+        # Sanity checking
+        assert(len(origin_hex.idents) == 0)
+        assert(len(hex_matrix_new[coords[0]][coords[1]].idents) == 0)
+        assert(not hex_matrix_new[coords[0]][coords[1]].contains_portal())
+
+        # Re-assign portal identity
         if origin_portal:
             print("add portal back in")
             origin_hex.idents.append(origin_portal)
-        # Alt way of deleting non-portal identities
-        '''for ident in origin_hex.idents:
-            if ident.property != "portal":
-                origin_hex.idents.remove(ident)'''
 
         # Throw error if the origin_hex still contains any non-portal identities (debugging)
         assert(len(origin_hex.idents) == 1)
@@ -747,11 +725,18 @@ def portal_handler():
         if i == 0:
             assert(len(hex_matrix_new[coords[0]][coords[1]].idents) == 1)
         
-        origin_portal = hex_matrix_new[coords[0]][coords[1]].contains_portal()
+        '''origin_portal = hex_matrix_new[coords[0]][coords[1]].contains_portal()
         if not origin_portal:
             print("portal_list contains non-portal")
         
-        destination_hex = hex_matrix_new[origin_portal.pair_matrix_index][origin_portal.pair_list_index]
+        destination_hex = hex_matrix_new[origin_portal.pair_matrix_index][origin_portal.pair_list_index]'''
+
+        # TODO: Check this alt way of accessing portal_list (will only work if things are added to the portal_list in the order I expect)
+        if ((i%2) == 0):
+            destination_hex = hex_matrix_new[portal_list[i+1][0]][portal_list[i+1][1]]
+        else:
+            destination_hex = hex_matrix_new[portal_list[i-1][0]][portal_list[i-1][1]]
+
 
         # Pass idents from temp storage to destination hex
         
