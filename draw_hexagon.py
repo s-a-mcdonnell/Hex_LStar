@@ -272,11 +272,11 @@ class Hex:
        straight_neighbor = my_neighbors[dir]
 
         # TODO: Janky quick fix for portals (In this method, no collisions happen in/on portals)
-       if self.contains_portal():
+       '''if self.contains_portal():
            neighbor_ident = straight_neighbor.contains_direction((dir+3)%6)
            if neighbor_ident:
                 future.take_ident(neighbor_ident)
-           return
+           return'''
 
         # if my neighbor is moving toward me and is not blocked by either of two side walls, I will gain motion
        if (not neighbors_wall[(dir+1)%6]) and (not neighbors_wall[(dir-1)%6]):
