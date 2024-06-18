@@ -1,9 +1,4 @@
-7 6 move GREEN 3
 4 10 portal 7 8
-8 5 move YELLOW 3
-8 7 move BLUE 0
-5 8 move PURPLE 2
-8 4 move PINK 5
-5 10 move RED 2
-4 10 move CYAN 3
-8 9 move MAROON 4
+5 10 move GREEN 5
+3 10 move PINK 2
+5 9 move YELLOW 4

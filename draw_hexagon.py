@@ -65,12 +65,12 @@ class Hex:
 
     # sets the given hex to act as a portal
     # TODO: How to set destiantion?
-   def make_portal(self, pmi, pli):
+   def make_portal(self, pmi, pli, color=(75, 4, 122)):
        # Portals are dark purple
        # TODO: What state to pass?
        # TODO: Rename variables
        # TODO: Ideally, portals should be linked just to idents, not to hex locations (so they can move)
-       self.idents.append(Ident((75, 4, 122), property="portal", pair_matrix_index=pmi, pair_list_index=pli))
+       self.idents.append(Ident(color, property="portal", pair_matrix_index=pmi, pair_list_index=pli))
 
     ##########################################################################################################
 
@@ -599,6 +599,7 @@ def read_line(line):
     elif command == "wall" or command == "wall\n":
         hex_matrix[matrix_index][list_index].make_wall()
     elif command == "portal" or command == "portal\n":  
+        # TODO: Could change this to enable one-way portals
         pair_matrix_index = int(line_parts[3])
         pair_list_index = int(line_parts[4])  
         hex_matrix[matrix_index][list_index].make_portal(pair_matrix_index, pair_list_index)
@@ -728,23 +729,17 @@ def portal_handler():
         print("third loop, i = " + str(i))
         coords = portal_list[i]
         
-        # TODO: This check shouldn't be necessary because of the check in loop 2
-        # TODO: And yet... it manages not to pass
-        # TODO: Checking only for i=0 only works when sending through portal 0
-        if i == 0:
-            assert(len(hex_matrix_new[coords[0]][coords[1]].idents) == 1)
-        
-        '''origin_portal = hex_matrix_new[coords[0]][coords[1]].contains_portal()
+        origin_portal = hex_matrix_new[coords[0]][coords[1]].contains_portal()
         if not origin_portal:
             print("portal_list contains non-portal")
         
-        destination_hex = hex_matrix_new[origin_portal.pair_matrix_index][origin_portal.pair_list_index]'''
+        destination_hex = hex_matrix_new[origin_portal.pair_matrix_index][origin_portal.pair_list_index]
 
-        # TODO: Check this alt way of accessing portal_list (will only work if things are added to the portal_list in the order I expect)
+        '''# TODO: Check this alt way of accessing portal_list (will only work if things are added to the portal_list in the order I expect)
         if ((i%2) == 0):
             destination_hex = hex_matrix_new[portal_list[i+1][0]][portal_list[i+1][1]]
         else:
-            destination_hex = hex_matrix_new[portal_list[i-1][0]][portal_list[i-1][1]]
+            destination_hex = hex_matrix_new[portal_list[i-1][0]][portal_list[i-1][1]]'''
 
 
         # Pass idents from temp storage to destination hex
