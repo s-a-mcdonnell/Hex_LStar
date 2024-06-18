@@ -684,10 +684,13 @@ def check_for_repeat_identities():
 # Transfers identities between paired portals
 def portal_handler():
     print("start of portal_handler")
+    print(str(portal_list))
 
+    # TODO: Is this a necessary declaration?
     global hex_matrix_new
 
     # Set up temp storage for idents to be moved
+    # TODO: There must be a better way to initialize this
     updated_portal_idents = []
     
     for i in range(len(portal_list)):
@@ -696,6 +699,7 @@ def portal_handler():
     print("after setup:" + str(updated_portal_idents))
 
 
+    # Fill temp storage
     for i in range(len(portal_list)):
         print("first loop, i = " + str(i))
         coords = portal_list[i]
@@ -712,10 +716,7 @@ def portal_handler():
                 print("passing ident to temp storage")
                 sub_list_temp.append(ident)
 
-
-
     print("after loop 1:" + str(updated_portal_idents))
-
 
     for i in range(len(portal_list)):
         print("second loop, i = " + str(i))
@@ -726,7 +727,10 @@ def portal_handler():
         # Remove all non-portal idents from the origin hex
         origin_portal = origin_hex.contains_portal()
         origin_hex.idents = []
-        origin_hex.idents.append(origin_portal)
+        if origin_portal:
+            print("add portal back in")
+            origin_hex.idents.append(origin_portal)
+        # Alt way of deleting non-portal identities
         '''for ident in origin_hex.idents:
             if ident.property != "portal":
                 origin_hex.idents.remove(ident)'''
@@ -738,7 +742,12 @@ def portal_handler():
     for i in range(len(portal_list)):
         print("third loop, i = " + str(i))
         coords = portal_list[i]
-
+        
+        # TODO: This check shouldn't be necessary because of the check in loop 2
+        # TODO: And yet... it manages not to pass
+        if i == 0:
+            assert(len(hex_matrix_new[coords[0]][coords[1]].idents) == 1)
+        
         origin_portal = hex_matrix_new[coords[0]][coords[1]].contains_portal()
         if not origin_portal:
             print("portal_list contains non-portal")
