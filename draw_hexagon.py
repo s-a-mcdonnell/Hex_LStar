@@ -540,11 +540,15 @@ class Hex:
         # determine the state of the current hex based on the states of the hexes around it
         future = hex_matrix_new[self.matrix_index][self.list_index]
         
-        # TODO: Is this what's causing the left-right right-left issue?
+        '''# TODO: Is this what's causing the left-right right-left issue?
         # Reset the hex
         if not future.contains_portal():
-            future.idents = []
+            future.idents = []'''
 
+        portal_ident = self.contains_portal()
+        future.idents = []
+        if portal_ident:
+            future.take_ident(portal_ident)
       
 
         # If the hex is a wall, it will remain occupied and not movable
@@ -552,7 +556,7 @@ class Hex:
             future.take_ident(self.contains_direction(-2))
             return
 
-        # TODO: If self is a portal, future is its paired location
+        '''# TODO: If self is a portal, future is its paired location
         portal_ident = self.contains_portal()
         if portal_ident:
             print("Updating portal at " + str(self.matrix_index) + ", " + str(self.list_index))
@@ -565,12 +569,12 @@ class Hex:
                 print("Adding status back into portal")
                 future.take_ident(hex_matrix[portal_ident.pair_matrix_index][portal_ident.pair_list_index].contains_portal())
             
-            '''# Force overwrite future idents with portal ident
+            # Force overwrite future idents with portal ident
             # TODO: De-jankify
-            future.idents = [hex_matrix[portal_ident.pair_matrix_index][portal_ident.pair_list_index].contains_portal()]'''
+            future.idents = [hex_matrix[portal_ident.pair_matrix_index][portal_ident.pair_list_index].contains_portal()]
 
             print("portal status maintained")
-        '''else:
+        else:
             # Reset future idents if not a portal
             # TODO: Does this make sense?
             future.idents = []'''
@@ -701,8 +705,15 @@ def read_line(line):
         pair_list_index = int(line_parts[4])  
         hex_matrix[matrix_index][list_index].make_portal(pair_matrix_index, pair_list_index)
         hex_matrix_new[matrix_index][list_index].make_portal(pair_matrix_index, pair_list_index)
+        global portal_list
+
+        portal_list.append((matrix_index, list_index))
+
         hex_matrix[pair_matrix_index][pair_list_index].make_portal(matrix_index, list_index)
         hex_matrix_new[pair_matrix_index][pair_list_index].make_portal(matrix_index, list_index)
+        
+        portal_list.append((pair_matrix_index, pair_list_index))
+
 
 
 def swap_matrices():
@@ -746,6 +757,29 @@ def check_for_repeat_identities():
 
                                 time.sleep(100000)
 
+# TODO: Describe
+# __ portals
+def portal_handler():
+    global hex_matrix_new
+
+    for coords in portal_list:
+        print("examining portal opening at " + str(coords[0]) + ", " + str(coords[1]))
+        origin_hex = hex_matrix_new[coords[0]][coords[1]]
+        if not origin_hex:
+            print("origin_hex null")
+        origin_portal = origin_hex.contains_portal()
+        if not origin_portal:
+            print("portal_list contains non-portal")
+        destination_hex = hex_matrix_new[origin_portal.pair_matrix_index][origin_portal.pair_list_index]
+
+        # Remove all non-portal idents from the origin hex and pass them to the destination hex
+        for ident in origin_hex.idents:
+            if ident.property != "portal":
+                print("passing ident to destination portal")
+                origin_hex.idents.remove(ident)
+                destination_hex.take_ident(ident)
+
+
 # Updates all the states
 def next_generation():
     global frames_created
@@ -759,6 +793,8 @@ def next_generation():
                 for hexagon in hex_list:
                     hexagon.update()
     
+    portal_handler()
+
     swap_matrices()
 
 import pygame
@@ -806,6 +842,9 @@ for x in range(15):
         myHex = Hex(x, y)
         hex_list_new.append(myHex)
 
+# List of coordinate pairs describing portal locations
+# TODO: Will need to update if portals are able to move
+portal_list = []
 
 # IMPORTANT: format of text file input is "matrix_index, list_index, state, color, direction"
 
