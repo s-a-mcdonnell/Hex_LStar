@@ -693,6 +693,7 @@ def portal_handler():
     print("after loop 1:" + str(updated_portal_idents))
 
     for i in range(len(portal_list)):
+        coords = portal_list[i]
         print("second loop, i = " + str(i))
 
         origin_hex = hex_matrix_new[coords[0]][coords[1]]
@@ -714,7 +715,14 @@ def portal_handler():
 
         # Throw error if the origin_hex still contains any non-portal identities (debugging)
         assert(len(origin_hex.idents) == 1)
+        assert(len(hex_matrix_new[coords[0]][coords[1]].idents) == 1)
         assert(origin_hex.idents[0].property == "portal")
+
+    # Checking length of idents lists
+    for coords in portal_list:
+        hex_to_check = hex_matrix_new[coords[0]][coords[1]]
+        assert(len(hex_matrix_new[coords[0]][coords[1]].idents)==1)
+        assert(len(hex_to_check.idents)==1)
 
     for i in range(len(portal_list)):
         print("third loop, i = " + str(i))
@@ -722,6 +730,7 @@ def portal_handler():
         
         # TODO: This check shouldn't be necessary because of the check in loop 2
         # TODO: And yet... it manages not to pass
+        # TODO: Checking only for i=0 only works when sending through portal 0
         if i == 0:
             assert(len(hex_matrix_new[coords[0]][coords[1]].idents) == 1)
         
