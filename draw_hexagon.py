@@ -279,6 +279,100 @@ class Hex:
 
 
         return hex_walls
+   
+   def get_neighbors(self):
+        my_neighbors = [None, None, None, None, None, None]
+
+        try:
+            my_neighbors[0] = hex_matrix[self.matrix_index][self.list_index - 1]
+        except:
+            #print("Neighbor 0 does not exist")
+            pass
+
+        try:
+            my_neighbors[1] = hex_matrix[self.matrix_index + 1][self.list_index - 1]    
+        except:
+            #print("Neighbor 1 does not exist")
+            pass
+
+        try:
+            my_neighbors[2] = hex_matrix[self.matrix_index + 1][self.list_index]
+        except:
+            #print("Neighbor 2 does not exist")
+            pass
+
+        try:
+            my_neighbors[3] = hex_matrix[self.matrix_index][self.list_index + 1]
+        except:
+            #print("Neighbor 3 does not exist")
+            pass
+
+        try:
+            my_neighbors[4] = hex_matrix[self.matrix_index - 1][self.list_index + 1]
+        except:
+            #print("Neighbor 4 does not exist")
+            pass
+        
+        try:
+            my_neighbors[5] = hex_matrix[self.matrix_index - 1][self.list_index]
+        except:
+            #print("Neighbor 5 does not exist")
+            pass
+        
+        return my_neighbors
+
+   # removes influence of this hex from neighbors
+   def cleanse_neighbor(self, direction):
+        if (direction == 0):
+            neighbor = hex_matrix_new[self.matrix_index][self.list_index - 1]
+            if neighbor.contains_direction(0) is not None:
+                neighbor.idents.remove(neighbor.contains_direction(0))
+        elif (direction == 1):
+            neighbor = hex_matrix_new[self.matrix_index + 1][self.list_index - 1]
+            if neighbor.contains_direction(1) is not None:
+                neighbor.idents.remove(neighbor.contains_direction(1))
+        elif (direction == 2):
+            neighbor = hex_matrix_new[self.matrix_index + 1][self.list_index]
+            if neighbor.contains_direction(2) is not None:
+                neighbor.idents.remove(neighbor.contains_direction(2))
+        elif (direction == 3):
+            neighbor = hex_matrix_new[self.matrix_index][self.list_index + 1]
+            if neighbor.contains_direction(3) is not None:
+                neighbor.idents.remove(neighbor.contains_direction(3))
+        elif (direction == 4):
+            neighbor = hex_matrix_new[self.matrix_index - 1][self.list_index + 1]
+            if neighbor.contains_direction(4) is not None:
+                neighbor.idents.remove(neighbor.contains_direction(4))
+        elif (direction == 5):
+            neighbor = hex_matrix_new[self.matrix_index - 1][self.list_index]
+            if neighbor.contains_direction(5) is not None:
+                neighbor.idents.remove(neighbor.contains_direction(5))
+
+    # calls movement handler on all the neighboring hexes of self in case we need to re-check them after changing the idents that are in self
+   def influence_neighbor(self, future, my_neighbors, neighbors_movable, neighbors_wall):
+       for i in self.idents:
+            if(i.state >= 0) and (i.state <= 5):
+                if (i.state == 0):
+                    neighbor = hex_matrix_new[self.matrix_index][self.list_index - 1]
+                elif (i.state == 1):
+                    neighbor = hex_matrix_new[self.matrix_index + 1][self.list_index - 1]
+                elif (i.state == 2):
+                    neighbor = hex_matrix_new[self.matrix_index + 1][self.list_index]
+                elif (i.state == 3):
+                    neighbor = hex_matrix_new[self.matrix_index][self.list_index + 1]
+                elif (i.state == 4):
+                    neighbor = hex_matrix_new[self.matrix_index - 1][self.list_index + 1]
+                elif (i.state == 5):
+                    neighbor = hex_matrix_new[self.matrix_index - 1][self.list_index]
+            # check if neighbor already has an ident with the same serial number as i
+            check = next((Ident for Ident in neighbor.idents if Ident.serial_number == i.serial_number), None)
+            # if not, put the effects of i's movement on neighbor with movement_handler
+            if check is None:
+                toMove = hex_matrix[neighbor.matrix_index][neighbor.list_index]
+                # get my neighboors, and my movable neighbors, and my wall neighbors
+                toMove.motion_handler(neighbor, toMove.get_neighbors(), toMove.check_movables(), toMove.check_walls(), (i.state - 3) % 6)
+
+
 
     ##########################################################################################################
 
@@ -314,7 +408,9 @@ class Hex:
             # If I am hitting a stationary neighbor, I become stationary but maintain my identity
             ident_to_stop = self.contains_direction(dir).copy()
             ident_to_stop.state = -1
-            future.take_ident(ident_to_stop)
+            if(future.contains_direction(-1) is None):
+                future.take_ident(ident_to_stop)
+                print("Took ident " + str(ident_to_stop.color) + " " + str(ident_to_stop.state))
    
             future.occupied = True
             future.movable = True
@@ -325,6 +421,91 @@ class Hex:
    def motion_handler(self, future, my_neighbors, neighbors_movable, neighbors_wall, dir):
         # straight_neighbor is the neighbor in that direction (ex. when dir = 0, straight_neighbor is the upper neighbor of self)
        straight_neighbor = my_neighbors[dir]
+
+
+        # if I am in a collision state (with multiple idents) and the neighbors in the direction I came from are stationary, move me up
+        # HOWEVER if I am in a collision state that resulted from people hitting me stationary from opposite sides, I act as a wall
+       if (len(self.idents) > 1):
+            stationary_left_behind = [] # list of booleans for each ident if there is a neighbor in its opposite direction 
+            for i in self.idents:
+                direction = i.state
+                if(direction >= 0):
+                    stationary_left_behind.append(neighbors_movable[(int(direction) + 3) % 6])
+            # checks if all elements that current states are pointing away from are in fact movable
+            # if so, special case!!!
+
+            # resolving cases of two hexes colliding into one stationary hex
+            if "True, False, False, True" in str(neighbors_movable) and len(stationary_left_behind) == 2:
+                # if this is true, the collision was from opposing sides (180 degrees)
+                # then, the center immovable object acts as a wall
+                future_to_store = []
+                for i in self.idents:
+                    if(i.state >= 0):
+                        i.state = (i.state + 3) % 6
+                        future_to_store.append(i)
+                # passing stationary hex of the correct color to the future
+                forward = self.contains_direction(-1).color
+                self.idents.clear()
+                future.idents.clear()
+                to_take = Ident(forward, -1)
+                self.take_ident(to_take)
+                future.take_ident(to_take)
+                for i in future_to_store:
+                    self.take_ident(i)
+
+
+            elif ("True, True" in str(neighbors_movable) or str(neighbors_movable) == "[True, False, False, False, False, True]") and len(stationary_left_behind) == 2:
+                # if this is true, the collision had its two incoming hexes at a 60 degree angle from each other
+                if(all(flag == 1 for flag in stationary_left_behind)):
+                    # for 60 degree case, the stationary object moves in the direction that the more counterclockwise hex shows
+                    future_direction = 0
+                    if str(neighbors_movable) == "[True, False, False, False, False, True]":
+                        future_direction = 2
+                    else:
+                        # find first "True"
+                        future_direction = (min([i for i, val in enumerate(neighbors_movable) if val]) - 3) % 6
+                        # minimum true value => clockwise movable neighbor
+                    forward = Ident((self.contains_direction(-1).color), future_direction)
+                    for i in self.idents:
+                        if(i.state >= 0) and (i.state <= 5):
+                            # if an ident in this one is greater than zero, check to ensure the hexes it would act onto do not contain influence from it
+                            self.cleanse_neighbor(i.state)
+                    self.idents.clear()
+                    self.take_ident(forward)
+                    # function here to make sure the effects of the newly moved ident are put in the code
+                    self.influence_neighbor(future, my_neighbors, neighbors_movable, neighbors_wall)
+
+            elif len(stationary_left_behind) == 2:
+                # this picks the direction correctly for 120 degreee collisions, but perhaps this should be done upon the initial collision???
+                if(all(flag == 1 for flag in stationary_left_behind)):
+                    future_direction = []
+                    for i in self.idents:
+                        # perhaps only append if we have a neighbor in that direction 
+                        if(neighbors_movable[int(i.state) - 3 % 6] == 1):
+                            future_direction.append((i.state - 3) % 6)
+                    # different cases for future_direction_real
+                    # both of these are just for 120 degree differences 
+                    if(max(future_direction) - min(future_direction) == 2):
+                        future_direction_real = ((min(future_direction) - 2) % 6)
+                    elif(max(future_direction) - min(future_direction) == 4):
+                        future_direction_real = ((max(future_direction) - 2) % 6)
+                    forward = Ident((self.contains_direction(-1).color), future_direction_real)
+                    for i in self.idents:
+                        if(i.state >= 0) and (i.state <= 5):
+                            # if an ident in this one is greater than zero, check to ensure the hexes it would act onto do not contain influence from it
+                            self.cleanse_neighbor(i.state)
+                            # TODO: also have to make sure the required indices exist for checking them in the first place
+                    self.idents.clear()
+                    # future.idents.clear()
+                    self.take_ident(forward)
+                    # TODO: effects of this ident so that it doesn't take longer than the other collision cases to move forward?
+                    self.influence_neighbor(future, my_neighbors, neighbors_movable, neighbors_wall)
+                    # note to self: check how long framewise the other animations take
+        # --- END CASES FOR TWO HEXES COLLIDING WITH ONE STATIONARY CASE
+        # TODO: possibly generalize the above cases for multiple hexes colliding with a stationary hex?
+
+       if self.contains_direction(-1) is not None:
+            ident_to_take = self.contains_direction(-1)
 
         # if my neighbor is moving toward me and is not blocked by either of two side walls, I will gain motion
        if (not neighbors_wall[(dir+1)%6]) and (not neighbors_wall[(dir-1)%6]):
@@ -382,6 +563,9 @@ class Hex:
                         ident_to_flip = clockwise_step_ident.copy()
                         ident_to_flip.state = (ident_to_flip.state-2)%6
                         future.take_ident(ident_to_flip)
+                        if self.contains_direction(-1) is not None:
+                            future.idents.insert(0, ident_to_take)
+
                 elif counterclockwise_step_ident != None:
                     # Deal with 120-degree collision (version 2)
                     print("case 5, dir " + str(dir))
@@ -394,6 +578,8 @@ class Hex:
                         ident_to_flip = counterclockwise_step_ident.copy()
                         ident_to_flip.state = (ident_to_flip.state+2)%6
                         future.take_ident(ident_to_flip)
+                        if self.contains_direction(-1) is not None:
+                            future.idents.insert(0, ident_to_take)
                 
                 # TODO: Find more edge cases of 3+ hexes colliding
 
@@ -417,6 +603,8 @@ class Hex:
                         ident_to_flip = clockwise_neighbor_ident.copy()
                         ident_to_flip.state = (ident_to_flip.state-1)%6
                         future.take_ident(ident_to_flip)
+                        if self.contains_direction(-1) is not None:
+                            future.take_ident(ident_to_take)
                 elif counterclockwise_neighbor_ident != None:
                     # Deal with 60-degree collision (version 2)
                     print("case 3, dir = " + str(dir))
@@ -437,6 +625,8 @@ class Hex:
                         print("flipping ident with color " + str(ident_to_flip.color) + ", original direction " + str(ident_to_flip.state))
                         ident_to_flip.state = (ident_to_flip.state+1)%6
                         future.take_ident(ident_to_flip)
+                        if self.contains_direction(-1) is not None:
+                            future.take_ident(ident_to_take)
 
                 elif dir_neighbor_ident and opp_neighbor_ident:
                     # Handle head-on collision with an empty hex in the middle
@@ -444,6 +634,8 @@ class Hex:
                     ident_to_flip = dir_neighbor_ident.copy()
                     ident_to_flip.state = (ident_to_flip.state + 3)%6
                     future.take_ident(ident_to_flip)
+                    if self.contains_direction(-1) and (future.contains_direction(-1) == None):
+                        future.take_ident(self.contains_direction(-1).copy())
                 elif self.check_movable_hex():
                     print("case 7")
                     # If I am currently stationary and none of the previous statements have been triggered, I will remain stationary in the next generation
@@ -454,52 +646,16 @@ class Hex:
                     # Else take on identity of neighbor
                     print("case 8")
                     future.take_ident(neighbor_ident)
+                    if self.contains_direction(-1) and (future.contains_direction(-1) == None):
+                        future.take_ident(self.contains_direction(-1).copy())
+                        print("Case 8: took on ident of my neighbor, I am " + str(self.matrix_index) + " " + str(self.list_index))
         
         # handle impact of hitting occupied neighbor
        if self.contains_direction(dir): 
            self.hit_neighbor(future, my_neighbors, neighbors_movable, neighbors_wall, dir)
 
     # returns an array of neighbors (the entry in the array is None when the neighbor does not exist)
-   def get_neighbors(self):
-        my_neighbors = [None, None, None, None, None, None]
 
-        try:
-            my_neighbors[0] = hex_matrix[self.matrix_index][self.list_index - 1]
-        except:
-            #print("Neighbor 0 does not exist")
-            pass
-
-        try:
-            my_neighbors[1] = hex_matrix[self.matrix_index + 1][self.list_index - 1]    
-        except:
-            #print("Neighbor 1 does not exist")
-            pass
-
-        try:
-            my_neighbors[2] = hex_matrix[self.matrix_index + 1][self.list_index]
-        except:
-            #print("Neighbor 2 does not exist")
-            pass
-
-        try:
-            my_neighbors[3] = hex_matrix[self.matrix_index][self.list_index + 1]
-        except:
-            #print("Neighbor 3 does not exist")
-            pass
-
-        try:
-            my_neighbors[4] = hex_matrix[self.matrix_index - 1][self.list_index + 1]
-        except:
-            #print("Neighbor 4 does not exist")
-            pass
-        
-        try:
-            my_neighbors[5] = hex_matrix[self.matrix_index - 1][self.list_index]
-        except:
-            #print("Neighbor 5 does not exist")
-            pass
-        
-        return my_neighbors
 
 
     ##########################################################################################################
@@ -539,6 +695,11 @@ class Hex:
         is_stationary = self.contains_direction(-1)
         if is_stationary and (len(future.idents) == 0):
             future.idents.append(is_stationary.copy())
+
+        trouble = next((Ident for Ident in self.idents if Ident.serial_number == 60), None)
+        if trouble is not None:
+            print("New trouble (60) hex at: ")
+            print(str(self.matrix_index) + " " + str(self.list_index))
 
 
 
