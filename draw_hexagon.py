@@ -990,7 +990,7 @@ def past_generation():
                     for c in check:
                         # we don't want to change walls, so check if it is one
                         if c.state != -2:
-                            # ince we find items, add them to our item list
+                            # since we find items, add them to our item list
                             items.append(c)
                             # erase current state
                             hexagon.idents = []
