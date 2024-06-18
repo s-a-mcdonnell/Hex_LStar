@@ -54,8 +54,7 @@ class Hex:
     # sets the given hex to act as a wall
    def make_wall(self):
        # Wipe idents currently stored
-       self.idents = None
-       self.idents = []
+       self.idents.clear()
        # Walls are black
        # -2 state is a wall
        self.idents.append(Ident((0,0,0), -2))
@@ -469,7 +468,7 @@ class Hex:
         
         # Clear idents from prev generation
         portal_ident = self.contains_portal()
-        future.idents = []
+        future.idents.clear()
         if portal_ident:
             future.take_ident(portal_ident)
       
@@ -501,7 +500,7 @@ class Hex:
         else:
             # Reset future idents if not a portal
             # TODO: Does this make sense?
-            future.idents = []'''
+            future.idents.clear()'''
 
 
 
@@ -726,7 +725,7 @@ def portal_handler():
 
         # Remove all non-portal idents from the origin hex
         origin_portal = origin_hex.contains_portal()
-        origin_hex.idents = []
+        origin_hex.idents.clear()
         if origin_portal:
             print("add portal back in")
             origin_hex.idents.append(origin_portal)
