@@ -70,7 +70,7 @@ class Hex:
        # Portals are dark purple
        # TODO: What state to pass?
        # TODO: Rename variables
-       # TODO: Ideally, portals should be linked just to idents, not to hexes (so they can move)
+       # TODO: Ideally, portals should be linked just to idents, not to hex locations (so they can move)
        self.idents.append(Ident((75, 4, 122), property="portal", pair_matrix_index=pmi, pair_list_index=pli))
 
     ##########################################################################################################
@@ -155,7 +155,6 @@ class Hex:
    
    # returns a list of length six representing the six neighboring hexes of self, with 1 if the hex neighboring in that direction is movable, nonmoving, and occupied
    def check_movables(self, neighbors): 
-        # hex_movable = [0, 0, 0, 0, 0, 0]
         hex_movable = []
 
         '''# Initializing hexToCheck with default value (reducing repeated memory allocation and deallocation)
@@ -222,9 +221,9 @@ class Hex:
                 if len(self.idents) > 1:
                     print("Wall hex contains multiple idents")
 
-                return True
+                return ident
            
-       return False    
+       return None    
 
     ##########################################################################################################
 
@@ -252,48 +251,9 @@ class Hex:
         # Check if each neighboring hex is a wall
         for hex in neighbors:
             if hex != None:
-                hex_walls.append(hex.contains_wall())
+                hex_walls.append(bool(hex.contains_wall()))
             else:
                 hex_walls.append(False)
-        '''hex_walls = [0, 0, 0, 0, 0, 0]
-
-        # Default value of hexToCheck (not used)
-        hexToCheck = self
-
-        # check upper hex (pos 0)
-        if self.list_index - 1 >= 0:
-           hexToCheck = hex_matrix[self.matrix_index][self.list_index - 1]
-           hex_walls[0] = hexToCheck.contains_wall()
-
-         # check northeast hex (pos 1)
-        if (self.matrix_index + 1 < len(hex_matrix)) and (self.list_index - 1 >= 0):
-           hexToCheck = hex_matrix[self.matrix_index + 1][self.list_index - 1]
-           hex_walls[1] = hexToCheck.contains_wall()
-
-
-        # check southeast hex (pos 2)
-        if self.matrix_index + 1 < len(hex_matrix):
-            hexToCheck = hex_matrix[self.matrix_index + 1][self.list_index]
-            hex_walls[2] = hexToCheck.contains_wall()
-
-
-        # check down hex (pos 3)
-        if self.list_index + 1 < len(hex_list):
-            hexToCheck = hex_matrix[self.matrix_index][self.list_index + 1]
-            hex_walls[3] = hexToCheck.contains_wall()
-
-
-        # check southwest hex (pos 4)
-        if (self.matrix_index - 1 >= 0) and (self.list_index + 1 < len(hex_list)):
-            hexToCheck = hex_matrix[self.matrix_index - 1][self.list_index + 1]
-            hex_walls[4] = hexToCheck.contains_wall()
-
-
-         # check northwest hex (pos 5)
-        if self.matrix_index - 1 >= 0:
-            hexToCheck = hex_matrix[self.matrix_index - 1][self.list_index]
-            hex_walls[5] = hexToCheck.contains_wall()'''
-
 
         return hex_walls
 
@@ -540,11 +500,7 @@ class Hex:
         # determine the state of the current hex based on the states of the hexes around it
         future = hex_matrix_new[self.matrix_index][self.list_index]
         
-        '''# TODO: Is this what's causing the left-right right-left issue?
-        # Reset the hex
-        if not future.contains_portal():
-            future.idents = []'''
-
+        # Clear idents from prev generation
         portal_ident = self.contains_portal()
         future.idents = []
         if portal_ident:
@@ -552,8 +508,9 @@ class Hex:
       
 
         # If the hex is a wall, it will remain occupied and not movable
-        if(self.contains_wall()):
-            future.take_ident(self.contains_direction(-2))
+        wall_ident = self.contains_wall()
+        if wall_ident:
+            future.take_ident(wall_ident)
             return
 
         '''# TODO: If self is a portal, future is its paired location
@@ -757,27 +714,51 @@ def check_for_repeat_identities():
 
                                 time.sleep(100000)
 
-# TODO: Describe
-# __ portals
+# Transfers identities between paired portals
 def portal_handler():
-    global hex_matrix_new
+    # Set up temp storage for idents to be moved
+    updated_portal_idents = [[None]] * len(portal_list)
+    for ident_list in updated_portal_idents:
+        ident_list = []
 
-    for coords in portal_list:
+        # TODO: This shouldn't be necessary to make python accept the 2d array
+        useless_ident = Ident(serial_number=-2)
+        ident_list.append(useless_ident)
+        ident_list.remove(useless_ident)
+
+    for i in range(len(portal_list)):
+        coords = portal_list[i]
+
         print("examining portal opening at " + str(coords[0]) + ", " + str(coords[1]))
         origin_hex = hex_matrix_new[coords[0]][coords[1]]
         if not origin_hex:
             print("origin_hex null")
-        origin_portal = origin_hex.contains_portal()
-        if not origin_portal:
-            print("portal_list contains non-portal")
-        destination_hex = hex_matrix_new[origin_portal.pair_matrix_index][origin_portal.pair_list_index]
 
-        # Remove all non-portal idents from the origin hex and pass them to the destination hex
+        # Remove all non-portal idents from the origin hex and pass them to temp storage
         for ident in origin_hex.idents:
             if ident.property != "portal":
                 print("passing ident to destination portal")
                 origin_hex.idents.remove(ident)
+                updated_portal_idents[i].append(ident)
+    
+    for i in range(len(portal_list)):
+        
+        coords = portal_list[i]
+
+        origin_portal = hex_matrix_new[coords[0]][coords[1]].contains_portal()
+        if not origin_portal:
+            print("portal_list contains non-portal")
+        
+        destination_hex = hex_matrix_new[origin_portal.pair_matrix_index][origin_portal.pair_list_index]
+
+        # Pass idents from temp storage to destination hex
+        
+        for ident in updated_portal_idents[i]:
+            if ident != None:
                 destination_hex.take_ident(ident)
+
+
+
 
 
 # Updates all the states
