@@ -759,7 +759,6 @@ def past_generation():
             item.state = past[2]
             # then we put the ident into the hex it was before
             hex_matrix[past[1]][past[0]].take_ident(item)
-            print("this is limit tic", limit_tic)
     else:
         print("ran out of memory")
 
