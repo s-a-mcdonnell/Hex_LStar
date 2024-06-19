@@ -340,10 +340,9 @@ class Hex:
                 toMove.motion_handler(neighbor, toMove.get_neighbors(), toMove.check_movables(), toMove.check_walls(), (i.state - 3) % 6)
 
 
+   ##########################################################################################################
 
-    ##########################################################################################################
-
-    # handles the impacts of hitting an occupied neighbor (either a stationary object or a wall)
+   # handles the impacts of hitting an occupied neighbor (either a stationary object or a wall)
    def hit_neighbor(self, future, my_neighbors, neighbors_movable, neighbors_wall, dir):
         # cases for individual side glancing walls
         if (neighbors_wall[(dir-1)%6] == 1) and not (neighbors_wall[(dir+1)%6] == 1):
@@ -393,6 +392,7 @@ class Hex:
         # if I am in a collision state (with multiple idents) and the neighbors in the direction I came from are stationary, move me up
         # HOWEVER if I am in a collision state that resulted from people hitting me stationary from opposite sides, I act as a wall
        if (len(self.idents) > 1):
+            print("checking collision state")
             stationary_left_behind = [] # list of booleans for each ident if there is a neighbor in its opposite direction 
             for i in self.idents:
                 direction = i.state
@@ -521,7 +521,9 @@ class Hex:
                     # Deal with 120-degree collision (version 1)
                     print("case 4, dir " + str(dir))
 
-                    if neighbors_wall[(dir+3)%6] or self.contains_direction((dir+2)%6):
+                    # also need to check the case where the neighbor will not actually collide because of a wall
+                    check_for_wall = my_neighbors[(dir - 2%6)].get_neighbors[dir]
+                    if neighbors_wall[(dir+3)%6] or self.contains_direction((dir+2)%6) or (check_for_wall[0].state == -2):
                         # If a wall gets in the way or I contain an arrow that will collide with the incoming arrow, do not bounce
                         print("case 4 alt")
                         future.take_ident(neighbor_ident)
@@ -559,7 +561,11 @@ class Hex:
                     if neighbors_wall[(dir+2)%6] or self.contains_direction((dir+1)%6):
                         # If a wall blocks it or it collides with an arrow in self, take on identity of neighbor
                         print("case 2 alt")
-                        future.take_ident(neighbor_ident)
+                        # additionally, if I contain a stationary hex, then I will keep my stationary hex color
+                        if(self.contains_direction(-1) is None):
+                            future.take_ident(neighbor_ident)
+                        else:
+                            future.take_ident(Ident(self.contains_direction(-1).color, neighbor_ident.state, self.contains_direction(-1).serial_number))
                     elif opp_neighbor_ident != None:
                         # If our direct neighbor will be colliding in a 120 degree collision (and thus not colliding with us), rotate
                         ident_to_rotate = neighbor_ident.copy()
