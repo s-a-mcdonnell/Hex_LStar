@@ -149,51 +149,18 @@ class World:
                 myHex = Hex(x, y)
                 hex_list.append(myHex)
 
-    ##########################################################################################################
-
-    def draw(self):
-        # Reset screen
-        self.screen.fill((0, 0, 0))
-
-        # Draw all blank hexes
-        for hex_list in self.hex_matrix:
-            for hex in hex_list:
-                hex.draw(self.screen)
-
-        # TODO: Draw all idents
-
-    ##########################################################################################################
-
-    def update(self):
-        pass
-        
-        # TODO: Write this
-    
-    ##########################################################################################################
-
-    def run(self):
-        run = True
-        while run:
-
-            # Event handler (closing window)
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    run = False
-            
-            self.draw()
-
-            # flips to the next frame
-            pygame.display.flip()
-            
-            self.update()
-        
-        # Exit
-        pygame.quit()
+        # reading the intiial state of the hex board from a file
+        __location__ = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__)))
+        file = open(os.path.join(__location__, "initial_state.txt"), "r")
+        for line in file:
+            # self.read_line(line)
+            pass
+            # TODO: uncomment the above line for proper fie reading once we implement moving, stationary, wall hexes back into the program
 
     ##########################################################################################################
 
     @classmethod
-    def get_color(color_text):
+    def get_color(self, color_text):
         if color_text == "YELLOW" or color_text == "YELLOW\n":
             return (255, 255, 102)
         elif color_text == "PURPLE" or color_text == "PURPLE\n":
@@ -217,8 +184,7 @@ class World:
 
     ##########################################################################################################
 
-    @classmethod
-    def read_line(line):
+    def read_line(self, line):
         # actual parsing of the text file
         line_parts = line.split(" ")
         
@@ -230,10 +196,51 @@ class World:
             direction = int(line_parts[4])
             color_text = line_parts[3]
             color = World.get_color(color_text)
-            hex_matrix[matrix_index][list_index].make_move(direction, color)
+            self.hex_matrix[matrix_index][list_index].make_move(direction, color)
         elif command == "occupied":
             color_text = line_parts[3]
             color = World.get_color(color_text)
-            hex_matrix[matrix_index][list_index].make_occupied(color)
+            self.hex_matrix[matrix_index][list_index].make_occupied(color)
         elif command == "wall" or command == "wall\n":
-            hex_matrix[matrix_index][list_index].make_wall()
+            self.hex_matrix[matrix_index][list_index].make_wall()
+
+    ##########################################################################################################
+
+    def draw(self):
+        # Reset screen
+        self.screen.fill((0, 0, 0))
+
+        # Draw all blank hexes
+        for hex_list in self.hex_matrix:
+            for hex in hex_list:
+                hex.draw(self.screen)
+
+        # TODO: Draw all idents
+
+    ##########################################################################################################
+
+    def update(self):
+        pass
+        
+        # TODO: Write this method, iterating through idents
+    
+    ##########################################################################################################
+
+    def run(self):
+        run = True
+        while run:
+
+            # Event handler (closing window)
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    run = False
+            
+            self.draw()
+
+            # flips to the next frame
+            pygame.display.flip()
+            
+            self.update()
+        
+        # Exit
+        pygame.quit()
