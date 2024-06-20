@@ -42,7 +42,7 @@ class Hex:
        
         # TODO: Store idents
 
-        # TODO: Move arrows and smaller hexagon to idents? (maybe)
+        '''# TODO: Move arrows and smaller hexagon to idents? (maybe)
         # Create arrows for later use
         #pivot is the center of the hexagon
         pivot = pygame.Vector2(self.x + 20, self.y + 35)
@@ -54,7 +54,7 @@ class Hex:
             self.arrows.append([(pygame.math.Vector2(x, y)).rotate(60.0*i) + pivot for x, y in arrow]) 
     
         # Coordinates used to draw smaller hexagon later if the hex becomes stationary
-        self.small_hexagon = [(self.x+9, self.y+11), (self.x+31, self.y+11), (self.x+47, self.y+35), (self.x+31, self.y+59), (self.x+9, self.y+59), (self.x-7, self.y+35)]
+        self.small_hexagon = [(self.x+9, self.y+11), (self.x+31, self.y+11), (self.x+47, self.y+35), (self.x+31, self.y+59), (self.x+9, self.y+59), (self.x-7, self.y+35)]'''
  
 ##########################################################################################################
 
@@ -80,8 +80,6 @@ class Hex:
             if (33 - 5*i) > 0:
             pygame.draw.circle(screen, self.idents[i].color, (self.x+20, self.y+35), 33-5*i)
     
-    
-
         # Draw an arrow on the hex if the hex is moving
         if self.is_moving:
             for i in range(6):
