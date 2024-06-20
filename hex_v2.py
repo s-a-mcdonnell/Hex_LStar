@@ -15,11 +15,38 @@ Process of the game:
 
 # hex class is now just for graphics/displaying the board/storing idents
 class Hex:
-    pass
+    def __init__(self):
+        pass
 
 # for storing information about a particular moving hex
 class Ident:
-    pass
+
+    idents_created = 0
+
+    def __init__(self, color=(255, 255, 255), state = -1, serial_number = -1, hist = None):
+        if hist is None:
+            hist = []
+        self.color = color
+
+        self.state = state
+        self.hist = hist
+        if serial_number == -1:
+            # If no serial number is provided
+            self.serial_number = Ident.idents_created
+
+            print("Ident with serial number " + str(self.serial_number) + " created")
+            if state == -2:
+                print("Is a wall")
+            elif state == -1:
+                print("Is stationary")
+            else:
+                print("Is moving")
+            Ident.idents_created += 1
+        else:
+            self.serial_number = serial_number
+            print("Ident with serial number " + str(self.serial_number) + " copied")
+            print("color: " + str(self.color))
+
 
 # for setting initial state of the world / having a student interact
 # while loop for running game goes in World
