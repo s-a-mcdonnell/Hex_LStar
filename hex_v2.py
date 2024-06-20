@@ -15,12 +15,15 @@ Process of the game:
 
 # hex class is now just for graphics/displaying the board/storing idents
 class Hex:
+    # Default color (no idents): light blue
+    DEFAULT_COLOR =(190, 240, 255)
+
     ###############################################################################################################
 
     # Takes x and y (Cartesian coordinates where (0, 0) is the top left corner)
     # Returns a list of 6 coordinates defining a hexagon
     @staticmethod
-    def create_coor(x, y):
+    def __create_coor(x, y):
         # Making hex smaller so that borders will be visible
         return [(x+3, y+3), (x+37, y+3), (x+57, y+35), (x+37, y+67), (x+3, y+67), (x-17, y+35)]
 
@@ -38,10 +41,8 @@ class Hex:
         self.x = 60*matrix_index - 20
         self.y = 35*matrix_index + 70*list_index - 490
 
-        self.coordinates = Hex.create_coor(self.x, self.y)
+        self.coordinates = Hex.__create_coor(self.x, self.y)
 
-        # Default color (no idents): light blue
-        self.color =(190, 240, 255)
        
         # TODO: Move arrows and smaller hexagon to idents? (maybe)
         # Create arrows for later use
@@ -90,10 +91,10 @@ class Hex:
 
     ##########################################################################################################
 
-    # Graphics
+    # Graphics (drawing hexes and the corresponding idents)
     def draw(self, screen):
             
-        color_to_draw = self.color
+        color_to_draw = Hex.DEFAULT_COLOR
 
 
         if (len(self.idents) >= 1):
@@ -127,6 +128,7 @@ class Hex:
 # for storing information about a particular moving hex
 class Ident:
 
+    # TODO: Do we still need this?
     idents_created = 0
 
     ##########################################################################################################
@@ -210,14 +212,14 @@ class World:
         __location__ = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__)))
         file = open(os.path.join(__location__, "initial_state.txt"), "r")
         for line in file:
-            self.read_line(line)
+            self.__read_line(line)
             # pass
             # TODO: uncomment the above line for proper fie reading once we implement moving, stationary, wall hexes back into the program
 
     ##########################################################################################################
 
     @classmethod
-    def get_color(self, color_text):
+    def __get_color(self, color_text):
         if color_text == "YELLOW" or color_text == "YELLOW\n":
             return (255, 255, 102)
         elif color_text == "PURPLE" or color_text == "PURPLE\n":
@@ -241,7 +243,7 @@ class World:
 
     ##########################################################################################################
 
-    def read_line(self, line):
+    def __read_line(self, line):
         # actual parsing of the text file
         line_parts = line.split(" ")
         
@@ -252,7 +254,7 @@ class World:
         if command == "move":
             direction = int(line_parts[4])
             color_text = line_parts[3]
-            color = World.get_color(color_text)
+            color = World.__get_color(color_text)
             new_ident = Ident(matrix_index, list_index, color = color, state = direction)
             self.ident_list.append(new_ident)
             # TODO: Add ident to hex
@@ -260,7 +262,7 @@ class World:
             # self.hex_matrix[matrix_index][list_index].make_move(direction, color)
         elif command == "occupied":
             color_text = line_parts[3]
-            color = World.get_color(color_text)
+            color = World.__get_color(color_text)
             new_ident = Ident(matrix_index, list_index, color = color)
             self.ident_list.append(new_ident)
             # TODO: Add ident to hex
@@ -276,31 +278,26 @@ class World:
     ##########################################################################################################
 
     # Draws world
-    def draw(self):
+    def __draw(self):
         # Reset screen
         self.screen.fill((0, 0, 0))
 
-        # Draw all blank hexes
+        # Draw all hexes with idents
         for hex_list in self.hex_matrix:
             for hex in hex_list:
                 hex.draw(self.screen)
 
-        # TODO: Draw all idents
-        '''for ident in self.ident_list:
-            # TODO: Write Ident.draw()
-            ident.draw()'''
-
     ##########################################################################################################
 
     # Swaps which matrix is being used
-    def swap_matrices(self):
+    def __swap_matrices(self):
         temp_matrix = self.hex_matrix
         self.hex_matrix = self.hex_matrix_new
         self.hex_matrix_new = temp_matrix
 
     ##########################################################################################################
 
-    def update(self):
+    def __update(self):
         # TODO: Note that this (calling swap_matrices) will just cause flashing until these two methods are written
 
         # Move or flip all idents
@@ -312,7 +309,7 @@ class World:
             for hex in hex_list:
                 hex.repair_collisions()
         
-        self.swap_matrices()
+        self.__swap_matrices()
     
     ##########################################################################################################
 
@@ -325,12 +322,12 @@ class World:
                 if event.type == pygame.QUIT:
                     run = False
             
-            self.draw()
+            self.__draw()
 
             # flips to the next frame
             pygame.display.flip()
             
-            self.update()
+            self.__update()
         
         # Exit
         pygame.quit()
