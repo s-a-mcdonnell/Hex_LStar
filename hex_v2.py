@@ -172,3 +172,50 @@ class World:
         pygame.quit()
 
     
+
+    def __init__(self):
+        pass
+    
+    @classmethod
+    def get_color(color_text):
+        if color_text == "YELLOW" or color_text == "YELLOW\n":
+            return (255, 255, 102)
+        elif color_text == "PURPLE" or color_text == "PURPLE\n":
+            return (204, 0, 255)
+        elif color_text == "ORANGE" or color_text == "ORANGE\n":
+            return(255, 102, 0)
+        elif color_text == "GREEN" or color_text == "GREEN\n":
+            return(106, 232, 100)
+        elif color_text == "BLUE" or color_text == "BLUE\n":
+            return(45, 70, 181)
+        elif color_text == "CYAN" or color_text == "CYAN\n":
+            return (71, 230, 216) 
+        elif color_text == "RED" or color_text == "RED\n":
+            return(219, 24, 24)
+        elif color_text == "MAROON" or color_text == "MAROON\n":
+            return (143, 6, 15)
+        elif color_text == "PINK" or color_text == "PINK\n":
+            return(230, 57, 129)
+        else:
+            return (100, 100, 100)
+
+    @classmethod
+    def read_line(line):
+        # actual parsing of the text file
+        line_parts = line.split(" ")
+        
+        matrix_index = int(line_parts[0])
+        list_index = int(line_parts[1])
+        command = line_parts[2]
+
+        if command == "move":
+            direction = int(line_parts[4])
+            color_text = line_parts[3]
+            color = World.get_color(color_text)
+            hex_matrix[matrix_index][list_index].make_move(direction, color)
+        elif command == "occupied":
+            color_text = line_parts[3]
+            color = World.get_color(color_text)
+            hex_matrix[matrix_index][list_index].make_occupied(color)
+        elif command == "wall" or command == "wall\n":
+            hex_matrix[matrix_index][list_index].make_wall()
