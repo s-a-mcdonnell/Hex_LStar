@@ -80,14 +80,6 @@ class Hex:
                 return ident
 
         return None
-    
-    ##########################################################################################################
-
-    # TODO: Write this method
-    def repair_collisions(self):
-
-        pass
-
 
     ##########################################################################################################
 
@@ -161,7 +153,24 @@ class Ident:
         self.list_index = list_index
     
     # TODO: Write this method
+    # Writes to hex_matrix_new
     def advance_or_flip(self):
+        global hex_matrix_new
+
+        # Maintain walls and stationaries and return
+
+        # If need to bounce (wall or head-on), then bounce and return
+
+        # Advance all others
+
+        pass
+
+    ##########################################################################################################
+
+    # TODO: Write this method
+    # Write from hex_matrix_new to hex_matrix
+    def repair_collisions(self):
+
         pass
 
 ###############################################################################################################
@@ -207,6 +216,8 @@ class World:
         # Set up ident list
         self.ident_list = []
 
+        # Set up new ident list
+        self.ident_list_new = []
 
         # reading the intiial state of the hex board from a file
         __location__ = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__)))
@@ -290,10 +301,14 @@ class World:
     ##########################################################################################################
 
     # Swaps which matrix is being used
-    def __swap_matrices(self):
+    def __swap_matrices_and_lists(sswap_melf):
         temp_matrix = self.hex_matrix
         self.hex_matrix = self.hex_matrix_new
         self.hex_matrix_new = temp_matrix
+
+        temp_list = self.ident_list
+        self.ident_list = self.ident_list_new
+        self.ident_list_new = temp_list
 
     ##########################################################################################################
 
@@ -305,11 +320,12 @@ class World:
             ident.advance_or_flip()
                 
         # Fix collisions
-        for hex_list in self.hex_matrix:
-            for hex in hex_list:
-                hex.repair_collisions()
+        for ident in self.ident_list_new:
+            ident.repair_collisions()
         
-        self.__swap_matrices()
+        # TODO: Have advance_or_flip write from original and new
+        # TODO: Have repair_collisions write from new to original
+        # self.__swap_matrices_and_lists()
     
     ##########################################################################################################
 
