@@ -18,6 +18,19 @@ class Hex:
     # Default color (no idents): light blue
     DEFAULT_COLOR =(190, 240, 255)
 
+    ##########################################################################################################
+
+    # Checks where a specific ident occurs within this hex's list
+    # If it contains the ident, returns the index
+    # Else returns -1
+    def get_ident_index(self, to_find):
+
+        # TODO: What if the hex contains multiple idents with that state?
+        for i in range(len(self.idents)):
+            if self.idents[i] == to_find:
+                return i
+        return -1
+
     ###############################################################################################################
 
     # Takes x and y (Cartesian coordinates where (0, 0) is the top left corner)
@@ -123,6 +136,72 @@ class Ident:
     # TODO: Do we still need this?
     idents_created = 0
 
+     # TODO: Write this method
+    # note that I should never have to deal with walls in this method
+    def repair_collisions(self):
+
+        w = self.world
+
+        # obtain the hex that this ident is a part of
+        hex = w.hex_matrix[self.matrix_index][self.list_index]
+        if len(hex.idents) <= 1:
+            print("No collision to resolve")
+            return
+        
+        # now we have determined that the ident has other idents with it
+        my_index = hex.get_ident_index(self)
+        dir = self.state
+
+        directions = []
+
+        # TODO: consider appending just the directions/states of the idents instead of appending the idents themselves
+        for i in range(len(hex.idents)):
+            if i != my_index:
+                directions.append(hex.idents[i])
+
+        # if there was only one other ident in the collision, take its attributes
+        if len(directions) == 1:
+            to_become = self.__copy()
+            to_become.state = directions[0].state
+            # additionally, move it forward depending on the direction
+            # if the other hex was stationary, do not move it forward at all, keep it in place
+            w.ident_list_new.append(to_become)
+            w.hex_matrix_new[self.matrix_index][self.list_index].idents.append(to_become)
+        # if there is more than one other ident than self, we do averaging things
+        # if the idents contain an opposite direction ident, we bounce!! :)
+        elif hex.contains_direction((dir + 3) % 6) is not None:
+            to_become = self.__copy()
+            to_become.state = (self.state + 3) % 6
+            w.ident_list_new.append(to_become)
+            w.hex_matrix_new[self.matrix_index][self.list_index].idents.append(to_become)
+        # otherwise, determine whether we contain a stationary hex or not
+        # if not, we are all moving hexes and none of them are opposite me, so we average them
+        elif hex.contains_direction(-1) is None:
+            # if we contain opposite pairs, remove them from the directions list
+            if (hex.contains_direction(dir + 1) is not None) and (hex.contains_direction(dir - 2) is not None):
+                directions.remove(hex.contains_direction(dir + 1))
+                directions.remove(hex.contains_direction(dir - 2))
+            if (hex.contains_direction(dir + 2) is not None) and (hex.contains_direction(dir - 1) is not None):
+                directions.remove(hex.contains_direction(dir + 2))
+                directions.remove(hex.contains_direction(dir - 1))
+            # if, at this point, there is only one direction left, take that one
+            if len(directions == 1):
+                to_become = self.__copy()
+                to_become.state = directions[0].state
+                w.ident_list_new.append(to_become)
+                w.hex_matrix_new[self.matrix_index][self.list_index].idents.append(to_become)
+            # otherwise, we ended up with a net zero average and use the opposite of our own direction to break ties
+            elif len(directions == 0):
+                to_become = self.__copy()
+                to_become.state = (dir - 3) %  6
+                w.ident_list_new.append(to_become)
+                w.hex_matrix_new[self.matrix_index][self.list_index].idents.append(to_become)
+
+        # else, we are dealing with multiple hexes, including a stationary hex
+        # TODO: stationary cases here!!!
+        else:
+            pass
+
     ##########################################################################################################
 
     def __init__(self, matrix_index, list_index, color=(255, 255, 255), state = -1, serial_number = -1, hist = None):
@@ -152,18 +231,186 @@ class Ident:
         self.matrix_index = matrix_index
         self.list_index = list_index
     
+<<<<<<< Updated upstream
+=======
+    ##########################################################################################################
+
+    # Returns the neighboring hex in the given direction in the given matrix
+    # If that hex does not exist, returns None
+    def __get_neighbor(self, matrix, dir):
+        if dir == 0:
+            try:
+                return matrix[self.matrix_index][self.list_index - 1]
+            except:
+                return None
+            
+        elif dir == 1:
+            try:
+                return matrix[self.matrix_index + 1][self.list_index - 1]  
+            except:
+                return None
+
+        elif dir == 2:
+            try:
+                return matrix[self.matrix_index + 1][self.list_index]
+            except:
+                return None
+
+        elif dir == 3:
+
+            try:
+                return matrix[self.matrix_index][self.list_index + 1]
+            except:
+                return None
+
+        elif dir == 4:
+
+            try:
+                return matrix[self.matrix_index - 1][self.list_index + 1]
+            except:
+                return None
+            
+        elif dir == 5:
+
+            try:
+                return matrix[self.matrix_index - 1][self.list_index]
+            except:
+                return None
+            
+        else:
+            print("Invalid direction " + str(dir) + " passed to Ident.__get_neighbor(dir)")
+            return None
+
+
+
+
+    ##########################################################################################################
+
+
+    # If the head-on (direction of self.state) neighboring hex contains an ident with the given direction, returns said ident
+    # Else returns None
+    # TODO: Does this method still have a purpose?
+    def __neighbor_contains_direction(self, dir):
+
+        try:
+            return self.__get_neighbor(self.world.hex_matrix, self.state).contains_direction(dir)
+        except:
+            print("Neighbor DNE")
+            return None
+
+    ##########################################################################################################
+
+
+    # If the neighbor in the direction in which the ident is pointing is a wall, returns that ident
+    # Else returns None
+    def __neighbor_is_wall(self):
+        return self.__neighbor_contains_direction(-2)
+        
+    ##########################################################################################################
+
+    # If there will be a head-on-collision, returns the ident with which it will collide
+    # Else returns none
+    # TODO: Could just use a boolean
+    def __head_on_collision(self):
+        return self.__neighbor_contains_direction((self.state + 3)%6)
+
+
+    ##########################################################################################################
+
+    # If an ident is stationary or a wall, writes this value to the hex_matrix_new
+    # Elif an ident is running into a wall or a head-on collision, flips it in place (writing to hex_matrix_new)
+    # Else advances an ident by one hex in its direction of motion (if that hex exists)
+    def advance_or_flip(self):
+        future_matrix = self.world.hex_matrix_new
+        future_hex = future_matrix[self.matrix_index][self.list_index]
+        future_list = self.world.ident_list_new
+    
+        # Maintain walls and stationaries and return
+        if (self.state == -2) or (self.state == -1):
+            future_list.append(self.__copy())
+            future_hex.idents.append(self.__copy())
+
+            return
+        
+        # If need to bounce diagonally off of a wall, then bounce and return
+        # TODO: Prioritization of diagonal bounces over head-on?
+        neighbor_minus_one = self.__get_neighbor(self.world.hex_matrix, (self.state - 1)%6)
+        if neighbor_minus_one and neighbor_minus_one.contains_direction(-2):
+            copy_to_flip = self.__copy()
+            copy_to_flip.state = (copy_to_flip.state + 1)%6
+            future_list.append(copy_to_flip)
+            future_hex.idents.append(copy_to_flip)
+
+            return
+        
+        # Other diagonal wall bounce case
+        neighbor_plus_one = self.__get_neighbor(self.world.hex_matrix, (self.state + 1)%6)
+        if neighbor_plus_one and neighbor_plus_one.contains_direction(-2):
+            copy_to_flip = self.__copy()
+            copy_to_flip.state = (copy_to_flip.state - 1)%6
+            future_list.append(copy_to_flip)
+            future_hex.idents.append(copy_to_flip)
+
+            return
+
+        # If need to bounce head-on off of a wall, then bounce and return
+        if self.__neighbor_is_wall():
+            # TODO: Reintroduce flip and append method?
+            copy_to_flip = self.__copy()
+            copy_to_flip.state = (copy_to_flip.state + 3)%6
+            future_list.append(copy_to_flip)
+            future_hex.idents.append(copy_to_flip)
+            
+            return
+                
+        # If need to bounce head-on off of another ident, then bounce and return
+        if self.__head_on_collision():
+            # TODO: Reintroduce flip and append method?
+            copy_to_flip = self.__copy()
+            copy_to_flip.state = (copy_to_flip.state + 3)%6
+            future_list.append(copy_to_flip)
+            future_hex.idents.append(copy_to_flip)
+            
+            return
+
+        # Advance all others (if the location where they would advance to exists)
+        future_neighbor = self.__get_neighbor(future_matrix, self.state)
+        if future_neighbor:
+            print("advance to future neighbor")
+            copy_to_move = self.__copy()
+            copy_to_move.matrix_index = future_neighbor.matrix_index
+            copy_to_move.list_index = future_neighbor.list_index
+                
+            future_list.append(copy_to_move)
+            future_neighbor.idents.append(copy_to_move)
+
+    ##########################################################################################################
+
+    '''# Repairs the given ident's direction in the context of the idents in its hex
+>>>>>>> Stashed changes
     # TODO: Write this method
     # Writes to hex_matrix_new
     def advance_or_flip(self):
         global hex_matrix_new
 
+<<<<<<< Updated upstream
         # Maintain walls and stationaries and return
 
         # If need to bounce (wall or head-on), then bounce and return
+=======
+        # If it has an ident opposite to it, flip and return
+        if my_hex.contains_direction((self.state + 3)%6):
+            # TODO: Use flipper and appender?
+            ident_to_flip = self.__copy()
+            ident_to_flip.state = (ident_to_flip.state + 3)%6
+            
+            list_to_write_to.append(ident_to_flip)
+            hex_to_write_to.idents.append(ident_to_flip)
+>>>>>>> Stashed changes
 
         # Advance all others
 
-        pass
+        pass'''
 
     ##########################################################################################################
 
@@ -338,11 +585,23 @@ class World:
                 
         # Fix collisions
         for ident in self.ident_list_new:
+<<<<<<< Updated upstream
             ident.repair_collisions()
         
         # TODO: Have advance_or_flip write from original and new
         # TODO: Have repair_collisions write from new to original
         # self.__swap_matrices_and_lists()
+=======
+            # TODO: Delete this
+            # idents_in_hex = self.hex_matrix_new[ident.matrix_index][ident.list_index].idents
+
+            # ident.repair_collisions(self.hex_matrix_new[ident.matrix_index][ident.list_index])
+            ident.repair_collisions()
+
+        '''# TODO: Comment this back out when Ident.repair_collisions() is written
+        #    (advance_or_flip writes from hex_matrix to hex_matrix_new, and repair_collisions can write from hex_matrix_new to hew_matrix)
+        self.__swap_matrices_and_lists()'''
+>>>>>>> Stashed changes
     
     ##########################################################################################################
 
