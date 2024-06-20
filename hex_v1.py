@@ -78,16 +78,12 @@ class Hex:
 
     # sets the given hex to move in a given direction
    def make_move(self, dir, color=(255,0,0)):
-       #   # we want to make the creation of a space redundent fot the limit tic
-       #   # this is for backtracing later
-        global limit_tic
-        limit_tic = limit_tic - 1
 
        # storing this into am object makes it easier to mark
         ident = Ident(color, dir)
 
-       #   # just like when taking, we want to store the first instance of an ident
-       #   # don't actually need the check for wall, but for fail-safe
+       #we want to store the first instance of an ident
+       #don't actually need the check for wall, but for fail-safe
         if ident.state != -2:
             ident.visited(self.list_index, self.matrix_index)
 
@@ -104,16 +100,11 @@ class Hex:
    def make_occupied(self, color=(0, 255, 0)):
        # TODO: Clear out current idents? (does not currently overwrite pre-existing idents)
 
-       #   # we want to make the creation of a space redundent fot the limit tic
-       #   # this is for backtracing later
-        global limit_tic
-        limit_tic = limit_tic - 1
-
-       #   # same reasoning as in make move
+       # same reasoning as in make move
         ident = Ident(color, -1)
 
-       #   # just like when taking, we want to store the first instance of an ident
-       #   # don't actually need the check for wall, but for fail-safe
+       # we want to store the first instance of an ident
+       # don't actually need the check for wall, but for fail-safe
         if ident.state != -2:
             ident.visited(self.list_index, self.matrix_index)
 
@@ -1003,7 +994,6 @@ def past_generation():
         for item in items:
             # item.back pops off 2 states and returns the 'previous' one
             past = item.back()
-            limit_tic = limit_tic - 2
             # first we change the state to the state it was at that point in time
             item.state = past[2]
             # then we put the ident into the hex it was before
