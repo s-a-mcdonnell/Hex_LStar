@@ -31,6 +31,8 @@ class Hex:
         self.matrix_index = matrix_index
         self.list_index = list_index
 
+        self.idents = []
+
         # Map matrix_index and list_index to Cartesian coordinates
         self.x = 60*matrix_index - 20
         self.y = 35*matrix_index + 70*list_index - 490
@@ -61,26 +63,28 @@ class Hex:
     # Graphics
     def draw(self, screen):
             
-        # TODO: If we want idents to be drawn over blank hexes, this is not necessary
-        '''if (len(self.idents) >= 1):
+        color_to_draw = self.color
+
+
+        if (len(self.idents) >= 1):
             # If a hex contains only one ident, take that color
             # If a hex contains multiple idents, the ident stored first will be the outermost color
-            my_color = self.idents[0].color'''
+            color_to_draw = self.idents[0].color
         
         # Draw the hexagon
-        pygame.draw.polygon(screen, self.color, self.coordinates)
+        pygame.draw.polygon(screen, color_to_draw, self.coordinates)
 
         '''# Draw an extra hexagon to visually show that a hexagon is stationary even with the different colors
         if self.contains_direction(-1) != None:
             new_color = [max(0, c - 120) for c in my_color]
-            pygame.draw.polygon(screen, new_color, self.small_hexagon)
+            pygame.draw.polygon(screen, new_color, self.small_hexagon)'''
     
         # Draw multiple nesting circles indicating colors for hexes with superimposed idents/states
         for i in range(1, len(self.idents)):
             if (33 - 5*i) > 0:
-            pygame.draw.circle(screen, self.idents[i].color, (self.x+20, self.y+35), 33-5*i)
+                pygame.draw.circle(screen, self.idents[i].color, (self.x+20, self.y+35), 33-5*i)
     
-        # Draw an arrow on the hex if the hex is moving
+        '''# Draw an arrow on the hex if the hex is moving
         if self.is_moving:
             for i in range(6):
                 if self.contains_direction(i):
@@ -96,7 +100,7 @@ class Ident:
 
     ##########################################################################################################
 
-    def __init__(self, color=(255, 255, 255), state = -1, serial_number = -1, hist = None):
+    def __init__(self, matrix_index, list_index, color=(255, 255, 255), state = -1, serial_number = -1, hist = None):
         if hist is None:
             hist = []
         self.color = color
@@ -119,6 +123,9 @@ class Ident:
             self.serial_number = serial_number
             print("Ident with serial number " + str(self.serial_number) + " copied")
             print("color: " + str(self.color))
+
+        self.matrix_index = matrix_index
+        self.list_index = list_index
 
 ###############################################################################################################
 
@@ -149,12 +156,16 @@ class World:
                 myHex = Hex(x, y)
                 hex_list.append(myHex)
 
+        # Set up ident list
+        self.ident_list = []
+
+
         # reading the intiial state of the hex board from a file
         __location__ = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__)))
         file = open(os.path.join(__location__, "initial_state.txt"), "r")
         for line in file:
-            # self.read_line(line)
-            pass
+            self.read_line(line)
+            # pass
             # TODO: uncomment the above line for proper fie reading once we implement moving, stationary, wall hexes back into the program
 
     ##########################################################################################################
@@ -196,13 +207,25 @@ class World:
             direction = int(line_parts[4])
             color_text = line_parts[3]
             color = World.get_color(color_text)
-            self.hex_matrix[matrix_index][list_index].make_move(direction, color)
+            new_ident = Ident(matrix_index, list_index, color = color, state = direction)
+            self.ident_list.append(new_ident)
+            # TODO: Add ident to hex
+            self.hex_matrix[matrix_index][list_index].idents.append(new_ident)
+            # self.hex_matrix[matrix_index][list_index].make_move(direction, color)
         elif command == "occupied":
             color_text = line_parts[3]
             color = World.get_color(color_text)
-            self.hex_matrix[matrix_index][list_index].make_occupied(color)
+            new_ident = Ident(matrix_index, list_index, color = color)
+            self.ident_list.append(new_ident)
+            # TODO: Add ident to hex
+            self.hex_matrix[matrix_index][list_index].idents.append(new_ident)
+            # self.hex_matrix[matrix_index][list_index].make_occupied(color)
         elif command == "wall" or command == "wall\n":
-            self.hex_matrix[matrix_index][list_index].make_wall()
+            new_ident = Ident(matrix_index, list_index, color = (0,0,0), state = -2)
+            self.ident_list.append(new_ident)
+            # TODO: Add ident to hex
+            self.hex_matrix[matrix_index][list_index].idents.append(new_ident)
+            # self.hex_matrix[matrix_index][list_index].make_wall()
 
     ##########################################################################################################
 
@@ -216,6 +239,9 @@ class World:
                 hex.draw(self.screen)
 
         # TODO: Draw all idents
+        '''for ident in self.ident_list:
+            # TODO: Write Ident.draw()
+            ident.draw()'''
 
     ##########################################################################################################
 
