@@ -173,6 +173,23 @@ class Ident:
 
         pass
 
+    def visited(self, m, l):
+        # push onto stack history
+        # pushed onto the history is
+            # hex matix index
+            # hex list index
+            # current state
+
+        # note, we want to keep up to 5 past states at a time
+        # to change amount, just change limit #
+        limit = 5
+
+        if len(self.hist) == limit + 1:
+            self.hist.pop(0)
+            self.hist.append((m, l, self.state))
+        else:
+            self.hist.append((m, l, self.state))
+
 ###############################################################################################################
 
 
