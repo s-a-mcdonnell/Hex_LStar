@@ -190,6 +190,17 @@ class World:
             for y in range(16):
                 myHex = Hex(x, y)
                 hex_list.append(myHex)
+        
+        # Set up new hex matrix
+        self.hex_matrix_new = []
+
+        for x in range(15):
+            hex_list_new = []
+            self.hex_matrix_new.append(hex_list_new)
+
+            for y in range(16):
+                myHex = Hex(x, y)
+                hex_list_new.append(myHex)
 
         # Set up ident list
         self.ident_list = []
@@ -264,6 +275,7 @@ class World:
 
     ##########################################################################################################
 
+    # Draws world
     def draw(self):
         # Reset screen
         self.screen.fill((0, 0, 0))
@@ -280,7 +292,16 @@ class World:
 
     ##########################################################################################################
 
+    # Swaps which matrix is being used
+    def swap_matrices(self):
+        temp_matrix = self.hex_matrix
+        self.hex_matrix = self.hex_matrix_new
+        self.hex_matrix_new = temp_matrix
+
+    ##########################################################################################################
+
     def update(self):
+        # TODO: Note that this (calling swap_matrices) will just cause flashing until these two methods are written
 
         # Move or flip all idents
         for ident in self.ident_list:
@@ -290,8 +311,8 @@ class World:
         for hex_list in self.hex_matrix:
             for hex in hex_list:
                 hex.repair_collisions()
-
-        # TODO: Write this method, iterating through idents
+        
+        self.swap_matrices()
     
     ##########################################################################################################
 
