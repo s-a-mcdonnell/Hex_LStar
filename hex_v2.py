@@ -145,6 +145,14 @@ class World:
                 myHex = Hex(x, y)
                 hex_list.append(myHex)
 
+        # reading the intiial state of the hex board from a file
+        __location__ = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__)))
+        file = open(os.path.join(__location__, "initial_state.txt"), "r")
+        for line in file:
+            # self.read_line(line)
+            pass
+            # TODO: uncomment the above line for proper fie reading once we implement moving, stationary, wall hexes back into the program
+
 
     @classmethod
     def get_color(self, color_text):
