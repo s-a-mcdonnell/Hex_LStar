@@ -525,9 +525,8 @@ class Hex:
                     # Deal with 120-degree collision (version 1)
                     print("case 4, dir " + str(dir))
 
-                    # also need to check the case where the neighbor will not actually collide because of a wall
-                    check_for_wall = my_neighbors[(dir - 2%6)].get_neighbors[dir]
-                    if neighbors_wall[(dir+3)%6] or self.contains_direction((dir+2)%6) or (check_for_wall[0].state == -2):
+                    # TODO: does this cover the case where the neighbor will not actually collide because of a wall??
+                    if neighbors_wall[(dir+3)%6] or self.contains_direction((dir+2)%6):
                         # If a wall gets in the way or I contain an arrow that will collide with the incoming arrow, do not bounce
                         print("case 4 alt")
                         future.take_ident(neighbor_ident)
