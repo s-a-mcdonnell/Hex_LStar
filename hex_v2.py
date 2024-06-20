@@ -146,6 +146,9 @@ class World:
                 hex_list.append(myHex)
 
     def draw(self):
+        # Reset screen
+        self.screen.fill((0, 0, 0))
+
         # Draw all blank hexes
         for hex_list in self.hex_matrix:
             for hex in hex_list:
@@ -156,8 +159,6 @@ class World:
     def run(self):
         run = True
         while run:
-            # Reset screen
-            self.screen.fill((0, 0, 0))
 
             # Event handler (closing window)
             for event in pygame.event.get():
@@ -171,10 +172,6 @@ class World:
         # Exit
         pygame.quit()
 
-    
-
-    def __init__(self):
-        pass
     
     @classmethod
     def get_color(color_text):
