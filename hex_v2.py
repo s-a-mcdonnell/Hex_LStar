@@ -318,7 +318,7 @@ class World:
     ##########################################################################################################
 
     # Swaps which matrix is being used
-    def __swap_matrices_and_lists(sswap_melf):
+    def __swap_matrices_and_lists(self):
         temp_matrix = self.hex_matrix
         self.hex_matrix = self.hex_matrix_new
         self.hex_matrix_new = temp_matrix
