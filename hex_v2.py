@@ -55,7 +55,8 @@ class World:
     def __init__(self):
         pass
     
-    def get_color(self, color_text):
+    @classmethod
+    def get_color(color_text):
         if color_text == "YELLOW" or color_text == "YELLOW\n":
             return (255, 255, 102)
         elif color_text == "PURPLE" or color_text == "PURPLE\n":
@@ -77,7 +78,8 @@ class World:
         else:
             return (100, 100, 100)
 
-    def read_line(self, line):
+    @classmethod
+    def read_line(line):
         # actual parsing of the text file
         line_parts = line.split(" ")
         
@@ -88,11 +90,11 @@ class World:
         if command == "move":
             direction = int(line_parts[4])
             color_text = line_parts[3]
-            color = self.get_color(color_text)
+            color = World.get_color(color_text)
             hex_matrix[matrix_index][list_index].make_move(direction, color)
         elif command == "occupied":
             color_text = line_parts[3]
-            color = self.get_color(color_text)
+            color = World.get_color(color_text)
             hex_matrix[matrix_index][list_index].make_occupied(color)
         elif command == "wall" or command == "wall\n":
             hex_matrix[matrix_index][list_index].make_wall()
