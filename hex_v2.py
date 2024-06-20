@@ -94,6 +94,8 @@ class Ident:
 
     idents_created = 0
 
+    ##########################################################################################################
+
     def __init__(self, color=(255, 255, 255), state = -1, serial_number = -1, hist = None):
         if hist is None:
             hist = []
@@ -117,6 +119,8 @@ class Ident:
             self.serial_number = serial_number
             print("Ident with serial number " + str(self.serial_number) + " copied")
             print("color: " + str(self.color))
+
+###############################################################################################################
 
 
 # for setting initial state of the world / having a student interact
@@ -145,6 +149,8 @@ class World:
                 myHex = Hex(x, y)
                 hex_list.append(myHex)
 
+    ##########################################################################################################
+
     def draw(self):
         # Reset screen
         self.screen.fill((0, 0, 0))
@@ -155,7 +161,16 @@ class World:
                 hex.draw(self.screen)
 
         # TODO: Draw all idents
+
+    ##########################################################################################################
+
+    def update(self):
+        pass
+        
+        # TODO: Write this
     
+    ##########################################################################################################
+
     def run(self):
         run = True
         while run:
@@ -170,12 +185,13 @@ class World:
             # flips to the next frame
             pygame.display.flip()
             
-            # TODO: Update everything
+            self.update()
         
         # Exit
         pygame.quit()
 
-    
+    ##########################################################################################################
+
     @classmethod
     def get_color(color_text):
         if color_text == "YELLOW" or color_text == "YELLOW\n":
@@ -198,6 +214,8 @@ class World:
             return(230, 57, 129)
         else:
             return (100, 100, 100)
+
+    ##########################################################################################################
 
     @classmethod
     def read_line(line):
