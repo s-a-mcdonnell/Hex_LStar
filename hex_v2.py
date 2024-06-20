@@ -79,6 +79,13 @@ class Hex:
                 return ident
 
         return None
+    
+    ##########################################################################################################
+
+    # TODO: Write this method
+    def repair_collisions(self):
+
+        pass
 
 
     ##########################################################################################################
@@ -150,6 +157,10 @@ class Ident:
 
         self.matrix_index = matrix_index
         self.list_index = list_index
+    
+    # TODO: Write this method
+    def advance_or_flip(self):
+        pass
 
 ###############################################################################################################
 
@@ -270,8 +281,16 @@ class World:
     ##########################################################################################################
 
     def update(self):
-        pass
-        
+
+        # Move or flip all idents
+        for ident in self.ident_list:
+            ident.advance_or_flip()
+                
+        # Fix collisions
+        for hex_list in self.hex_matrix:
+            for hex in hex_list:
+                hex.repair_collisions()
+
         # TODO: Write this method, iterating through idents
     
     ##########################################################################################################
