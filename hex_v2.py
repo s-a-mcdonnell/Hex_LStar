@@ -132,6 +132,11 @@ class World:
         self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
         pygame.display.set_caption("Hex Simulator")
 
+        # set up pygame timer
+        clock = pygame.time.Clock()
+        run = True
+        dt = 0
+
         # Set up hex matrix
         self.hex_matrix = []
 
@@ -164,6 +169,9 @@ class World:
                     run = False
             
             self.draw()
+
+            # flips to the next frame
+            pygame.display.flip()
             
             # TODO: Update everything
         
