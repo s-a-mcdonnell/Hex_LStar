@@ -31,6 +31,7 @@ class Hex:
         self.matrix_index = matrix_index
         self.list_index = list_index
 
+        # Store relevant idents
         self.idents = []
 
         # Map matrix_index and list_index to Cartesian coordinates
@@ -42,9 +43,7 @@ class Hex:
         # Default color (no idents): light blue
         self.color =(190, 240, 255)
        
-        # TODO: Store idents
-
-        '''# TODO: Move arrows and smaller hexagon to idents? (maybe)
+        # TODO: Move arrows and smaller hexagon to idents? (maybe)
         # Create arrows for later use
         #pivot is the center of the hexagon
         pivot = pygame.Vector2(self.x + 20, self.y + 35)
@@ -56,9 +55,33 @@ class Hex:
             self.arrows.append([(pygame.math.Vector2(x, y)).rotate(60.0*i) + pivot for x, y in arrow]) 
     
         # Coordinates used to draw smaller hexagon later if the hex becomes stationary
-        self.small_hexagon = [(self.x+9, self.y+11), (self.x+31, self.y+11), (self.x+47, self.y+35), (self.x+31, self.y+59), (self.x+9, self.y+59), (self.x-7, self.y+35)]'''
- 
-##########################################################################################################
+        self.small_hexagon = [(self.x+9, self.y+11), (self.x+31, self.y+11), (self.x+47, self.y+35), (self.x+31, self.y+59), (self.x+9, self.y+59), (self.x-7, self.y+35)]
+    ##########################################################################################################
+
+    # Returns a boolean indicating if the given hex contains any moving idents
+    def is_moving(self):
+        for ident in self.idents:
+            if ident.state >= 0:
+                return True
+        
+        return False
+
+    ##########################################################################################################
+
+    # Checks if a hex contains an ident heading in the given directon
+    # If it does, returns that ident
+    # Else returns None
+    def contains_direction(self, dir):
+
+        # TODO: What if the hex contains multiple idents with that state?
+        for ident in self.idents:
+            if ident.state == dir:
+                return ident
+
+        return None
+
+
+    ##########################################################################################################
 
     # Graphics
     def draw(self, screen):
@@ -74,21 +97,22 @@ class Hex:
         # Draw the hexagon
         pygame.draw.polygon(screen, color_to_draw, self.coordinates)
 
-        '''# Draw an extra hexagon to visually show that a hexagon is stationary even with the different colors
+        # Draw an extra hexagon to visually show that a hexagon is stationary even with the different colors
         if self.contains_direction(-1) != None:
-            new_color = [max(0, c - 120) for c in my_color]
-            pygame.draw.polygon(screen, new_color, self.small_hexagon)'''
+            new_color = [max(0, c - 120) for c in color_to_draw]
+            pygame.draw.polygon(screen, new_color, self.small_hexagon)
+        
     
         # Draw multiple nesting circles indicating colors for hexes with superimposed idents/states
         for i in range(1, len(self.idents)):
             if (33 - 5*i) > 0:
                 pygame.draw.circle(screen, self.idents[i].color, (self.x+20, self.y+35), 33-5*i)
     
-        '''# Draw an arrow on the hex if the hex is moving
-        if self.is_moving:
+        # Draw an arrow on the hex if the hex is moving
+        if self.is_moving():
             for i in range(6):
                 if self.contains_direction(i):
-                    pygame.draw.polygon(screen, (0, 0, 0), self.arrows[i])'''
+                    pygame.draw.polygon(screen, (0, 0, 0), self.arrows[i])
 
     ##########################################################################################################
 
