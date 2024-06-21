@@ -78,7 +78,7 @@ class Hex:
     # Returns a boolean indicating if the given hex contains any moving idents
     def is_moving(self):
         for ident in self.idents:
-            if ident.get_state() >= 0:
+            if ident.state >= 0:
             # if (ident.state != -1) and (ident.state != -2):
                 return True
         
@@ -98,7 +98,7 @@ class Hex:
     # Checks if a hex contains an ident heading in the given directon
     # If it does, returns that ident
     # Else returns None
-    def contains_direction(self, dir):
+    def contains_direction(self, dir: int):
 
         # TODO: What if the hex contains multiple idents with that state?
         for ident in self.idents:
@@ -149,12 +149,6 @@ class Ident:
 
     # TODO: Do we still need this?
     idents_created = 0
-
-    ##########################################################################################################
-
-    # Returns the ident's state
-    def get_state(self):
-        return self.state
 
     ##########################################################################################################
 
@@ -388,13 +382,12 @@ class Ident:
 
     ##########################################################################################################
 
-    def __init__(self, matrix_index, list_index, world, color=(255, 255, 255), state = -1, serial_number = -1, hist = None):
+    def __init__(self, matrix_index, list_index, world, color=(255, 255, 255), state: int = -1, serial_number = -1, hist = None):
         if hist is None:
             hist = []
         self.color = color
 
-        self.state : int
-        self.state = state
+        self.state : int = state
 
         self.hist = hist
         if serial_number == -1:
@@ -509,7 +502,7 @@ class Ident:
     
     # Copies self and rotates it by the indicated number of directions
     # Adopts said rotated ident
-    def __rotate_adopt(self, future_hex, future_ident_list, dir_offset=3, dir_final=-3):
+    def __rotate_adopt(self, future_hex, future_ident_list, dir_offset: int = 3, dir_final : int =-3):
 
         # Calculate final direction if none is given
         if dir_final == -3:
