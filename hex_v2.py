@@ -157,6 +157,9 @@ class Ident:
 
         # breakpoint()
 
+        # The hex to which we will be writing
+        write_to_hex = w.hex_matrix[self.matrix_index][self.list_index]
+
         # obtain the hex that this ident is currently a part of
         hex = w.hex_matrix_new[self.matrix_index][self.list_index]
         if len(hex.idents) <= 1:
@@ -164,7 +167,7 @@ class Ident:
 
             # TODO: Is copying necessary here?
             w.ident_list.append(self.__copy())
-            w.hex_matrix[self.matrix_index][self.list_index].idents.append(self.__copy())
+            write_to_hex.idents.append(self.__copy())
 
             return
         
@@ -179,7 +182,7 @@ class Ident:
         for ident in hex.idents:
             '''if i != my_index:
                 directions.append(hex.idents[i])'''
-            # TODO: Could also do this with if ident.serial_number != self.serial_number
+            # TODO: This is the only way I've found to not accidentally append self when examining a stationary hex. Why is that?
             if ident.serial_number != self.serial_number:
                 directions.append(ident)
             '''if ident is not self:
@@ -193,14 +196,29 @@ class Ident:
             if directions[0].state != -1:
                 # If colliding with a non-moving ident, take its direction
                 # breakpoint()
-                self.__rotate_adopt(w.hex_matrix[self.matrix_index][self.list_index], w.ident_list, dir_final = directions[0].state)
+                self.__rotate_adopt(write_to_hex, w.ident_list, dir_final = directions[0].state)
             else:
                 # If colliding with a stationary ident, become stationary in the hex from whence you came
                 assert self.state != -1
                 # The place it came from must exist, or else this ident couldn't be here, right?
                 # TODO: Move ident back and make stationary
                 hex_of_origin = self.__get_neighbor(w.hex_matrix, (self.state + 3)%6)
-                self.__rotate_adopt(hex_of_origin, w.ident_list, dir_final = -1)
+
+                assert hex_of_origin
+                
+                # Copy and rotate
+                ident_to_move = self.__copy()
+                ident_to_move.state = -1
+
+                # Update location stored in hex
+                ident_to_move.matrix_index = hex_of_origin.matrix_index
+                ident_to_move.list_index = hex_of_origin.list_index
+
+                w.ident_list.append(ident_to_move)
+                hex_of_origin.idents.append(ident_to_move)
+
+
+                # TODO: Stop it from moving after it turns stationary
 
             '''to_become = self.__copy()
             to_become.state = directions[0].state
@@ -208,12 +226,12 @@ class Ident:
             # additionally, move it forward depending on the direction
             # if the other hex was stationary, do not move it forward at all, keep it in place
             w.ident_list.append(to_become)
-            w.hex_matrix[self.matrix_index][self.list_index].idents.append(to_become)'''
+            write_to_hex.idents.append(to_become)'''
         # if there is more than one other ident than self, we do averaging things
         # if the idents contain an opposite direction ident, we bounce!! :)
         elif hex.contains_direction((dir + 3) % 6) is not None:
             
-            self.__rotate_adopt(w.hex_matrix[self.matrix_index][self.list_index], w.ident_list)
+            self.__rotate_adopt(write_to_hex, w.ident_list)
 
             return
         
@@ -237,12 +255,12 @@ class Ident:
             # if, at this point, there is only one direction left, take that one
             if len(directions) == 1:
                 print("rotate call e")
-                self.__rotate_adopt(w.hex_matrix[self.matrix_index][self.list_index], w.ident_list, dir_final = directions[0].state)
+                self.__rotate_adopt(write_to_hex, w.ident_list, dir_final = directions[0].state)
 
             # otherwise, if we ended up with a net zero average (all other idents in the hex cancelled out in opposite pairs),
             # use the opposite of our own direction to break the tie
             elif len(directions) == 0:
-                self.__rotate_adopt(w.hex_matrix[self.matrix_index][self.list_index], w.ident_list)
+                self.__rotate_adopt(write_to_hex, w.ident_list)
             
             # otherwise, there are exactly two other directions stored in this hex
             else:
@@ -255,10 +273,10 @@ class Ident:
                 # if the other two are at 120 degrees to each other, take the value in between
                 if (directions[0].state + 2)%6 == directions[1].state:
                     print("rotate call a")
-                    self.__rotate_adopt(w.hex_matrix[self.matrix_index][self.list_index], w.ident_list, dir_final = (directions[0].state + 1)%6)
+                    self.__rotate_adopt(write_to_hex, w.ident_list, dir_final = (directions[0].state + 1)%6)
                 elif (directions[0].state - 2)%6 == directions[1].state:
                     print("rotate call b")
-                    self.__rotate_adopt(w.hex_matrix[self.matrix_index][self.list_index], w.ident_list, dir_final = (directions[0].state - 1)%6)
+                    self.__rotate_adopt(write_to_hex, w.ident_list, dir_final = (directions[0].state - 1)%6)
                 
                 # if the other two cohabitants are adjacent to one another (60 degrees), take the state of the one we are further away from
                 else:
@@ -269,11 +287,11 @@ class Ident:
                     # if current direction is closer to directions[0] than directions[1], take the state of directions[1]
                     if closer_to_dir_0:
                         print("rotate call c")
-                        self.__rotate_adopt(w.hex_matrix[self.matrix_index][self.list_index], w.ident_list, dir_final = directions[1].state)
+                        self.__rotate_adopt(write_to_hex, w.ident_list, dir_final = directions[1].state)
                     # else take the state of directions[0]
                     else:
                         print("rotate call d")
-                        self.__rotate_adopt(w.hex_matrix[self.matrix_index][self.list_index], w.ident_list, dir_final = directions[0].state)
+                        self.__rotate_adopt(write_to_hex, w.ident_list, dir_final = directions[0].state)
 
         # else, we are dealing with multiple hexes, including a stationary hex
         # TODO: Did you mean idents in the above comment? - Skyler
@@ -408,11 +426,14 @@ class Ident:
     
     # Copies self and rotates it by the indicated number of directions
     # Adopts said rotated ident
-    def __rotate_adopt(self, future_hex, future_ident_list, dir_offset=3, dir_final=None):
+    def __rotate_adopt(self, future_hex, future_ident_list, dir_offset=3, dir_final=-3):
 
-        # Calculate final direction
-        if dir_final == None:
+        # Calculate final direction if none is given
+        if dir_final == -3:
             dir_final = (self.state + dir_offset)%6
+        
+        
+        print("Rotating ident " + str(self.serial_number) + " from state " + str(self.state) + " to " + str(dir_final))
 
         ident = self.__copy()
         ident.state = dir_final
