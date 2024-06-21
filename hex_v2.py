@@ -155,7 +155,7 @@ class Ident:
 
         w = self.world
 
-        '''breakpoint()'''
+        # breakpoint()
 
         # obtain the hex that this ident is currently a part of
         hex = w.hex_matrix_new[self.matrix_index][self.list_index]
@@ -169,15 +169,21 @@ class Ident:
             return
         
         # now we have determined that the ident has other idents with it
-        my_index = hex.get_ident_index(self)
+        # TODO: I think we can do this without getting index (just only append to directions if ident is not self)
+        '''my_index = hex.get_ident_index(self)'''
         dir = self.state
 
         directions = []
 
         # TODO: consider appending just the directions/states of the idents instead of appending the idents themselves
-        for i in range(len(hex.idents)):
-            if i != my_index:
-                directions.append(hex.idents[i])
+        for ident in hex.idents:
+            '''if i != my_index:
+                directions.append(hex.idents[i])'''
+            # TODO: Could also do this with if ident.serial_number != self.serial_number
+            if ident.serial_number != self.serial_number:
+                directions.append(ident)
+            '''if ident is not self:
+                directions.append(ident)'''
 
         # if there was only one other ident in the collision, take its attributes
         # Note that this also deals with the most simple collision betwen a moving ident and a stationary one
@@ -185,8 +191,11 @@ class Ident:
         if len(directions) == 1:
             # breakpoint()
             if directions[0].state != -1:
+                # If colliding with a non-moving ident, take its direction
+                # breakpoint()
                 self.__rotate_adopt(w.hex_matrix[self.matrix_index][self.list_index], w.ident_list, dir_final = directions[0].state)
             else:
+                # If colliding with a stationary ident, become stationary in the hex from whence you came
                 assert self.state != -1
                 # The place it came from must exist, or else this ident couldn't be here, right?
                 # TODO: Move ident back and make stationary
@@ -302,9 +311,9 @@ class Ident:
         else:
             self.serial_number = serial_number
             
-            if self.state != -2:
+            '''if self.state != -2:
                 print("Ident with serial number " + str(self.serial_number) + " copied")
-                print("color: " + str(self.color))
+                print("color: " + str(self.color))'''
 
         self.matrix_index = matrix_index
         self.list_index = list_index
