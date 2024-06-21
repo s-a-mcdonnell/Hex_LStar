@@ -148,6 +148,33 @@ class Ident:
     # TODO: Do we still need this?
     idents_created = 0
 
+    ##########################################################################################################
+
+    # Helper method for resolve_collisions()
+    # Takes the hex in which the ident is located and the direcs list of other idents in that hex
+    # Returns the direcs list with pairs of idents which cancel out removed
+    def __remove_pairs(self, hex, direcs):
+        dir = self.state
+        
+        # TODO: Note that using contains_direction leaves us vulnerable if there are somehow multiple idents in the hex that share a direction
+
+        hex_plus_one = hex.contains_direction((dir + 1) % 6)
+        hex_minus_two = hex.contains_direction((dir - 2) % 6)
+        if (hex_plus_one is not None) and (hex_minus_two is not None):
+            direcs.remove(hex_plus_one)
+            direcs.remove(hex_minus_two)
+        
+        hex_plus_two = hex.contains_direction((dir + 2) % 6)
+        hex_minus_one = hex.contains_direction((dir - 1) % 6)
+        if (hex_plus_two is not None) and (hex_minus_one is not None):
+            direcs.remove(hex_plus_two)
+            direcs.remove(hex_minus_one)
+        
+        return direcs
+
+    ##########################################################################################################
+
+
      # TODO: Write this method
     # note that I should never have to deal with walls in this method
     # note that this reads from hex_matrix_new and ident_list_new and writes to hex_matrix and ident_list
@@ -220,18 +247,8 @@ class Ident:
         # if not, we are all moving hexes and none of them are opposite me, so we average them
         elif hex.contains_direction(-1) is None:
             # if we contain opposite pairs, remove them from the directions list
-            # TODO: Note that using contains_direction leaves us vulnerable if there are somehow multiple idents in the hex that share a direction
-            hex_plus_one = hex.contains_direction((dir + 1) % 6)
-            hex_minus_two = hex.contains_direction((dir - 2) % 6)
-            if (hex_plus_one is not None) and (hex_minus_two is not None):
-                directions.remove(hex_plus_one)
-                directions.remove(hex_minus_two)
+            directions = self.__remove_pairs(hex, directions)
             
-            hex_plus_two = hex.contains_direction((dir + 2) % 6)
-            hex_minus_one = hex.contains_direction((dir - 1) % 6)
-            if (hex_plus_two is not None) and (hex_minus_one is not None):
-                directions.remove(hex_plus_two)
-                directions.remove(hex_minus_one)
             
             # if, at this point, there is only one direction left, take that one
             if len(directions) == 1:
@@ -280,22 +297,33 @@ class Ident:
         else:
             assert(hex.contains_direction(-1))
             
-            # A stationary ident colliding with a stationary ident
+            # A stationary ident colliding with a moving ident
             if self.state == -1:
                 pass 
+
+                # If there is only one moving ident in directions, 
+
+                # Else...?
+
+                '''# if we contain opposite pairs, remove them from the directions list
+                directions = self.__remove_pairs(hex, directions)'''
+
             # A moving ident colliding with a stationary ident
             else:
+
                 assert self.state >= 0
+
+                hex_of_origin = self.__get_neighbor(w.hex_matrix, (self.state + 3)%6)
+                assert hex_of_origin
+
+                # If an ident with the opposite state is present, bounce off
                 if hex.contains_direction((dir + 3) % 6) is not None:
-                    self.__rotate_adopt(write_to_hex, w.ident_list)
-                    return
-                pass
-
-            # If there is only one moving ident in directions, 
-
-            # Else...?
-
-            pass
+                    self.__rotate_adopt(hex_of_origin, w.ident_list)
+                
+                # Else become stationary
+                else:
+                    self.__rotate_adopt(hex_of_origin, w.ident_list, dir_final = - 1)
+                
 
     ##########################################################################################################
 
