@@ -160,6 +160,13 @@ class Ident:
 
     ##########################################################################################################
 
+    # Returns the absolute value of the 
+    def find_offset(self, other):
+        for i in range(5):
+            if ((self.state + i) % 6 == other.state) or ((self.state - i) % 6 == other.state):
+                return i
+
+    ##########################################################################################################
 
      # TODO: Write this method
     # note that I should never have to deal with walls in this method
@@ -337,7 +344,7 @@ class Ident:
                     # or they are symmetrical (all at 120 degrees from one another)
                     
                     # Symmetrical case --> stationary hex does not move
-                    if (abs(directions[0].state - directions[1].state) == 2 or 4) and (abs(directions[0].state - directions[2].state) == 2 or 4):
+                    if (directions[0].find_offset(directions[1]) == 2 and directions[1].find_offset(directions[2]) == 2):
                         # TODO: Is copying necessary?
                         my_copy = self.__copy()
                         write_to_hex.idents.append(my_copy)
@@ -345,10 +352,14 @@ class Ident:
                     
                     # Adjacent case (the three moving idents are clumped together) --> stationary hex is bumped in the direction of the middle ident
                     else:
-                        assert ((directions[0].state - directions[1].state)%6 == 1) or ((directions[0].state - directions[2].state)%6 == 1)
-                        direc_0_1_offset = (directions[0].state - directions[1].state)%3
-                        direc_1_2_offset = (directions[1].state - directions[2].state)%3
-                        direc_0_2_offset = (directions[0].state - directions[2].state)%3
+                        # breakpoint()
+
+                        # TODO: Add assertion here?
+
+                        
+                        direc_0_1_offset = directions[0].find_offset(directions[1])
+                        direc_1_2_offset = directions[1].find_offset(directions[2])
+                        direc_0_2_offset = directions[0].find_offset(directions[2])
                         
                         # If directions[0] has the middle state, take that state
                         if direc_0_1_offset == 1 and direc_0_2_offset == 1:
@@ -387,6 +398,10 @@ class Ident:
                 if hex.contains_direction((dir + 3) % 6):
                     self.__rotate_adopt(hex_of_origin, w.ident_list)
                 
+                # If two idents that sum to the opposite state are present, bounce off
+                elif hex.contains_direction((dir + 2) % 6) and hex.contains_direction((dir + 4) % 6):
+                    self.__rotate_adopt(hex_of_origin, w.ident_list)
+
                 # Else become stationary
                 else:
                     self.__rotate_adopt(hex_of_origin, w.ident_list, dir_final = - 1)
