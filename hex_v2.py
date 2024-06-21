@@ -228,7 +228,7 @@ class Ident:
         # if the idents contain an opposite direction ident, we bounce!! :)
         el'''
         
-        # If colliding with an ident pointing in the opposite direction, bounce off
+        '''# If colliding with an ident pointing in the opposite direction, bounce off
         if (dir != -1) and (hex.contains_direction((dir + 3) % 6) is not None):
             # TODO: Can this section just be dealt with in the stationary/not stationary section?
             self.__rotate_adopt(write_to_hex, w.ident_list)
@@ -237,13 +237,15 @@ class Ident:
         
         # otherwise, determine whether we contain a stationary hex or not
         # if not, we are all moving hexes and none of them are opposite me, so we average them
-        elif hex.contains_direction(-1) is None:
+        el'''
+        
+        if hex.contains_direction(-1) is None:
             # if we contain opposite pairs, remove them from the directions list
             directions = self.__remove_pairs(hex, dir, directions)
             
             
             # if we ended up with a net zero average (all other idents in the hex cancelled out in opposite pairs),
-            # bounce off in the opposite direction
+            # bounce off in the opposite direction from what is currently held
             if len(directions) == 0:
                 self.__rotate_adopt(write_to_hex, w.ident_list)
 
@@ -341,13 +343,15 @@ class Ident:
             # A moving ident colliding with a stationary ident
             else:
 
+                breakpoint()
+
                 assert self.state >= 0
 
                 hex_of_origin = self.__get_neighbor(w.hex_matrix, (self.state + 3)%6)
                 assert hex_of_origin
 
                 # If an ident with the opposite state is present, bounce off
-                if hex.contains_direction((dir + 3) % 6) is not None:
+                if hex.contains_direction((dir + 3) % 6):
                     self.__rotate_adopt(hex_of_origin, w.ident_list)
                 
                 # Else become stationary
