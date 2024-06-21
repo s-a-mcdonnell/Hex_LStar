@@ -3,6 +3,9 @@ import copy
 import os
 import pygame
 
+# Debugger
+import pdb
+
 '''
 Process of the game:
 0. Iterate over Idents
@@ -79,6 +82,15 @@ class Hex:
                 return True
         
         return False
+    
+    ##########################################################################################################
+
+    # Gives the designated hex a wall identity
+    # TODO: Could also clear other idents?
+    def make_wall(self, world, ident_list_to_append):
+        wall_ident = Ident(self.matrix_index, self.list_index, world, color = (0,0,0), state = -2)
+        self.idents.append(wall_ident)
+        ident_list_to_append.append(wall_ident)
 
     ##########################################################################################################
 
@@ -138,12 +150,22 @@ class Ident:
 
      # TODO: Write this method
     # note that I should never have to deal with walls in this method
+    # note that this reads from hex_matrix_new and ident_list_new and writes to hex_matrix and ident_list
     def repair_collisions(self):
 
         w = self.world
 
-        # obtain the hex that this ident is a part of
-        hex = w.hex_matrix[self.matrix_index][self.list_index]
+        # If dealing with a wall, maintain it and return
+        if self.state == -2:
+            w.ident_list.append(self.__copy())
+            w.hex_matrix[self.matrix_index][self.list_index].idents.append(self.__copy())
+
+            print("maintain wall in repair_collisions")
+
+            return
+
+        # obtain the hex that this ident is currently a part of
+        hex = w.hex_matrix_new[self.matrix_index][self.list_index]
         if len(hex.idents) <= 1:
             print("No collision to resolve")
             return
@@ -165,15 +187,15 @@ class Ident:
             to_become.state = directions[0].state
             # additionally, move it forward depending on the direction
             # if the other hex was stationary, do not move it forward at all, keep it in place
-            w.ident_list_new.append(to_become)
-            w.hex_matrix_new[self.matrix_index][self.list_index].idents.append(to_become)
+            w.ident_list.append(to_become)
+            w.hex_matrix[self.matrix_index][self.list_index].idents.append(to_become)
         # if there is more than one other ident than self, we do averaging things
         # if the idents contain an opposite direction ident, we bounce!! :)
         elif hex.contains_direction((dir + 3) % 6) is not None:
             to_become = self.__copy()
             to_become.state = (self.state + 3) % 6
-            w.ident_list_new.append(to_become)
-            w.hex_matrix_new[self.matrix_index][self.list_index].idents.append(to_become)
+            w.ident_list.append(to_become)
+            w.hex_matrix[self.matrix_index][self.list_index].idents.append(to_become)
         # otherwise, determine whether we contain a stationary hex or not
         # if not, we are all moving hexes and none of them are opposite me, so we average them
         elif hex.contains_direction(-1) is None:
@@ -185,26 +207,27 @@ class Ident:
                 directions.remove(hex.contains_direction(dir + 2))
                 directions.remove(hex.contains_direction(dir - 1))
             # if, at this point, there is only one direction left, take that one
-            if len(directions == 1):
+            if len(directions) == 1:
                 to_become = self.__copy()
                 to_become.state = directions[0].state
-                w.ident_list_new.append(to_become)
-                w.hex_matrix_new[self.matrix_index][self.list_index].idents.append(to_become)
+                w.ident_list.append(to_become)
+                w.hex_matrix[self.matrix_index][self.list_index].idents.append(to_become)
             # otherwise, we ended up with a net zero average and use the opposite of our own direction to break ties
-            elif len(directions == 0):
+            elif len(directions) == 0:
                 to_become = self.__copy()
                 to_become.state = (dir - 3) %  6
-                w.ident_list_new.append(to_become)
-                w.hex_matrix_new[self.matrix_index][self.list_index].idents.append(to_become)
+                w.ident_list.append(to_become)
+                w.hex_matrix[self.matrix_index][self.list_index].idents.append(to_become)
 
         # else, we are dealing with multiple hexes, including a stationary hex
+        # TODO: Did you mean idents in the above comment? - Skyler
         # TODO: stationary cases here!!!
         else:
             pass
 
     ##########################################################################################################
 
-    def __init__(self, matrix_index, list_index, color=(255, 255, 255), state = -1, serial_number = -1, hist = None):
+    def __init__(self, matrix_index, list_index, world, color=(255, 255, 255), state = -1, serial_number = -1, hist = None):
         if hist is None:
             hist = []
         self.color = color
@@ -230,9 +253,9 @@ class Ident:
 
         self.matrix_index = matrix_index
         self.list_index = list_index
+
+        self.world = world
     
-<<<<<<< Updated upstream
-=======
     ##########################################################################################################
 
     # Returns the neighboring hex in the given direction in the given matrix
@@ -282,8 +305,6 @@ class Ident:
             return None
 
 
-
-
     ##########################################################################################################
 
 
@@ -321,6 +342,9 @@ class Ident:
     # Elif an ident is running into a wall or a head-on collision, flips it in place (writing to hex_matrix_new)
     # Else advances an ident by one hex in its direction of motion (if that hex exists)
     def advance_or_flip(self):
+        # For debugging
+        # breakpoint()
+        
         future_matrix = self.world.hex_matrix_new
         future_hex = future_matrix[self.matrix_index][self.list_index]
         future_list = self.world.ident_list_new
@@ -386,40 +410,6 @@ class Ident:
 
     ##########################################################################################################
 
-    '''# Repairs the given ident's direction in the context of the idents in its hex
->>>>>>> Stashed changes
-    # TODO: Write this method
-    # Writes to hex_matrix_new
-    def advance_or_flip(self):
-        global hex_matrix_new
-
-<<<<<<< Updated upstream
-        # Maintain walls and stationaries and return
-
-        # If need to bounce (wall or head-on), then bounce and return
-=======
-        # If it has an ident opposite to it, flip and return
-        if my_hex.contains_direction((self.state + 3)%6):
-            # TODO: Use flipper and appender?
-            ident_to_flip = self.__copy()
-            ident_to_flip.state = (ident_to_flip.state + 3)%6
-            
-            list_to_write_to.append(ident_to_flip)
-            hex_to_write_to.idents.append(ident_to_flip)
->>>>>>> Stashed changes
-
-        # Advance all others
-
-        pass'''
-
-    ##########################################################################################################
-
-    # TODO: Write this method
-    # Write from hex_matrix_new to hex_matrix
-    def repair_collisions(self):
-
-        pass
-
     def visited(self, m, l):
         # push onto stack history
         # pushed onto the history is
@@ -437,6 +427,13 @@ class Ident:
         else:
             self.hist.append((m, l, self.state))
 
+    ##########################################################################################################
+
+    def __copy(self):
+        # TODO: Should any of these components be done with .copy()?
+        new_copy = Ident(self.matrix_index, self.list_index, self.world, color = self.color, state = self.state, serial_number = self.serial_number, hist = self.hist)
+        return new_copy
+    
 ###############################################################################################################
 
 
@@ -469,11 +466,11 @@ class World:
         # Set up new hex matrix
         self.hex_matrix_new = []
 
-        for x in range(15):
+        for x in range(len(self.hex_matrix)):
             hex_list_new = []
             self.hex_matrix_new.append(hex_list_new)
 
-            for y in range(16):
+            for y in range(len(self.hex_matrix[x])):
                 myHex = Hex(x, y)
                 hex_list_new.append(myHex)
 
@@ -490,6 +487,24 @@ class World:
             self.__read_line(line)
             # pass
             # TODO: uncomment the above line for proper fie reading once we implement moving, stationary, wall hexes back into the program
+
+        
+        # Create walls around the edges
+        # TODO: Could add boolean so user can specify if they want walls or not
+        # Left edge
+        for hex in self.hex_matrix[0]:
+            hex.make_wall(self, self.ident_list)
+        # Right edge
+        for hex in self.hex_matrix[13]:
+            hex.make_wall(self, self.ident_list)
+        for i in range(6):
+            # Top edge
+            self.hex_matrix[1+2*i][6-i].make_wall(self, self.ident_list)
+            self.hex_matrix[2+2*i][6-i].make_wall(self, self.ident_list)
+
+            # Bottom edge
+            self.hex_matrix[1+2*i][15-i].make_wall(self, self.ident_list)
+            self.hex_matrix[2+2*i][14-i].make_wall(self, self.ident_list)
 
     ##########################################################################################################
 
@@ -530,7 +545,7 @@ class World:
             direction = int(line_parts[4])
             color_text = line_parts[3]
             color = World.__get_color(color_text)
-            new_ident = Ident(matrix_index, list_index, color = color, state = direction)
+            new_ident = Ident(matrix_index, list_index, self, color = color, state = direction)
             self.ident_list.append(new_ident)
             # TODO: Add ident to hex
             self.hex_matrix[matrix_index][list_index].idents.append(new_ident)
@@ -538,13 +553,13 @@ class World:
         elif command == "occupied":
             color_text = line_parts[3]
             color = World.__get_color(color_text)
-            new_ident = Ident(matrix_index, list_index, color = color)
+            new_ident = Ident(matrix_index, list_index, self, color = color)
             self.ident_list.append(new_ident)
             # TODO: Add ident to hex
             self.hex_matrix[matrix_index][list_index].idents.append(new_ident)
             # self.hex_matrix[matrix_index][list_index].make_occupied(color)
         elif command == "wall" or command == "wall\n":
-            new_ident = Ident(matrix_index, list_index, color = (0,0,0), state = -2)
+            new_ident = Ident(matrix_index, list_index, self, color = (0,0,0), state = -2)
             self.ident_list.append(new_ident)
             # TODO: Add ident to hex
             self.hex_matrix[matrix_index][list_index].idents.append(new_ident)
@@ -579,29 +594,39 @@ class World:
     def __update(self):
         # TODO: Note that this (calling swap_matrices) will just cause flashing until these two methods are written
 
+        # Clear the _new matrix and list so that advance_or_flip can write to it
+        for hex_list in self.hex_matrix_new:
+            for hex in hex_list:
+                hex.idents.clear()
+        
+        self.ident_list_new.clear()
+
         # Move or flip all idents
         for ident in self.ident_list:
             ident.advance_or_flip()
+
+        # Clear the current matrix and list so that repair_collisions can write to it
+        for hex_list in self.hex_matrix:
+            for hex in hex_list:
+                hex.idents.clear()
+        
+        self.ident_list.clear()
                 
         # Fix collisions
         for ident in self.ident_list_new:
-<<<<<<< Updated upstream
-            ident.repair_collisions()
-        
-        # TODO: Have advance_or_flip write from original and new
-        # TODO: Have repair_collisions write from new to original
-        # self.__swap_matrices_and_lists()
-=======
+
             # TODO: Delete this
-            # idents_in_hex = self.hex_matrix_new[ident.matrix_index][ident.list_index].idents
 
             # ident.repair_collisions(self.hex_matrix_new[ident.matrix_index][ident.list_index])
             ident.repair_collisions()
 
+        # Pause between each frame
+        pygame.time.delay(100)
+
+
         '''# TODO: Comment this back out when Ident.repair_collisions() is written
         #    (advance_or_flip writes from hex_matrix to hex_matrix_new, and repair_collisions can write from hex_matrix_new to hew_matrix)
         self.__swap_matrices_and_lists()'''
->>>>>>> Stashed changes
     
     ##########################################################################################################
 
