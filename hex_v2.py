@@ -775,19 +775,21 @@ class World:
         elif color_text == "PURPLE" or color_text == "PURPLE\n":
             return (204, 0, 255)
         elif color_text == "ORANGE" or color_text == "ORANGE\n":
-            return(255, 102, 0)
+            return (255, 102, 0)
         elif color_text == "GREEN" or color_text == "GREEN\n":
-            return(106, 232, 100)
+            return (106, 232, 100)
         elif color_text == "BLUE" or color_text == "BLUE\n":
-            return(45, 70, 181)
+            return (45, 70, 181)
         elif color_text == "CYAN" or color_text == "CYAN\n":
             return (71, 230, 216) 
         elif color_text == "RED" or color_text == "RED\n":
-            return(219, 24, 24)
+            return (219, 24, 24)
         elif color_text == "MAROON" or color_text == "MAROON\n":
             return (143, 6, 15)
         elif color_text == "PINK" or color_text == "PINK\n":
-            return(230, 57, 129)
+            return (230, 57, 129)
+        elif color_text == "BROWN" or color_text == "BROWN\n":
+            return (166, 129, 85)
         else:
             return (100, 100, 100)
 
