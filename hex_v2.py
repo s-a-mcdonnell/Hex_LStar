@@ -158,7 +158,8 @@ class Ident:
         '''if self.state != 2:
             breakpoint()'''
 
-        # If dealing with a wall, maintain it and return
+        # This is not covered in not zeroing out walls
+        '''# If dealing with a wall, maintain it and return
         if self.state == -2:
             # TODO: Is copying necessary here?
 
@@ -167,7 +168,7 @@ class Ident:
 
             # print("maintain wall in repair_collisions")
 
-            return
+            return'''
 
         # obtain the hex that this ident is currently a part of
         hex = w.hex_matrix_new[self.matrix_index][self.list_index]
@@ -427,8 +428,9 @@ class Ident:
         future_hex = future_matrix[self.matrix_index][self.list_index]
         future_list = self.world.ident_list_new
     
-        # Maintain walls and stationaries and return
-        if (self.state == -2) or (self.state == -1):
+        # Maintain stationaries and return
+        # Walls were never deleted
+        if self.state == -1:
             future_list.append(self.__copy())
             future_hex.idents.append(self.__copy())
 
@@ -625,7 +627,9 @@ class World:
             # self.hex_matrix[matrix_index][list_index].make_occupied(color)
         elif command == "wall" or command == "wall\n":
             new_ident = Ident(matrix_index, list_index, self, color = (0,0,0), state = -2)
+            
             self.ident_list.append(new_ident)
+            
             # TODO: Add ident to hex
             self.hex_matrix[matrix_index][list_index].idents.append(new_ident)
             # self.hex_matrix[matrix_index][list_index].make_wall()
@@ -659,31 +663,44 @@ class World:
     def __update(self):
         # TODO: Note that this (calling swap_matrices) will just cause flashing until these two methods are written
 
+        # TODO: Don't overwrite wall idents? (trying to save computation of constantly erasing and re-writing them)
+
         # Clear the _new matrix and list so that advance_or_flip can write to it
         for hex_list in self.hex_matrix_new:
             for hex in hex_list:
+                # Save wall_ident to add back in, if applicable
+                wall_ident = hex.contains_direction(-2)
+                
                 hex.idents.clear()
+                
+                if wall_ident:
+                    self.hex_matrix_new[wall_ident.matrix_index][wall_ident.list_index].idents.append(wall_ident)
         
         self.ident_list_new.clear()
 
-        # Move or flip all idents
+        # Move or flip all idents except for walls
         for ident in self.ident_list:
-            ident.advance_or_flip()
+            if ident.state != 2:
+                ident.advance_or_flip()
 
         # Clear the current matrix and list so that repair_collisions can write to it
         for hex_list in self.hex_matrix:
             for hex in hex_list:
+                # Save wall_ident to add back in, if applicable
+                wall_ident = hex.contains_direction(-2)
+                
                 hex.idents.clear()
+                
+                if wall_ident:
+                    self.hex_matrix[wall_ident.matrix_index][wall_ident.list_index].idents.append(wall_ident)
         
         self.ident_list.clear()
                 
-        # Fix collisions
+        # Fix collisions in all idents except for walls
         for ident in self.ident_list_new:
-
-            # TODO: Delete this
-
-            # ident.repair_collisions(self.hex_matrix_new[ident.matrix_index][ident.list_index])
-            ident.repair_collisions()
+            # TODO: Check if it's really okay to skip walls like this
+            if ident.state != -2:
+                ident.repair_collisions()
 
         # Pause between each frame
         pygame.time.delay(600)
