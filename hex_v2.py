@@ -343,7 +343,7 @@ class Ident:
             # A moving ident colliding with a stationary ident
             else:
 
-                breakpoint()
+                # breakpoint()
 
                 assert self.state >= 0
 
