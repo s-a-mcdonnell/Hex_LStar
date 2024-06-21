@@ -157,6 +157,8 @@ class Ident:
 
         # If dealing with a wall, maintain it and return
         if self.state == -2:
+            # TODO: Is copying necessary here?
+
             w.ident_list.append(self.__copy())
             w.hex_matrix[self.matrix_index][self.list_index].idents.append(self.__copy())
 
@@ -168,6 +170,11 @@ class Ident:
         hex = w.hex_matrix_new[self.matrix_index][self.list_index]
         if len(hex.idents) <= 1:
             print("No collision to resolve")
+
+            # TODO: Is copying necessary here?
+            w.ident_list.append(self.__copy())
+            w.hex_matrix[self.matrix_index][self.list_index].idents.append(self.__copy())
+
             return
         
         # now we have determined that the ident has other idents with it
