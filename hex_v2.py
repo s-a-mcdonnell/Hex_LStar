@@ -16,133 +16,6 @@ Process of the game:
    b: Else, take the average of all other idents EXCEPT SELF, but break ties by using the opposite ident of self
 '''
 
-# hex class is now just for graphics/displaying the board/storing idents
-class Hex:
-    # Default color (no idents): light blue
-    DEFAULT_COLOR =(190, 240, 255)
-
-    ##########################################################################################################
-
-    # Checks where a specific ident occurs within this hex's list
-    # If it contains the ident, returns the index
-    # Else returns -1
-    def get_ident_index(self, to_find):
-
-        # TODO: What if the hex contains multiple idents with that state?
-        for i in range(len(self.idents)):
-            if self.idents[i] == to_find:
-                return i
-        return -1
-
-    ###############################################################################################################
-
-    # Takes x and y (Cartesian coordinates where (0, 0) is the top left corner)
-    # Returns a list of 6 coordinates defining a hexagon
-    @staticmethod
-    def __create_coor(x, y):
-        # Making hex smaller so that borders will be visible
-        return [(x+3, y+3), (x+37, y+3), (x+57, y+35), (x+37, y+67), (x+3, y+67), (x-17, y+35)]
-
-    ##########################################################################################################
-
-    # Constructor
-    def __init__(self, matrix_index, list_index):
-        self.matrix_index = matrix_index
-        self.list_index = list_index
-
-        # Store relevant idents
-        self.idents = []
-
-        # Map matrix_index and list_index to Cartesian coordinates
-        self.x = 60*matrix_index - 20
-        self.y = 35*matrix_index + 70*list_index - 490
-
-        self.coordinates = Hex.__create_coor(self.x, self.y)
-
-       
-        # TODO: Move arrows and smaller hexagon to idents? (maybe)
-        # Create arrows for later use
-        #pivot is the center of the hexagon
-        pivot = pygame.Vector2(self.x + 20, self.y + 35)
-        # set of arrow points should be the vectors from the pivot to the edge points of the arrow
-        arrow = [(0, -15), (10, -5), (5, -5), (5, 15), (-5, 15), (-5, -5), (-10, -5)]
-        # get arrow by adding all the vectors to the pivot point => allows for easy rotation
-        self.arrows = []
-        for i in range(6):
-            self.arrows.append([(pygame.math.Vector2(x, y)).rotate(60.0*i) + pivot for x, y in arrow]) 
-    
-        # Coordinates used to draw smaller hexagon later if the hex becomes stationary
-        self.small_hexagon = [(self.x+9, self.y+11), (self.x+31, self.y+11), (self.x+47, self.y+35), (self.x+31, self.y+59), (self.x+9, self.y+59), (self.x-7, self.y+35)]
-    ##########################################################################################################
-
-    # Returns a boolean indicating if the given hex contains any moving idents
-    def is_moving(self):
-        for ident in self.idents:
-            if ident.state >= 0:
-            # if (ident.state != -1) and (ident.state != -2):
-                return True
-        
-        return False
-    
-    ##########################################################################################################
-
-    # Gives the designated hex a wall identity
-    # TODO: Could also clear other idents?
-    def make_wall(self, world, list_to_append):
-        wall_ident = Ident(self.matrix_index, self.list_index, world, color = (0,0,0), state = -2)
-        self.idents.append(wall_ident)
-        list_to_append.append(wall_ident)
-
-    ##########################################################################################################
-
-    # Checks if a hex contains an ident heading in the given directon
-    # If it does, returns that ident
-    # Else returns None
-    def contains_direction(self, dir: int):
-
-        # TODO: What if the hex contains multiple idents with that state?
-        for ident in self.idents:
-            if ident.state == dir:
-                return ident
-
-        return None
-
-    ##########################################################################################################
-
-    # Graphics (drawing hexes and the corresponding idents)
-    def draw(self, screen):
-            
-        color_to_draw = Hex.DEFAULT_COLOR
-
-
-        if (len(self.idents) >= 1):
-            # If a hex contains only one ident, take that color
-            # If a hex contains multiple idents, the ident stored first will be the outermost color
-            color_to_draw = self.idents[0].color
-        
-        # Draw the hexagon
-        pygame.draw.polygon(screen, color_to_draw, self.coordinates)
-
-        # Draw an extra hexagon to visually show that a hexagon is stationary even with the different colors
-        if self.contains_direction(-1) != None:
-            new_color = [max(0, c - 120) for c in color_to_draw]
-            pygame.draw.polygon(screen, new_color, self.small_hexagon)
-        
-    
-        # Draw multiple nesting circles indicating colors for hexes with superimposed idents/states
-        for i in range(1, len(self.idents)):
-            if (33 - 5*i) > 0:
-                pygame.draw.circle(screen, self.idents[i].color, (self.x+20, self.y+35), 33-5*i)
-    
-        # Draw an arrow on the hex if the hex is moving
-        if self.is_moving():
-            for i in range(6):
-                if self.contains_direction(i):
-                    pygame.draw.polygon(screen, (0, 0, 0), self.arrows[i])
-
-    ##########################################################################################################
-
-
 # for storing information about a particular moving hex
 class Ident:
 
@@ -605,6 +478,133 @@ class Ident:
         return new_copy
     
 ###############################################################################################################
+
+# hex class is now just for graphics/displaying the board/storing idents
+class Hex:
+    # Default color (no idents): light blue
+    DEFAULT_COLOR =(190, 240, 255)
+
+    ##########################################################################################################
+
+    # Checks where a specific ident occurs within this hex's list
+    # If it contains the ident, returns the index
+    # Else returns -1
+    def get_ident_index(self, to_find):
+
+        # TODO: What if the hex contains multiple idents with that state?
+        for i in range(len(self.idents)):
+            if self.idents[i] == to_find:
+                return i
+        return -1
+
+    ###############################################################################################################
+
+    # Takes x and y (Cartesian coordinates where (0, 0) is the top left corner)
+    # Returns a list of 6 coordinates defining a hexagon
+    @staticmethod
+    def __create_coor(x, y):
+        # Making hex smaller so that borders will be visible
+        return [(x+3, y+3), (x+37, y+3), (x+57, y+35), (x+37, y+67), (x+3, y+67), (x-17, y+35)]
+
+    ##########################################################################################################
+
+    # Constructor
+    def __init__(self, matrix_index, list_index):
+        self.matrix_index = matrix_index
+        self.list_index = list_index
+
+        # Store relevant idents
+        self.idents = []
+
+        # Map matrix_index and list_index to Cartesian coordinates
+        self.x = 60*matrix_index - 20
+        self.y = 35*matrix_index + 70*list_index - 490
+
+        self.coordinates = Hex.__create_coor(self.x, self.y)
+
+       
+        # TODO: Move arrows and smaller hexagon to idents? (maybe)
+        # Create arrows for later use
+        #pivot is the center of the hexagon
+        pivot = pygame.Vector2(self.x + 20, self.y + 35)
+        # set of arrow points should be the vectors from the pivot to the edge points of the arrow
+        arrow = [(0, -15), (10, -5), (5, -5), (5, 15), (-5, 15), (-5, -5), (-10, -5)]
+        # get arrow by adding all the vectors to the pivot point => allows for easy rotation
+        self.arrows = []
+        for i in range(6):
+            self.arrows.append([(pygame.math.Vector2(x, y)).rotate(60.0*i) + pivot for x, y in arrow]) 
+    
+        # Coordinates used to draw smaller hexagon later if the hex becomes stationary
+        self.small_hexagon = [(self.x+9, self.y+11), (self.x+31, self.y+11), (self.x+47, self.y+35), (self.x+31, self.y+59), (self.x+9, self.y+59), (self.x-7, self.y+35)]
+    ##########################################################################################################
+
+    # Returns a boolean indicating if the given hex contains any moving idents
+    def is_moving(self):
+
+        for ident in self.idents:
+            if ident.state >= 0:
+            # if (ident.state != -1) and (ident.state != -2):
+                return True
+        
+        return False
+    
+    ##########################################################################################################
+
+    # Gives the designated hex a wall identity
+    # TODO: Could also clear other idents?
+    def make_wall(self, world, list_to_append):
+        wall_ident = Ident(self.matrix_index, self.list_index, world, color = (0,0,0), state = -2)
+        self.idents.append(wall_ident)
+        list_to_append.append(wall_ident)
+
+    ##########################################################################################################
+
+    # Checks if a hex contains an ident heading in the given directon
+    # If it does, returns that ident
+    # Else returns None
+    def contains_direction(self, dir: int):
+
+        # TODO: What if the hex contains multiple idents with that state?
+        for ident in self.idents:
+            if ident.state == dir:
+                return ident
+
+        return None
+
+    ##########################################################################################################
+
+    # Graphics (drawing hexes and the corresponding idents)
+    def draw(self, screen):
+            
+        color_to_draw = Hex.DEFAULT_COLOR
+
+
+        if (len(self.idents) >= 1):
+            # If a hex contains only one ident, take that color
+            # If a hex contains multiple idents, the ident stored first will be the outermost color
+            color_to_draw = self.idents[0].color
+        
+        # Draw the hexagon
+        pygame.draw.polygon(screen, color_to_draw, self.coordinates)
+
+        # Draw an extra hexagon to visually show that a hexagon is stationary even with the different colors
+        if self.contains_direction(-1) != None:
+            new_color = [max(0, c - 120) for c in color_to_draw]
+            pygame.draw.polygon(screen, new_color, self.small_hexagon)
+        
+    
+        # Draw multiple nesting circles indicating colors for hexes with superimposed idents/states
+        for i in range(1, len(self.idents)):
+            if (33 - 5*i) > 0:
+                pygame.draw.circle(screen, self.idents[i].color, (self.x+20, self.y+35), 33-5*i)
+    
+        # Draw an arrow on the hex if the hex is moving
+        if self.is_moving():
+            for i in range(6):
+                if self.contains_direction(i):
+                    pygame.draw.polygon(screen, (0, 0, 0), self.arrows[i])
+
+    ##########################################################################################################
 
 
 # for setting initial state of the world / having a student interact
