@@ -863,8 +863,9 @@ class World:
 
         for ident in self.ident_list:
             ident.visited(ident.matrix_index, ident.list_index)
-
-        # TODO: Don't overwrite wall idents? (trying to save computation of constantly erasing and re-writing them)
+        
+        for wall in self.wall_list:
+            wall.visited(wall.matrix_index, wall.list_index)
 
 
         # Clear the _new matrix and list so that advance_or_flip can write to it
@@ -915,6 +916,10 @@ class World:
         for ident in self.ident_list:
             ident.backstep()
             self.hex_matrix[ident.matrix_index][ident.list_index].idents.append(ident)
+        
+        for wall in self.wall_list:
+            wall.backstep()
+            self.hex_matrix[wall.matrix_index][wall.list_index].idents.append(wall)
 
     ##########################################################################################################
 
