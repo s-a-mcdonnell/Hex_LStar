@@ -547,6 +547,9 @@ class World:
         # Set up new ident list
         self.ident_list_new = []
 
+        # Set up wall list
+        self.wall_list = []
+
         # reading the intiial state of the hex board from a file
         __location__ = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__)))
         file = open(os.path.join(__location__, "initial_state.txt"), "r")
@@ -613,26 +616,32 @@ class World:
             color_text = line_parts[3]
             color = World.__get_color(color_text)
             new_ident = Ident(matrix_index, list_index, self, color = color, state = direction)
+            
+            # Add ident to ident list
             self.ident_list.append(new_ident)
-            # TODO: Add ident to hex
+            
+            # Add ident to hex
             self.hex_matrix[matrix_index][list_index].idents.append(new_ident)
-            # self.hex_matrix[matrix_index][list_index].make_move(direction, color)
         elif command == "occupied":
             color_text = line_parts[3]
             color = World.__get_color(color_text)
             new_ident = Ident(matrix_index, list_index, self, color = color)
+            
+            # Add ident to ident list
             self.ident_list.append(new_ident)
-            # TODO: Add ident to hex
+            
+            # Add ident to hex
             self.hex_matrix[matrix_index][list_index].idents.append(new_ident)
-            # self.hex_matrix[matrix_index][list_index].make_occupied(color)
         elif command == "wall" or command == "wall\n":
             new_ident = Ident(matrix_index, list_index, self, color = (0,0,0), state = -2)
             
-            self.ident_list.append(new_ident)
-            
-            # TODO: Add ident to hex
+            # Don't add walls to ident list
+            # TODO: Think hard about whether or not walls should be on the ident_list
+            # self.ident_list.append(new_ident)
+            self.wall_list.append(new_ident)     
+               
+            # Add ident to hex
             self.hex_matrix[matrix_index][list_index].idents.append(new_ident)
-            # self.hex_matrix[matrix_index][list_index].make_wall()
 
     ##########################################################################################################
 
@@ -698,9 +707,7 @@ class World:
                 
         # Fix collisions in all idents except for walls
         for ident in self.ident_list_new:
-            # TODO: Check if it's really okay to skip walls like this
-            if ident.state != -2:
-                ident.repair_collisions()
+            ident.repair_collisions()
 
         # Pause between each frame
         pygame.time.delay(600)
