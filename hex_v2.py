@@ -184,7 +184,14 @@ class Ident:
         # TODO: ^^ Check if this is true ^^
         if len(directions) == 1:
             # breakpoint()
-            self.__rotate_adopt(w.hex_matrix[self.matrix_index][self.list_index], w.ident_list, dir_final = directions[0].state)
+            if directions[0].state != -1:
+                self.__rotate_adopt(w.hex_matrix[self.matrix_index][self.list_index], w.ident_list, dir_final = directions[0].state)
+            else:
+                assert self.state != -1
+                # The place it came from must exist, or else this ident couldn't be here, right?
+                # TODO: Move ident back and make stationary
+                hex_of_origin = self.__get_neighbor(w.hex_matrix, (self.state + 3)%6)
+                self.__rotate_adopt(hex_of_origin, w.ident_list, dir_final = -1)
 
             '''to_become = self.__copy()
             to_become.state = directions[0].state
