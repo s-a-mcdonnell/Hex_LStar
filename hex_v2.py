@@ -664,7 +664,7 @@ class World:
             ident.repair_collisions()
 
         # Pause between each frame
-        pygame.time.delay(100)
+        pygame.time.delay(600)
 
     ##########################################################################################################
 
