@@ -218,24 +218,43 @@ class Ident:
                 hex_of_origin.idents.append(ident_to_move)
 
                 # additionally, check the two immediate neighbors of the stationary hex to see if it has stationary neighbors, and if so, those start moving too
-                left_neighbor = self.__get_neighbor(w.hex_matrix, (self.state - 2)%6)
-                right_neighbor = self.__get_neighbor(w.hex_matrix, (self.state + 2)%6)
+                left_neighbor = self.__get_neighbor(w.hex_matrix_new, (self.state - 2)%6)
+                right_neighbor = self.__get_neighbor(w.hex_matrix_new, (self.state + 2)%6)
+                # TODO: additionally, make sure that you only influence a neighbor if that neighbor is not being infleunced by its own direct hit
+                # TODO: what if one neighbor is being influenced by two different hits on neighboring stationaries????
+                # i have confirmed that these neighbors are the correct hexes
                 if left_neighbor is not None:
                     ident_to_edit = left_neighbor.contains_direction(-1)
                     if ident_to_edit is not None:
                         # if the left neighbor of the original stationary wall is also stationary, make it move
                         to_become = ident_to_edit.__copy()
                         to_become.state = (self.state - 1) % 6
+
+                        # remove an existing idents in the future with the same serial number
+                        trouble = next((Ident for Ident in w.ident_list if Ident.serial_number == to_become.serial_number), None)
+                        w.ident_list.remove(trouble)
                         w.ident_list.append(to_become)
-                        left_neighbor.idents.append(to_become)
+
+                        # write to matrix in the future
+                        to_write_to = w.hex_matrix[left_neighbor.matrix_index][left_neighbor.list_index]
+                        to_write_to.idents.clear()
+                        to_write_to.idents.append(to_become)
+                        print(str())
                 if right_neighbor is not None:
                     ident_to_edit = right_neighbor.contains_direction(-1)
                     if ident_to_edit is not None:
                         # if the left neighbor of the original stationary wall is also stationary, make it move
                         to_become = ident_to_edit.__copy()
                         to_become.state = (self.state + 1) % 6
+
+                        trouble = next((Ident for Ident in w.ident_list if Ident.serial_number == to_become.serial_number), None)
+                        w.ident_list.remove(trouble)
                         w.ident_list.append(to_become)
-                        right_neighbor.idents.append(to_become)
+
+                        to_write_to = w.hex_matrix[right_neighbor.matrix_index][right_neighbor.list_index]
+                        # TODO note to self, might also have to remove the other version of this ident from the ident_list in the world (not ident list new)
+                        to_write_to.idents.clear()
+                        to_write_to.idents.append(to_become)
 
 
         # if there is more than one other ident than self, we do averaging things

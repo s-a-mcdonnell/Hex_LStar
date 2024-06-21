@@ -674,11 +674,6 @@ class Hex:
         if (is_stationary and not self.contains_portal()) and (len(future.idents) == 0):
             future.idents.append(is_stationary.copy())
 
-        trouble = next((Ident for Ident in self.idents if Ident.serial_number == 60), None)
-        if trouble is not None:
-            print("New trouble (60) hex at: ")
-            print(str(self.matrix_index) + " " + str(self.list_index))
-
 
 
 class Ident:
