@@ -506,12 +506,29 @@ class Ident:
         else:
             self.hist.append((m, l, self.state))
 
+        print("------------------------------------------------------------------------------------------------------------------------", self.hist)
+
     ##########################################################################################################
 
     def __copy(self):
         # TODO: Should any of these components be done with .copy()?
         new_copy = Ident(self.matrix_index, self.list_index, self.world, color = self.color, state = self.state, serial_number = self.serial_number, hist = self.hist)
         return new_copy
+
+    ###############################################################################################################
+
+    def backstep(self):
+
+        past = self.hist.pop()
+
+        # first we change the state to the state it was at that point in time
+        self.state = past[2]
+        # then we put the ident into the hex it was before
+        self.matrix_index = past[0]
+        self.list_index = past[1]
+
+
+    ###############################################################################################################
     
 ###############################################################################################################
 
@@ -682,7 +699,12 @@ class World:
     def __update(self):
         # TODO: Note that this (calling swap_matrices) will just cause flashing until these two methods are written
 
+
+        for ident in self.ident_list:
+            ident.visited(ident.matrix_index, ident.list_index)
+
         # TODO: Don't overwrite wall idents? (trying to save computation of constantly erasing and re-writing them)
+
 
         # Clear the _new matrix and list so that advance_or_flip can write to it
         for hex_list in self.hex_matrix_new:
@@ -718,26 +740,71 @@ class World:
         for ident in self.ident_list_new:
             ident.resolve_collisions()
 
-        # Pause between each frame
-        pygame.time.delay(600)
+    ##########################################################################################################
+
+    def __backstep(self):
+
+        # Clear the matrix and list
+        for hex_list in self.hex_matrix:
+            for hex in hex_list:
+                hex.idents.clear()
+
+        # apply step back on all idents
+
+        for ident in self.ident_list:
+            ident.backstep()
+            self.hex_matrix[ident.matrix_index][ident.list_index].idents.append(ident)
 
     ##########################################################################################################
 
     def run(self):
         run = True
+
+        state = "pause"
+        clock = pygame.time.Clock()
+        dt = 0
+
         while run:
 
             # Event handler (closing window)
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     run = False
+                if event.type == pygame.TEXTINPUT:
+                    # takes the key input
+                    keys = pygame.key.get_pressed()
+
+                    if keys[pygame.K_g]:
+                        state = "go"
+                    elif keys[pygame.K_p]:
+                        state = "pause"
+                    elif keys[pygame.K_h]:
+                        state = "hyper"
+
+                    if state == "pause" and keys[pygame.K_s]:
+                        self.__update()
+
+                        pygame.time.delay(100)
+                        # Take one second pause
+
+                    if state == "pause" and keys[pygame.K_b]:
+                        self.__backstep()
+
+                        pygame.time.delay(100)
+                        # Take one second pause
             
             self.__draw()
 
             # flips to the next frame
             pygame.display.flip()
-            
-            self.__update()
+
+            if state == "go":
+                print("--------------------on go--------------------")
+                dt = clock.tick(2) / 1000
+                self.__update()
+            elif state == "hyper":
+                dt = clock.tick(20) / 1000
+                self.__update()
         
         # Exit
         pygame.quit()
