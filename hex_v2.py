@@ -16,292 +16,22 @@ Process of the game:
    b: Else, take the average of all other idents EXCEPT SELF, but break ties by using the opposite ident of self
 '''
 
-# hex class is now just for graphics/displaying the board/storing idents
-class Hex:
-    # Default color (no idents): light blue
-    DEFAULT_COLOR =(190, 240, 255)
-
-    ##########################################################################################################
-
-    # Checks where a specific ident occurs within this hex's list
-    # If it contains the ident, returns the index
-    # Else returns -1
-    def get_ident_index(self, to_find):
-
-        # TODO: What if the hex contains multiple idents with that state?
-        for i in range(len(self.idents)):
-            if self.idents[i] == to_find:
-                return i
-        return -1
-
-    ###############################################################################################################
-
-    # Takes x and y (Cartesian coordinates where (0, 0) is the top left corner)
-    # Returns a list of 6 coordinates defining a hexagon
-    @staticmethod
-    def __create_coor(x, y):
-        # Making hex smaller so that borders will be visible
-        return [(x+3, y+3), (x+37, y+3), (x+57, y+35), (x+37, y+67), (x+3, y+67), (x-17, y+35)]
-
-    ##########################################################################################################
-
-    # Constructor
-    def __init__(self, matrix_index, list_index):
-        self.matrix_index = matrix_index
-        self.list_index = list_index
-
-        # Store relevant idents
-        self.idents = []
-
-        # Map matrix_index and list_index to Cartesian coordinates
-        self.x = 60*matrix_index - 20
-        self.y = 35*matrix_index + 70*list_index - 490
-
-        self.coordinates = Hex.__create_coor(self.x, self.y)
-
-       
-        # TODO: Move arrows and smaller hexagon to idents? (maybe)
-        # Create arrows for later use
-        #pivot is the center of the hexagon
-        pivot = pygame.Vector2(self.x + 20, self.y + 35)
-        # set of arrow points should be the vectors from the pivot to the edge points of the arrow
-        arrow = [(0, -15), (10, -5), (5, -5), (5, 15), (-5, 15), (-5, -5), (-10, -5)]
-        # get arrow by adding all the vectors to the pivot point => allows for easy rotation
-        self.arrows = []
-        for i in range(6):
-            self.arrows.append([(pygame.math.Vector2(x, y)).rotate(60.0*i) + pivot for x, y in arrow]) 
-    
-        # Coordinates used to draw smaller hexagon later if the hex becomes stationary
-        self.small_hexagon = [(self.x+9, self.y+11), (self.x+31, self.y+11), (self.x+47, self.y+35), (self.x+31, self.y+59), (self.x+9, self.y+59), (self.x-7, self.y+35)]
-    ##########################################################################################################
-
-    # Returns a boolean indicating if the given hex contains any moving idents
-    def is_moving(self):
-        for ident in self.idents:
-            if ident.state >= 0:
-                return True
-        
-        return False
-    
-    ##########################################################################################################
-
-    # Gives the designated hex a wall identity
-    # TODO: Could also clear other idents?
-    def make_wall(self, world, list_to_append):
-        wall_ident = Ident(self.matrix_index, self.list_index, world, color = (0,0,0), state = -2)
-        self.idents.append(wall_ident)
-        list_to_append.append(wall_ident)
-
-    ##########################################################################################################
-
-    # Checks if a hex contains an ident heading in the given directon
-    # If it does, returns that ident
-    # Else returns None
-    def contains_direction(self, dir):
-
-        # TODO: What if the hex contains multiple idents with that state?
-        for ident in self.idents:
-            if ident.state == dir:
-                return ident
-
-        return None
-
-    ##########################################################################################################
-
-    # Graphics (drawing hexes and the corresponding idents)
-    def draw(self, screen):
-            
-        color_to_draw = Hex.DEFAULT_COLOR
-
-
-        if (len(self.idents) >= 1):
-            # If a hex contains only one ident, take that color
-            # If a hex contains multiple idents, the ident stored first will be the outermost color
-            color_to_draw = self.idents[0].color
-        
-        # Draw the hexagon
-        pygame.draw.polygon(screen, color_to_draw, self.coordinates)
-
-        # Draw an extra hexagon to visually show that a hexagon is stationary even with the different colors
-        if self.contains_direction(-1) != None:
-            new_color = [max(0, c - 120) for c in color_to_draw]
-            pygame.draw.polygon(screen, new_color, self.small_hexagon)
-        
-    
-        # Draw multiple nesting circles indicating colors for hexes with superimposed idents/states
-        for i in range(1, len(self.idents)):
-            if (33 - 5*i) > 0:
-                pygame.draw.circle(screen, self.idents[i].color, (self.x+20, self.y+35), 33-5*i)
-    
-        # Draw an arrow on the hex if the hex is moving
-        if self.is_moving():
-            for i in range(6):
-                if self.contains_direction(i):
-                    pygame.draw.polygon(screen, (0, 0, 0), self.arrows[i])
-
-    ##########################################################################################################
-
-
 # for storing information about a particular moving hex
 class Ident:
+
 
     # TODO: Do we still need this?
     idents_created = 0
 
-     # TODO: Write this method
-    # note that I should never have to deal with walls in this method
-    # note that this reads from hex_matrix_new and ident_list_new and writes to hex_matrix and ident_list
-    def resolve_collisions(self):
-
-        w = self.world
-
-        # breakpoint()
-
-        # The hex to which we will be writing
-        write_to_hex = w.hex_matrix[self.matrix_index][self.list_index]
-
-        # obtain the hex that this ident is currently a part of
-        hex = w.hex_matrix_new[self.matrix_index][self.list_index]
-        if len(hex.idents) <= 1:
-            print("No collision to resolve")
-
-            # TODO: Is copying necessary here?
-            w.ident_list.append(self.__copy())
-            write_to_hex.idents.append(self.__copy())
-
-            return
-        
-        # now we have determined that the ident has other idents with it
-        # TODO: I think we can do this without getting index (just only append to directions if ident is not self)
-        '''my_index = hex.get_ident_index(self)'''
-        dir = self.state
-
-        directions = []
-
-        # TODO: consider appending just the directions/states of the idents instead of appending the idents themselves
-        for ident in hex.idents:
-            '''if i != my_index:
-                directions.append(hex.idents[i])'''
-            # TODO: This is the only way I've found to not accidentally append self when examining a stationary hex. Why is that?
-            if ident.serial_number != self.serial_number:
-                directions.append(ident)
-            '''if ident is not self:
-                directions.append(ident)'''
-
-        # if there was only one other ident in the collision, take its attributes
-        # Note that this also deals with the most simple collision betwen a moving ident and a stationary one
-        # TODO: ^^ Check if this is true ^^
-        if len(directions) == 1:
-            # breakpoint()
-            if directions[0].state != -1:
-                # If colliding with a non-moving ident, take its direction
-                # breakpoint()
-                self.__rotate_adopt(write_to_hex, w.ident_list, dir_final = directions[0].state)
-            else:
-                # If colliding with a stationary ident, become stationary in the hex from whence you came
-                assert self.state != -1
-
-                hex_of_origin = self.__get_neighbor(w.hex_matrix, (self.state + 3)%6)
-                assert hex_of_origin
-                
-                # Copy and set to stationary
-                ident_to_move = self.__copy()
-                ident_to_move.state = -1
-
-                # Update location stored in hex
-                ident_to_move.matrix_index = hex_of_origin.matrix_index
-                ident_to_move.list_index = hex_of_origin.list_index
-
-                # Save modified ident to be used in next generation
-                w.ident_list.append(ident_to_move)
-                hex_of_origin.idents.append(ident_to_move)
-
-        # if there is more than one other ident than self, we do averaging things
-        # if the idents contain an opposite direction ident, we bounce!! :)
-        elif hex.contains_direction((dir + 3) % 6) is not None:
-            
-            self.__rotate_adopt(write_to_hex, w.ident_list)
-
-            return
-        
-        # otherwise, determine whether we contain a stationary hex or not
-        # if not, we are all moving hexes and none of them are opposite me, so we average them
-        elif hex.contains_direction(-1) is None:
-            # if we contain opposite pairs, remove them from the directions list
-            # TODO: Note that using contains_direction leaves us vulnerable if there are somehow multiple idents in the hex that share a direction
-            hex_plus_one = hex.contains_direction((dir + 1) % 6)
-            hex_minus_two = hex.contains_direction((dir - 2) % 6)
-            if (hex_plus_one is not None) and (hex_minus_two is not None):
-                directions.remove(hex_plus_one)
-                directions.remove(hex_minus_two)
-            
-            hex_plus_two = hex.contains_direction((dir + 2) % 6)
-            hex_minus_one = hex.contains_direction((dir - 1) % 6)
-            if (hex_plus_two is not None) and (hex_minus_one is not None):
-                directions.remove(hex_plus_two)
-                directions.remove(hex_minus_one)
-            
-            # if, at this point, there is only one direction left, take that one
-            if len(directions) == 1:
-                print("rotate call e")
-                self.__rotate_adopt(write_to_hex, w.ident_list, dir_final = directions[0].state)
-
-            # otherwise, if we ended up with a net zero average (all other idents in the hex cancelled out in opposite pairs),
-            # use the opposite of our own direction to break the tie
-            elif len(directions) == 0:
-                self.__rotate_adopt(write_to_hex, w.ident_list)
-            
-            # otherwise, there are exactly two other directions stored in this hex
-            else:
-                # Sanity checks
-                assert(len(directions) == 2)
-                assert(directions[0].state != directions[1].state)
-                assert(directions[0].state != self.state)
-                assert(directions[1].state != self.state)
-
-                # if the other two are at 120 degrees to each other, take the value in between
-                if (directions[0].state + 2)%6 == directions[1].state:
-                    print("rotate call a")
-                    self.__rotate_adopt(write_to_hex, w.ident_list, dir_final = (directions[0].state + 1)%6)
-                elif (directions[0].state - 2)%6 == directions[1].state:
-                    print("rotate call b")
-                    self.__rotate_adopt(write_to_hex, w.ident_list, dir_final = (directions[0].state - 1)%6)
-                
-                # if the other two cohabitants are adjacent to one another (60 degrees), take the state of the one we are further away from
-                else:
-                    assert(((directions[0].state + 1)%6 == directions[1].state) or ((directions[0].state - 1)%6 == directions[1].state))
-                    
-                    closer_to_dir_0 = (abs(self.state - directions[0].state)%6) < (abs(self.state - directions[1].state)%6)
-                    
-                    # if current direction is closer to directions[0] than directions[1], take the state of directions[1]
-                    if closer_to_dir_0:
-                        print("rotate call c")
-                        self.__rotate_adopt(write_to_hex, w.ident_list, dir_final = directions[1].state)
-                    # else take the state of directions[0]
-                    else:
-                        print("rotate call d")
-                        self.__rotate_adopt(write_to_hex, w.ident_list, dir_final = directions[0].state)
-
-        # else, we are dealing with multiple hexes, including a stationary hex
-        # TODO: Did you mean idents in the above comment? - Skyler
-        # TODO: stationary cases here!!!
-        else:
-            assert(hex.contains_direction(-1))
-
-            # If there is only one moving ident in directions, 
-
-            # Else...?
-
-            pass
-
     ##########################################################################################################
-
-    def __init__(self, matrix_index, list_index, world, color=(255, 255, 255), state = -1, serial_number = -1, hist = None):
+    
+    def __init__(self, matrix_index, list_index, world, color=(255, 255, 255), state: int = -1, serial_number = -1, hist = None):
         if hist is None:
             hist = []
         self.color = color
 
-        self.state = state
+        self.state : int = state
+
         self.hist = hist
         if serial_number == -1:
             # If no serial number is provided
@@ -375,9 +105,309 @@ class Ident:
             print("Invalid direction " + str(dir) + " passed to Ident.__get_neighbor(dir)")
             return None
 
+    ##########################################################################################################
+
+    # Helper method for resolve_collisions()
+    # Takes the hex in which the ident is located and the direcs list of other idents in that hex
+    # Returns the direcs list with pairs of idents which cancel out removed
+    @staticmethod
+    def __remove_pairs(hex, dir, directions):
+        # breakpoint()
+        direcs = directions.copy()
+
+
+        if dir == -1:
+            '''# TODO: Explain how this needs to be written weirdly to work for dir = -1 (can't math right)
+            return Ident.__remove_pairs(hex, 0, Ident.__remove_pairs(hex, 1, direcs))'''
+
+            hex_zero = hex.contains_direction(0)
+            hex_three = hex.contains_direction(3)
+            if hex_zero and hex_three:
+                direcs.remove(hex_zero)
+                direcs.remove(hex_three)
+            
+            hex_one = hex.contains_direction(1)
+            hex_four = hex.contains_direction(4)
+            if hex_one and hex_four:
+                direcs.remove(hex_one)
+                direcs.remove(hex_four)
+
+            hex_two = hex.contains_direction(2)
+            hex_five = hex.contains_direction(5)
+            if hex_two and hex_five:
+                direcs.remove(hex_two)
+                direcs.remove(hex_five)
+            
+            return direcs
+
+        else:
+            
+            # TODO: Note that using contains_direction leaves us vulnerable if there are somehow multiple idents in the hex that share a direction
+
+            hex_plus_one = hex.contains_direction((dir + 1) % 6)
+            hex_minus_two = hex.contains_direction((dir - 2) % 6)
+            if hex_plus_one and hex_minus_two:
+                direcs.remove(hex_plus_one)
+                direcs.remove(hex_minus_two)
+            
+            hex_plus_two = hex.contains_direction((dir + 2) % 6)
+            hex_minus_one = hex.contains_direction((dir - 1) % 6)
+            if hex_plus_two and hex_minus_one:
+                direcs.remove(hex_plus_two)
+                direcs.remove(hex_minus_one)
+        
+        return direcs
 
     ##########################################################################################################
 
+    # Returns the absolute value of the 
+    def find_offset(self, other):
+        for i in range(5):
+            if ((self.state + i) % 6 == other.state) or ((self.state - i) % 6 == other.state):
+                return i
+
+    ##########################################################################################################
+
+     # TODO: Write this method
+    # note that I should never have to deal with walls in this method
+    # note that this reads from hex_matrix_new and ident_list_new and writes to hex_matrix and ident_list
+    def resolve_collisions(self):
+
+        w = self.world
+
+        # breakpoint()
+
+        # The hex to which we will be writing
+        write_to_hex = w.hex_matrix[self.matrix_index][self.list_index]
+
+        # obtain the hex that this ident is currently a part of
+        hex = w.hex_matrix_new[self.matrix_index][self.list_index]
+        if len(hex.idents) <= 1:
+            print("No collision to resolve")
+
+            # TODO: Is copying necessary here?
+            w.ident_list.append(self.__copy())
+            write_to_hex.idents.append(self.__copy())
+
+            return
+        
+        # now we have determined that the ident has other idents with it
+        # TODO: I think we can do this without getting index (just only append to directions if ident is not self)
+        '''my_index = hex.get_ident_index(self)'''
+        dir = self.state
+
+        directions = []
+
+        # TODO: consider appending just the directions/states of the idents instead of appending the idents themselves
+        for ident in hex.idents:
+            '''if i != my_index:
+                directions.append(hex.idents[i])'''
+            # TODO: This is the only way I've found to not accidentally append self when examining a stationary hex. Why is that?
+            if ident.serial_number != self.serial_number:
+                directions.append(ident)
+            '''if ident is not self:
+                directions.append(ident)'''
+
+        # if there was only one other ident in the collision, take its attributes
+        # Note that this also deals with the most simple collision betwen a moving ident and a stationary one
+        # TODO: ^^ Check if this is true ^^
+
+        # TODO: I think this whole section can be collapsed downwards into after the pairs are removed from directions
+        '''if len(directions) == 1:
+            # breakpoint()
+            if directions[0].state != -1:
+                # If colliding with a single moving ident, take its direction
+                # breakpoint()
+                self.__rotate_adopt(write_to_hex, w.ident_list, dir_final = directions[0].state)
+            else:
+                # TODO: Move this down to section dealing with stationary hexes?
+                # If colliding with a stationary ident, become stationary in the hex from whence you came
+                assert self.state != -1
+                # The place it came from must exist, or else this ident couldn't be here, right?
+                # TODO: Move ident back and make stationary
+                hex_of_origin = self.__get_neighbor(w.hex_matrix, (self.state + 3)%6)
+
+                assert hex_of_origin
+
+                self.__rotate_adopt(hex_of_origin, w.ident_list, dir_final = -1)
+
+        # if there is more than one other ident than self, we do averaging things
+        # if the idents contain an opposite direction ident, we bounce!! :)
+        el'''
+        
+        '''# If colliding with an ident pointing in the opposite direction, bounce off
+        if (dir != -1) and (hex.contains_direction((dir + 3) % 6) is not None):
+            # TODO: Can this section just be dealt with in the stationary/not stationary section?
+            self.__rotate_adopt(write_to_hex, w.ident_list)
+
+            return
+        
+        # otherwise, determine whether we contain a stationary hex or not
+        # if not, we are all moving hexes and none of them are opposite me, so we average them
+        el'''
+        
+        if hex.contains_direction(-1) is None:
+            # if we contain opposite pairs, remove them from the directions list
+            directions = self.__remove_pairs(hex, dir, directions)
+            
+            # if we ended up with a net zero average (all other idents in the hex cancelled out in opposite pairs),
+            # bounce off in the opposite direction from what is currently held
+            if len(directions) == 0:
+                self.__rotate_adopt(write_to_hex, w.ident_list)
+
+            # if, at this point, there is only one direction left, take that one
+            elif len(directions) == 1:
+                print("rotate call e")
+                self.__rotate_adopt(write_to_hex, w.ident_list, dir_final = directions[0].state)
+
+            # otherwise, there are exactly two other directions stored in this hex
+            else:
+                # Sanity checks
+                assert(len(directions) == 2)
+                assert(directions[0].state != directions[1].state)
+                assert(directions[0].state != self.state)
+                assert(directions[1].state != self.state)
+
+                # if the other two are at 120 degrees to each other, take the value in between
+                if (directions[0].state + 2)%6 == directions[1].state:
+                    print("rotate call a")
+                    self.__rotate_adopt(write_to_hex, w.ident_list, dir_final = (directions[0].state + 1)%6)
+                elif (directions[0].state - 2)%6 == directions[1].state:
+                    print("rotate call b")
+                    self.__rotate_adopt(write_to_hex, w.ident_list, dir_final = (directions[0].state - 1)%6)
+                
+                # if the other two cohabitants are adjacent to one another (60 degrees), take the state of the one we are further away from
+                else:
+                    assert(((directions[0].state + 1)%6 == directions[1].state) or ((directions[0].state - 1)%6 == directions[1].state))
+                    
+                    closer_to_dir_0 = (abs(self.state - directions[0].state)%6) < (abs(self.state - directions[1].state)%6)
+                    
+                    # if current direction is closer to directions[0] than directions[1], take the state of directions[1]
+                    if closer_to_dir_0:
+                        print("rotate call c")
+                        self.__rotate_adopt(write_to_hex, w.ident_list, dir_final = directions[1].state)
+                    # else take the state of directions[0]
+                    else:
+                        print("rotate call d")
+                        self.__rotate_adopt(write_to_hex, w.ident_list, dir_final = directions[0].state)
+
+        # else, we are dealing with multiple hexes, including a stationary hex
+        # TODO: Did you mean idents in the above comment? - Skyler
+        # TODO: stationary cases here!!!
+        else:
+            assert(hex.contains_direction(-1))
+            
+            # A stationary ident colliding with a moving ident
+            if self.state == -1:
+                # breakpoint()                
+
+                # if we contain opposite pairs, remove them from the directions list
+                directions = self.__remove_pairs(hex, dir, directions)
+
+                # If there are no idents left in directions, remain stationary
+                if len(directions) == 0:
+                    # TODO: Is copying necessary?
+                    my_copy = self.__copy()
+                    write_to_hex.idents.append(my_copy)
+                    w.ident_list.append(my_copy)
+
+                # If there is only one ident left in directions, take its state
+                elif len(directions) == 1:
+                    self.__rotate_adopt(write_to_hex, w.ident_list, dir_final = directions[0].state)
+            
+                elif len(directions) == 2:
+                    # TODO: Note that this is copied directly from above --> how can we restructure?
+                        # if the other two are at 120 degrees to each other, take the value in between
+                    if (directions[0].state + 2)%6 == directions[1].state:
+                        print("rotate call a")
+                        self.__rotate_adopt(write_to_hex, w.ident_list, dir_final = (directions[0].state + 1)%6)
+                    elif (directions[0].state - 2)%6 == directions[1].state:
+                        print("rotate call b")
+                        self.__rotate_adopt(write_to_hex, w.ident_list, dir_final = (directions[0].state - 1)%6)
+                    
+                    # if the other two cohabitants are adjacent to one another (60 degrees), take one of the states (arbitrary formula)
+                    # TODO: ^^ Note that this is an arbitrary decision ^^
+                    else:
+                        assert(((directions[0].state + 1)%6 == directions[1].state) or ((directions[0].state - 1)%6 == directions[1].state))
+                        
+                        # TODO: Change decision-making for which state to take?
+                        state_to_take = directions[0].state
+                        if (directions[0].state - directions[1].state)%6 > 2:
+                            state_to_take = directions[1].state
+                        
+                        self.__rotate_adopt(write_to_hex, w.ident_list, dir_final = state_to_take)
+                        
+                        
+                elif len(directions) == 3:
+                    # If there are three moving idents which have not been removed from directions,
+                    # they are either all adjacent to one another
+                    # or they are symmetrical (all at 120 degrees from one another)
+                    
+                    # Symmetrical case --> stationary hex does not move
+                    if (directions[0].find_offset(directions[1]) == 2 and directions[1].find_offset(directions[2]) == 2):
+                        # TODO: Is copying necessary?
+                        my_copy = self.__copy()
+                        write_to_hex.idents.append(my_copy)
+                        w.ident_list.append(my_copy)
+                    
+                    # Adjacent case (the three moving idents are clumped together) --> stationary hex is bumped in the direction of the middle ident
+                    else:
+                        # breakpoint()
+
+                        # TODO: Add assertion here?
+
+                        
+                        direc_0_1_offset = directions[0].find_offset(directions[1])
+                        direc_1_2_offset = directions[1].find_offset(directions[2])
+                        direc_0_2_offset = directions[0].find_offset(directions[2])
+                        
+                        # If directions[0] has the middle state, take that state
+                        if direc_0_1_offset == 1 and direc_0_2_offset == 1:
+                            # TODO: Is copying necessary?
+                            self.__rotate_adopt(write_to_hex, w.ident_list, dir_final = directions[0].state)
+                        
+                        # If directions[1] has the middle state, take that state
+                        elif direc_1_2_offset == 1 and direc_0_1_offset == 1:
+                            # TODO: Is copying necessary?
+                            self.__rotate_adopt(write_to_hex, w.ident_list, dir_final = directions[1].state)
+
+                        # If directions[2] has the middle state, take that state
+                        elif direc_0_2_offset == 1 and direc_1_2_offset == 1:
+                            # TODO: Is copying necessary?
+                            self.__rotate_adopt(write_to_hex, w.ident_list, dir_final = directions[2].state)
+
+                        else:
+                            # None of the three idents have been calcualted to be in the middle
+                            print("Error: No middle direction found")
+                            pass
+
+                else:
+                    print("Error: Unexpected length of directions")
+                    pass
+
+            # A moving ident colliding with a stationary ident
+            else:
+                # breakpoint()
+
+                assert self.state >= 0
+
+                hex_of_origin = self.__get_neighbor(w.hex_matrix, (self.state + 3)%6)
+                assert hex_of_origin
+
+                # If an ident with the opposite state is present, bounce off
+                if hex.contains_direction((dir + 3) % 6):
+                    self.__rotate_adopt(hex_of_origin, w.ident_list)
+                
+                # If two idents that sum to the opposite state are present, bounce off
+                elif hex.contains_direction((dir + 2) % 6) and hex.contains_direction((dir + 4) % 6):
+                    self.__rotate_adopt(hex_of_origin, w.ident_list)
+
+                # Else become stationary
+                else:
+                    self.__rotate_adopt(hex_of_origin, w.ident_list, dir_final = - 1)
+                
+
+    ##########################################################################################################
 
     # If the head-on (direction of self.state) neighboring hex contains an ident with the given direction, returns said ident
     # Else returns None
@@ -415,7 +445,7 @@ class Ident:
     
     # Copies self and rotates it by the indicated number of directions
     # Adopts said rotated ident
-    def __rotate_adopt(self, future_hex, future_ident_list, dir_offset=3, dir_final=-3):
+    def __rotate_adopt(self, future_hex, future_ident_list, dir_offset: int = 3, dir_final : int =-3):
 
         # Calculate final direction if none is given
         if dir_final == -3:
@@ -426,12 +456,16 @@ class Ident:
 
         ident = self.__copy()
         ident.state = dir_final
+
+        # This is necessary for moving hexes colliding with stationary hexes
+        ident.matrix_index = future_hex.matrix_index
+        ident.list_index = future_hex.list_index
+
         future_ident_list.append(ident)
         future_hex.idents.append(ident)
 
-
     ##########################################################################################################
-
+    
     # If an ident is stationary or a wall, writes this value to the hex_matrix_new
     # Elif an ident is running into a wall or a head-on collision, flips it in place (writing to hex_matrix_new)
     # Else advances an ident by one hex in its direction of motion (if that hex exists)
@@ -492,7 +526,7 @@ class Ident:
     def visited(self, m, l):
         # push onto stack history
         # pushed onto the history is
-            # hex matix index
+            # hex matrix index
             # hex list index
             # current state
 
@@ -531,6 +565,133 @@ class Ident:
     ###############################################################################################################
     
 ###############################################################################################################
+
+# hex class is now just for graphics/displaying the board/storing idents
+class Hex:
+    # Default color (no idents): light blue
+    DEFAULT_COLOR =(190, 240, 255)
+
+    ##########################################################################################################
+
+    # Checks where a specific ident occurs within this hex's list
+    # If it contains the ident, returns the index
+    # Else returns -1
+    def get_ident_index(self, to_find):
+
+        # TODO: What if the hex contains multiple idents with that state?
+        for i in range(len(self.idents)):
+            if self.idents[i] == to_find:
+                return i
+        return -1
+
+    ###############################################################################################################
+
+    # Takes x and y (Cartesian coordinates where (0, 0) is the top left corner)
+    # Returns a list of 6 coordinates defining a hexagon
+    @staticmethod
+    def __create_coor(x, y):
+        # Making hex smaller so that borders will be visible
+        return [(x+3, y+3), (x+37, y+3), (x+57, y+35), (x+37, y+67), (x+3, y+67), (x-17, y+35)]
+
+    ##########################################################################################################
+
+    # Constructor
+    def __init__(self, matrix_index, list_index):
+        self.matrix_index = matrix_index
+        self.list_index = list_index
+
+        # Store relevant idents
+        self.idents = []
+
+        # Map matrix_index and list_index to Cartesian coordinates
+        self.x = 60*matrix_index - 20
+        self.y = 35*matrix_index + 70*list_index - 490
+
+        self.coordinates = Hex.__create_coor(self.x, self.y)
+
+       
+        # TODO: Move arrows and smaller hexagon to idents? (maybe)
+        # Create arrows for later use
+        #pivot is the center of the hexagon
+        pivot = pygame.Vector2(self.x + 20, self.y + 35)
+        # set of arrow points should be the vectors from the pivot to the edge points of the arrow
+        arrow = [(0, -15), (10, -5), (5, -5), (5, 15), (-5, 15), (-5, -5), (-10, -5)]
+        # get arrow by adding all the vectors to the pivot point => allows for easy rotation
+        self.arrows = []
+        for i in range(6):
+            self.arrows.append([(pygame.math.Vector2(x, y)).rotate(60.0*i) + pivot for x, y in arrow]) 
+    
+        # Coordinates used to draw smaller hexagon later if the hex becomes stationary
+        self.small_hexagon = [(self.x+9, self.y+11), (self.x+31, self.y+11), (self.x+47, self.y+35), (self.x+31, self.y+59), (self.x+9, self.y+59), (self.x-7, self.y+35)]
+    ##########################################################################################################
+
+    # Returns a boolean indicating if the given hex contains any moving idents
+    def is_moving(self):
+
+        for ident in self.idents:
+            if ident.state >= 0:
+            # if (ident.state != -1) and (ident.state != -2):
+                return True
+        
+        return False
+    
+    ##########################################################################################################
+
+    # Gives the designated hex a wall identity
+    # TODO: Could also clear other idents?
+    def make_wall(self, world, list_to_append):
+        wall_ident = Ident(self.matrix_index, self.list_index, world, color = (0,0,0), state = -2)
+        self.idents.append(wall_ident)
+        list_to_append.append(wall_ident)
+
+    ##########################################################################################################
+
+    # Checks if a hex contains an ident heading in the given directon
+    # If it does, returns that ident
+    # Else returns None
+    def contains_direction(self, dir: int):
+
+        # TODO: What if the hex contains multiple idents with that state?
+        for ident in self.idents:
+            if ident.state == dir:
+                return ident
+
+        return None
+
+    ##########################################################################################################
+
+    # Graphics (drawing hexes and the corresponding idents)
+    def draw(self, screen):
+            
+        color_to_draw = Hex.DEFAULT_COLOR
+
+
+        if (len(self.idents) >= 1):
+            # If a hex contains only one ident, take that color
+            # If a hex contains multiple idents, the ident stored first will be the outermost color
+            color_to_draw = self.idents[0].color
+        
+        # Draw the hexagon
+        pygame.draw.polygon(screen, color_to_draw, self.coordinates)
+
+        # Draw an extra hexagon to visually show that a hexagon is stationary even with the different colors
+        if self.contains_direction(-1) != None:
+            new_color = [max(0, c - 120) for c in color_to_draw]
+            pygame.draw.polygon(screen, new_color, self.small_hexagon)
+        
+    
+        # Draw multiple nesting circles indicating colors for hexes with superimposed idents/states
+        for i in range(1, len(self.idents)):
+            if (33 - 5*i) > 0:
+                pygame.draw.circle(screen, self.idents[i].color, (self.x+20, self.y+35), 33-5*i)
+    
+        # Draw an arrow on the hex if the hex is moving
+        if self.is_moving():
+            for i in range(6):
+                if self.contains_direction(i):
+                    pygame.draw.polygon(screen, (0, 0, 0), self.arrows[i])
+
+    ##########################################################################################################
 
 
 # for setting initial state of the world / having a student interact
