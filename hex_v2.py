@@ -200,7 +200,7 @@ class Ident:
         # if the idents contain an opposite direction ident, we bounce!! :)
         elif hex.contains_direction((dir + 3) % 6) is not None:
             
-            self.__rotate_adopt(w.hex_matrix[self.matrix_index][self.list_index], w.ident_list, 3)
+            self.__rotate_adopt(w.hex_matrix[self.matrix_index][self.list_index], w.ident_list)
             '''to_become = self.__copy()
             to_become.state = (self.state + 3) % 6
             w.ident_list.append(to_become)
@@ -226,15 +226,26 @@ class Ident:
                 to_become.state = directions[0].state
                 w.ident_list.append(to_become)
                 w.hex_matrix[self.matrix_index][self.list_index].idents.append(to_become)
-            # otherwise, we ended up with a net zero average and use the opposite of our own direction to break ties
+            # otherwise, if we ended up with a net zero average, use the opposite of our own direction to break ties
             elif len(directions) == 0:
-                self.__rotate_adopt(w.hex_matrix[self.matrix_index][self.list_index], w.ident_list, 3)
+                self.__rotate_adopt(w.hex_matrix[self.matrix_index][self.list_index], w.ident_list)
 
                 '''to_become = self.__copy()
                 to_become.state = (dir - 3) %  6
                 w.ident_list.append(to_become)
                 w.hex_matrix[self.matrix_index][self.list_index].idents.append(to_become)'''
-
+            # otherwise, there are exactly two other directions stored in this hex
+            else:
+                # if the other two are at 120 degrees to each other, take the value in between
+                if (directions[0].state + 2)%6 == directions[1].state:
+                    self.__rotate_adopt(w.hex_matrix[self.matrix_index][self.list_index], w.ident_list, dir_final = (directions[0].state + 1)%6)
+                elif (directions[0].state - 2)%6 == directions[1].state:
+                    self.__rotate_adopt(w.hex_matrix[self.matrix_index][self.list_index], w.ident_list, dir_final = (directions[0].state - 1)%6)
+                
+                # if the other two are adjacent to one another (60 degrees),
+                else:
+                    assert (((directions[0].state + 1)%6 == directions[1].state) or ((directions[0].state - 1)%6 == directions[1].state))
+                    # TODO: Figure out the averaging calculation
         # else, we are dealing with multiple hexes, including a stationary hex
         # TODO: Did you mean idents in the above comment? - Skyler
         # TODO: stationary cases here!!!
@@ -360,9 +371,13 @@ class Ident:
     
     # Copies self and rotates it by the indicated number of directions
     # Adopts said rotated ident
-    def __rotate_adopt(self, future_hex, future_ident_list, dir_offset):
+    def __rotate_adopt(self, future_hex, future_ident_list, dir_offset=3, dir_final=None):
+        # Calculate final direction
+        if dir_final == None:
+            dir_final = (self.state + dir_offset)%6
+
         ident = self.__copy()
-        ident.state = (ident.state + dir_offset)%6
+        ident.state = dir_final
         future_ident_list.append(ident)
         future_hex.idents.append(ident)
 
@@ -390,26 +405,26 @@ class Ident:
         double_adjacent_wall = self.__neighbor_is_wall(1) and self.__neighbor_is_wall(-1)
         if head_on_wall or double_adjacent_wall:
             
-            self.__rotate_adopt(future_hex, future_list, 3)
+            self.__rotate_adopt(future_hex, future_list)
             
             return
 
 
         # If need to bounce diagonally off of a wall, then bounce and return
         if self.__neighbor_is_wall(-1):
-            self.__rotate_adopt(future_hex, future_list, 1)
+            self.__rotate_adopt(future_hex, future_list, dir_offset=1)
 
             return
         
         # Other diagonal wall bounce case
         if self.__neighbor_is_wall(1):
-            self.__rotate_adopt(future_hex, future_list, -1)
+            self.__rotate_adopt(future_hex, future_list, dir_offset=-1)
 
             return
                 
         # If need to bounce head-on off of another ident, then bounce and return
         if self.__head_on_collision():
-            self.__rotate_adopt(future_hex, future_list, 3)
+            self.__rotate_adopt(future_hex, future_list)
 
             return
 
