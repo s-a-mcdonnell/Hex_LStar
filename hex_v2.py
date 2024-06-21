@@ -166,8 +166,9 @@ class Ident:
             print("No collision to resolve")
 
             # TODO: Is copying necessary here?
-            w.ident_list.append(self.__copy())
-            write_to_hex.idents.append(self.__copy())
+            if (self.state != -1) or (len(write_to_hex.idents) == 0):
+                w.ident_list.append(self.__copy())
+                write_to_hex.idents.append(self.__copy())
 
             return
         
@@ -215,6 +216,27 @@ class Ident:
                 # Save modified ident to be used in next generation
                 w.ident_list.append(ident_to_move)
                 hex_of_origin.idents.append(ident_to_move)
+
+                # additionally, check the two immediate neighbors of the stationary hex to see if it has stationary neighbors, and if so, those start moving too
+                left_neighbor = self.__get_neighbor(w.hex_matrix, (self.state - 2)%6)
+                right_neighbor = self.__get_neighbor(w.hex_matrix, (self.state + 2)%6)
+                if left_neighbor is not None:
+                    ident_to_edit = left_neighbor.contains_direction(-1)
+                    if ident_to_edit is not None:
+                        # if the left neighbor of the original stationary wall is also stationary, make it move
+                        to_become = ident_to_edit.__copy()
+                        to_become.state = (self.state - 1) % 6
+                        w.ident_list.append(to_become)
+                        left_neighbor.idents.append(to_become)
+                if right_neighbor is not None:
+                    ident_to_edit = right_neighbor.contains_direction(-1)
+                    if ident_to_edit is not None:
+                        # if the left neighbor of the original stationary wall is also stationary, make it move
+                        to_become = ident_to_edit.__copy()
+                        to_become.state = (self.state + 1) % 6
+                        w.ident_list.append(to_become)
+                        right_neighbor.idents.append(to_become)
+
 
         # if there is more than one other ident than self, we do averaging things
         # if the idents contain an opposite direction ident, we bounce!! :)
