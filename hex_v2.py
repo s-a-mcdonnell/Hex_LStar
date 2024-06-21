@@ -201,10 +201,9 @@ class Ident:
         elif hex.contains_direction((dir + 3) % 6) is not None:
             
             self.__rotate_adopt(w.hex_matrix[self.matrix_index][self.list_index], w.ident_list)
-            '''to_become = self.__copy()
-            to_become.state = (self.state + 3) % 6
-            w.ident_list.append(to_become)
-            w.hex_matrix[self.matrix_index][self.list_index].idents.append(to_become)'''
+
+            return
+        
         # otherwise, determine whether we contain a stationary hex or not
         # if not, we are all moving hexes and none of them are opposite me, so we average them
         elif hex.contains_direction(-1) is None:
@@ -225,22 +224,18 @@ class Ident:
             if len(directions) == 1:
                 self.__rotate_adopt(w.hex_matrix[self.matrix_index][self.list_index], w.ident_list, dir_final = directions[0].state)
 
-                '''to_become = self.__copy()
-                to_become.state = directions[0].state
-                w.ident_list.append(to_become)
-                w.hex_matrix[self.matrix_index][self.list_index].idents.append(to_become)'''
             # otherwise, if we ended up with a net zero average (all other idents in the hex cancelled out in opposite pairs),
             # use the opposite of our own direction to break the tie
             elif len(directions) == 0:
                 self.__rotate_adopt(w.hex_matrix[self.matrix_index][self.list_index], w.ident_list)
-
-                '''to_become = self.__copy()
-                to_become.state = (dir - 3) %  6
-                w.ident_list.append(to_become)
-                w.hex_matrix[self.matrix_index][self.list_index].idents.append(to_become)'''
+            
             # otherwise, there are exactly two other directions stored in this hex
             else:
+                # Sanity checks
                 assert(len(directions) == 2)
+                assert(directions[0].state != directions[1].state)
+                assert(directions[0].state != self.state)
+                assert(directions[1].state != self.state)
 
                 # if the other two are at 120 degrees to each other, take the value in between
                 if (directions[0].state + 2)%6 == directions[1].state:
@@ -250,7 +245,6 @@ class Ident:
                 
                 # if the other two are adjacent to one another (60 degrees), __
                 else:
-                    breakpoint()
                     assert(((directions[0].state + 1)%6 == directions[1].state) or ((directions[0].state - 1)%6 == directions[1].state))
                     
                     # TODO: Check this calculation (%3?)
