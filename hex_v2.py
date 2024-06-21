@@ -366,7 +366,7 @@ class Ident:
             # A moving ident colliding with a stationary ident
             else:
 
-                assert self.get_state() >= 0
+                assert self.state >= 0
 
                 hex_of_origin = self.__get_neighbor(w.hex_matrix, (self.state + 3)%6)
                 assert hex_of_origin
