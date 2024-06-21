@@ -24,6 +24,88 @@ class Ident:
     idents_created = 0
 
     ##########################################################################################################
+    
+    def __init__(self, matrix_index, list_index, world, color=(255, 255, 255), state: int = -1, serial_number = -1, hist = None):
+        if hist is None:
+            hist = []
+        self.color = color
+
+        self.state : int = state
+
+        self.hist = hist
+        if serial_number == -1:
+            # If no serial number is provided
+            self.serial_number = Ident.idents_created
+
+            '''print("Ident with serial number " + str(self.serial_number) + " created")
+            if state == -2:
+                print("Is a wall")
+            elif state == -1:
+                print("Is stationary")
+            else:
+                print("Is moving")'''
+            Ident.idents_created += 1
+        else:
+            self.serial_number = serial_number
+            
+            '''if self.state != -2:
+                print("Ident with serial number " + str(self.serial_number) + " copied")
+                print("color: " + str(self.color))'''
+
+        self.matrix_index = matrix_index
+        self.list_index = list_index
+
+        self.world = world
+    
+    ##########################################################################################################
+
+    # Returns the neighboring hex in the given direction in the given matrix
+    # If that hex does not exist, returns None
+    def __get_neighbor(self, matrix, dir):
+        if dir == 0:
+            try:
+                return matrix[self.matrix_index][self.list_index - 1]
+            except:
+                return None
+            
+        elif dir == 1:
+            try:
+                return matrix[self.matrix_index + 1][self.list_index - 1]  
+            except:
+                return None
+
+        elif dir == 2:
+            try:
+                return matrix[self.matrix_index + 1][self.list_index]
+            except:
+                return None
+
+        elif dir == 3:
+
+            try:
+                return matrix[self.matrix_index][self.list_index + 1]
+            except:
+                return None
+
+        elif dir == 4:
+
+            try:
+                return matrix[self.matrix_index - 1][self.list_index + 1]
+            except:
+                return None
+            
+        elif dir == 5:
+
+            try:
+                return matrix[self.matrix_index - 1][self.list_index]
+            except:
+                return None
+            
+        else:
+            print("Invalid direction " + str(dir) + " passed to Ident.__get_neighbor(dir)")
+            return None
+
+    ##########################################################################################################
 
     # Helper method for resolve_collisions()
     # Takes the hex in which the ident is located and the direcs list of other idents in that hex
@@ -223,7 +305,7 @@ class Ident:
 
                 # If there is only one ident left in directions, take its state
                 elif len(directions) == 1:
-                    self.__rotate_adopt(write_to_hex, w.ident_list, dir_final = directions[0])
+                    self.__rotate_adopt(write_to_hex, w.ident_list, dir_final = directions[0].state)
             
                 elif len(directions) == 2:
                     pass
@@ -254,90 +336,6 @@ class Ident:
                 
 
     ##########################################################################################################
-
-    def __init__(self, matrix_index, list_index, world, color=(255, 255, 255), state: int = -1, serial_number = -1, hist = None):
-        if hist is None:
-            hist = []
-        self.color = color
-
-        self.state : int = state
-
-        self.hist = hist
-        if serial_number == -1:
-            # If no serial number is provided
-            self.serial_number = Ident.idents_created
-
-            '''print("Ident with serial number " + str(self.serial_number) + " created")
-            if state == -2:
-                print("Is a wall")
-            elif state == -1:
-                print("Is stationary")
-            else:
-                print("Is moving")'''
-            Ident.idents_created += 1
-        else:
-            self.serial_number = serial_number
-            
-            '''if self.state != -2:
-                print("Ident with serial number " + str(self.serial_number) + " copied")
-                print("color: " + str(self.color))'''
-
-        self.matrix_index = matrix_index
-        self.list_index = list_index
-
-        self.world = world
-    
-    ##########################################################################################################
-
-    # Returns the neighboring hex in the given direction in the given matrix
-    # If that hex does not exist, returns None
-    def __get_neighbor(self, matrix, dir):
-        if dir == 0:
-            try:
-                return matrix[self.matrix_index][self.list_index - 1]
-            except:
-                return None
-            
-        elif dir == 1:
-            try:
-                return matrix[self.matrix_index + 1][self.list_index - 1]  
-            except:
-                return None
-
-        elif dir == 2:
-            try:
-                return matrix[self.matrix_index + 1][self.list_index]
-            except:
-                return None
-
-        elif dir == 3:
-
-            try:
-                return matrix[self.matrix_index][self.list_index + 1]
-            except:
-                return None
-
-        elif dir == 4:
-
-            try:
-                return matrix[self.matrix_index - 1][self.list_index + 1]
-            except:
-                return None
-            
-        elif dir == 5:
-
-            try:
-                return matrix[self.matrix_index - 1][self.list_index]
-            except:
-                return None
-            
-        else:
-            print("Invalid direction " + str(dir) + " passed to Ident.__get_neighbor(dir)")
-            return None
-
-
-    ##########################################################################################################
-
 
     # If the head-on (direction of self.state) neighboring hex contains an ident with the given direction, returns said ident
     # Else returns None
