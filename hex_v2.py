@@ -243,7 +243,6 @@ class Ident:
             # if we contain opposite pairs, remove them from the directions list
             directions = self.__remove_pairs(hex, dir, directions)
             
-            
             # if we ended up with a net zero average (all other idents in the hex cancelled out in opposite pairs),
             # bounce off in the opposite direction from what is currently held
             if len(directions) == 0:
@@ -326,23 +325,57 @@ class Ident:
                         
                         # TODO: Change decision-making for which state to take?
                         state_to_take = directions[0].state
-                        if (directions[0].state - directions[1].state)%6 > 3:
+                        if (directions[0].state - directions[1].state)%6 > 2:
                             state_to_take = directions[1].state
                         
                         self.__rotate_adopt(write_to_hex, w.ident_list, dir_final = state_to_take)
                         
                         
                 elif len(directions) == 3:
-                    pass
-                    # TODO: Write this
+                    # If there are three moving idents which have not been removed from directions,
+                    # they are either all adjacent to one another
+                    # or they are symmetrical (all at 120 degrees from one another)
+                    
+                    # Symmetrical case --> stationary hex does not move
+                    if (abs(directions[0].state - directions[1].state) == 2 or 4) and (abs(directions[0].state - directions[2].state) == 2 or 4):
+                        # TODO: Is copying necessary?
+                        my_copy = self.__copy()
+                        write_to_hex.idents.append(my_copy)
+                        w.ident_list.append(my_copy)
+                    
+                    # Adjacent case (the three moving idents are clumped together) --> stationary hex is bumped in the direction of the middle ident
+                    else:
+                        assert ((directions[0].state - directions[1].state)%6 == 1) or ((directions[0].state - directions[2].state)%6 == 1)
+                        direc_0_1_offset = (directions[0].state - directions[1].state)%3
+                        direc_1_2_offset = (directions[1].state - directions[2].state)%3
+                        direc_0_2_offset = (directions[0].state - directions[2].state)%3
+                        
+                        # If directions[0] has the middle state, take that state
+                        if direc_0_1_offset == 1 and direc_0_2_offset == 1:
+                            # TODO: Is copying necessary?
+                            self.__rotate_adopt(write_to_hex, w.ident_list, dir_final = directions[0].state)
+                        
+                        # If directions[1] has the middle state, take that state
+                        elif direc_1_2_offset == 1 and direc_0_1_offset == 1:
+                            # TODO: Is copying necessary?
+                            self.__rotate_adopt(write_to_hex, w.ident_list, dir_final = directions[1].state)
+
+                        # If directions[2] has the middle state, take that state
+                        elif direc_0_2_offset == 1 and direc_1_2_offset == 1:
+                            # TODO: Is copying necessary?
+                            self.__rotate_adopt(write_to_hex, w.ident_list, dir_final = directions[2].state)
+
+                        else:
+                            # None of the three idents have been calcualted to be in the middle
+                            print("Error: No middle direction found")
+                            pass
 
                 else:
-                    print("unexpected length of directions")
+                    print("Error: Unexpected length of directions")
                     pass
 
             # A moving ident colliding with a stationary ident
             else:
-
                 # breakpoint()
 
                 assert self.state >= 0
