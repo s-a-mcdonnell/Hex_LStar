@@ -1,3 +1,2 @@
-6 7 move BLUE 4
-5 9 move RED 0
-4 8 move CYAN 2
+1 10 move PINK 0
+2 9 move RED 4
