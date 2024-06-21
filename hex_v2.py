@@ -155,8 +155,8 @@ class Ident:
 
         w = self.world
 
-        if self.state != 2:
-            breakpoint()
+        '''if self.state != 2:
+            breakpoint()'''
 
         # If dealing with a wall, maintain it and return
         if self.state == -2:
@@ -195,7 +195,7 @@ class Ident:
         # Note that this also deals with the most simple collision betwen a moving ident and a stationary one
         # TODO: ^^ Check if this is true ^^
         if len(directions) == 1:
-            breakpoint()
+            # breakpoint()
             self.__rotate_adopt(w.hex_matrix[self.matrix_index][self.list_index], w.ident_list, dir_final = directions[0].state)
 
             '''to_become = self.__copy()
