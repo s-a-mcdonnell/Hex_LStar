@@ -364,8 +364,6 @@ class Ident:
     # Elif an ident is running into a wall or a head-on collision, flips it in place (writing to hex_matrix_new)
     # Else advances an ident by one hex in its direction of motion (if that hex exists)
     def advance_or_flip(self):
-        # For debugging
-        # breakpoint()
         
         future_matrix = self.world.hex_matrix_new
         future_hex = future_matrix[self.matrix_index][self.list_index]
@@ -384,39 +382,19 @@ class Ident:
         if head_on_wall or double_adjacent_wall:
             
             self.__rotate_adopt(future_hex, future_list, 3)
-
-            '''copy_to_flip = self.__copy()
-            copy_to_flip.state = (copy_to_flip.state + 3)%6
-            future_list.append(copy_to_flip)
-            future_hex.idents.append(copy_to_flip)'''
             
             return
 
 
         # If need to bounce diagonally off of a wall, then bounce and return
-        # TODO: Prioritization of diagonal bounces over head-on?
-        '''neighbor_minus_one = self.__get_neighbor(self.world.hex_matrix, (self.state - 1)%6)
-        if neighbor_minus_one and neighbor_minus_one.contains_direction(-2):'''
         if self.__neighbor_is_wall(-1):
             self.__rotate_adopt(future_hex, future_list, 1)
-            
-            '''copy_to_flip = self.__copy()
-            copy_to_flip.state = (copy_to_flip.state + 1)%6
-            future_list.append(copy_to_flip)
-            future_hex.idents.append(copy_to_flip)'''
 
             return
         
         # Other diagonal wall bounce case
-        '''neighbor_plus_one = self.__get_neighbor(self.world.hex_matrix, (self.state + 1)%6)
-        if neighbor_plus_one and neighbor_plus_one.contains_direction(-2):'''
         if self.__neighbor_is_wall(1):
             self.__rotate_adopt(future_hex, future_list, -1)
-
-            '''copy_to_flip = self.__copy()
-            copy_to_flip.state = (copy_to_flip.state - 1)%6
-            future_list.append(copy_to_flip)
-            future_hex.idents.append(copy_to_flip)'''
 
             return
                 
@@ -424,12 +402,6 @@ class Ident:
         if self.__head_on_collision():
             self.__rotate_adopt(future_hex, future_list, 3)
 
-
-            '''copy_to_flip = self.__copy()
-            copy_to_flip.state = (copy_to_flip.state + 3)%6
-            future_list.append(copy_to_flip)
-            future_hex.idents.append(copy_to_flip)'''
-            
             return
 
         # Advance all others (if the location where they would advance to exists)
@@ -658,11 +630,6 @@ class World:
         # Pause between each frame
         pygame.time.delay(100)
 
-
-        '''# TODO: Comment this back out when Ident.repair_collisions() is written
-        #    (advance_or_flip writes from hex_matrix to hex_matrix_new, and repair_collisions can write from hex_matrix_new to hew_matrix)
-        self.__swap_matrices_and_lists()'''
-    
     ##########################################################################################################
 
     def run(self):
