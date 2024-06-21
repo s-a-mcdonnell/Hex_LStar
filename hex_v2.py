@@ -165,7 +165,7 @@ class Ident:
             w.ident_list.append(self.__copy())
             w.hex_matrix[self.matrix_index][self.list_index].idents.append(self.__copy())
 
-            print("maintain wall in repair_collisions")
+            # print("maintain wall in repair_collisions")
 
             return
 
@@ -296,18 +296,20 @@ class Ident:
             # If no serial number is provided
             self.serial_number = Ident.idents_created
 
-            print("Ident with serial number " + str(self.serial_number) + " created")
+            '''print("Ident with serial number " + str(self.serial_number) + " created")
             if state == -2:
                 print("Is a wall")
             elif state == -1:
                 print("Is stationary")
             else:
-                print("Is moving")
+                print("Is moving")'''
             Ident.idents_created += 1
         else:
             self.serial_number = serial_number
-            print("Ident with serial number " + str(self.serial_number) + " copied")
-            print("color: " + str(self.color))
+            
+            if self.state != -2:
+                print("Ident with serial number " + str(self.serial_number) + " copied")
+                print("color: " + str(self.color))
 
         self.matrix_index = matrix_index
         self.list_index = list_index
