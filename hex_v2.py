@@ -918,7 +918,7 @@ class World:
             self.hex_matrix[ident.matrix_index][ident.list_index].idents.append(ident)
         
         for wall in self.wall_list:
-            wall.backstep()
+            # wall.backstep()
             self.hex_matrix[wall.matrix_index][wall.list_index].idents.append(wall)
 
     ##########################################################################################################
