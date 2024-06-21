@@ -223,6 +223,7 @@ class Ident:
             
             # if, at this point, there is only one direction left, take that one
             if len(directions) == 1:
+                print("rotate call e")
                 self.__rotate_adopt(w.hex_matrix[self.matrix_index][self.list_index], w.ident_list, dir_final = directions[0].state)
 
             # otherwise, if we ended up with a net zero average (all other idents in the hex cancelled out in opposite pairs),
@@ -240,21 +241,25 @@ class Ident:
 
                 # if the other two are at 120 degrees to each other, take the value in between
                 if (directions[0].state + 2)%6 == directions[1].state:
+                    print("rotate call a")
                     self.__rotate_adopt(w.hex_matrix[self.matrix_index][self.list_index], w.ident_list, dir_final = (directions[0].state + 1)%6)
                 elif (directions[0].state - 2)%6 == directions[1].state:
+                    print("rotate call b")
                     self.__rotate_adopt(w.hex_matrix[self.matrix_index][self.list_index], w.ident_list, dir_final = (directions[0].state - 1)%6)
                 
                 # if the other two cohabitants are adjacent to one another (60 degrees), take the state of the one we are further away from
                 else:
                     assert(((directions[0].state + 1)%6 == directions[1].state) or ((directions[0].state - 1)%6 == directions[1].state))
                     
-                    # TODO: Check this calculation (%3?)
-                    closer_to_dir_0 = (abs(self.state - directions[0].state)%6) > (abs(self.state - directions[1].state)%6)
+                    closer_to_dir_0 = (abs(self.state - directions[0].state)%6) < (abs(self.state - directions[1].state)%6)
+                    
                     # if current direction is closer to directions[0] than directions[1], take the state of directions[1]
                     if closer_to_dir_0:
+                        print("rotate call c")
                         self.__rotate_adopt(w.hex_matrix[self.matrix_index][self.list_index], w.ident_list, dir_final = directions[1].state)
                     # else take the state of directions[0]
                     else:
+                        print("rotate call d")
                         self.__rotate_adopt(w.hex_matrix[self.matrix_index][self.list_index], w.ident_list, dir_final = directions[0].state)
 
                     # TODO: Figure out the averaging calculation
@@ -384,6 +389,7 @@ class Ident:
     # Copies self and rotates it by the indicated number of directions
     # Adopts said rotated ident
     def __rotate_adopt(self, future_hex, future_ident_list, dir_offset=3, dir_final=None):
+
         # Calculate final direction
         if dir_final == None:
             dir_final = (self.state + dir_offset)%6
