@@ -907,21 +907,35 @@ class World:
     ##########################################################################################################
 
     def __backstep(self):
+        # Reverts every hex to how it was one state back.
+        # Each ident holds its own history of the past 5 steps at any given time.
+        # Because the code is deterministic, the next step will be re-calculated the same way.
 
-        # Clear the matrix and list
+        # First, clear the matrix and list
         for hex_list in self.hex_matrix:
             for hex in hex_list:
+
+                # Walls are managed separately to other idents, so re-draw them from their own list
+                wall_ident = hex.contains_direction(-2)
+
                 hex.idents.clear()
 
-        # apply step back on all idents
+                if wall_ident:
+                    self.hex_matrix[wall_ident.matrix_index][wall_ident.list_index].idents.append(wall_ident)
 
+        # Then, apply step back on all idents
+        # After applying the step back, return those idents to the list in their respective hexes
         for ident in self.ident_list:
             ident.backstep()
+
             self.hex_matrix[ident.matrix_index][ident.list_index].idents.append(ident)
         
         for wall in self.wall_list:
             # wall.backstep()
             self.hex_matrix[wall.matrix_index][wall.list_index].idents.append(wall)
+
+            ident.world.hex_matrix[ident.matrix_index][ident.list_index].idents.append(ident)
+
 
     ##########################################################################################################
 
@@ -938,10 +952,17 @@ class World:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     run = False
+
+                # the following takes in and reacts to keyboard input
                 if event.type == pygame.TEXTINPUT:
+
                     # takes the key input
                     keys = pygame.key.get_pressed()
 
+                    # changes state based on keyboard input
+                        # g = "go" ; runs at normal speed
+                        # p = "pause" ; stops
+                        # h = "hyper" ; goes really fast
                     if keys[pygame.K_g]:
                         state = "go"
                     elif keys[pygame.K_p]:
@@ -949,6 +970,7 @@ class World:
                     elif keys[pygame.K_h]:
                         state = "hyper"
 
+                    # when in pause, you can step forward or back
                     if state == "pause" and keys[pygame.K_s]:
                         self.__update()
 
