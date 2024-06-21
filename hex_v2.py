@@ -209,6 +209,7 @@ class Ident:
         # if not, we are all moving hexes and none of them are opposite me, so we average them
         elif hex.contains_direction(-1) is None:
             # if we contain opposite pairs, remove them from the directions list
+            # TODO: Note that using contains_direction leaves us vulnerable if there are somehow multiple idents in the hex that share a direction
             hex_plus_one = hex.contains_direction((dir + 1) % 6)
             hex_minus_two = hex.contains_direction((dir - 2) % 6)
             if (hex_plus_one is not None) and (hex_minus_two is not None):
@@ -222,11 +223,14 @@ class Ident:
                 directions.remove(hex_minus_one)
             # if, at this point, there is only one direction left, take that one
             if len(directions) == 1:
-                to_become = self.__copy()
+                self.__rotate_adopt(w.hex_matrix[self.matrix_index][self.list_index], w.ident_list, dir_final = directions[0].state)
+
+                '''to_become = self.__copy()
                 to_become.state = directions[0].state
                 w.ident_list.append(to_become)
-                w.hex_matrix[self.matrix_index][self.list_index].idents.append(to_become)
-            # otherwise, if we ended up with a net zero average, use the opposite of our own direction to break ties
+                w.hex_matrix[self.matrix_index][self.list_index].idents.append(to_become)'''
+            # otherwise, if we ended up with a net zero average (all other idents in the hex cancelled out in opposite pairs),
+            # use the opposite of our own direction to break the tie
             elif len(directions) == 0:
                 self.__rotate_adopt(w.hex_matrix[self.matrix_index][self.list_index], w.ident_list)
 
@@ -236,15 +240,28 @@ class Ident:
                 w.hex_matrix[self.matrix_index][self.list_index].idents.append(to_become)'''
             # otherwise, there are exactly two other directions stored in this hex
             else:
+                assert(len(directions) == 2)
+
                 # if the other two are at 120 degrees to each other, take the value in between
                 if (directions[0].state + 2)%6 == directions[1].state:
                     self.__rotate_adopt(w.hex_matrix[self.matrix_index][self.list_index], w.ident_list, dir_final = (directions[0].state + 1)%6)
                 elif (directions[0].state - 2)%6 == directions[1].state:
                     self.__rotate_adopt(w.hex_matrix[self.matrix_index][self.list_index], w.ident_list, dir_final = (directions[0].state - 1)%6)
                 
-                # if the other two are adjacent to one another (60 degrees),
+                # if the other two are adjacent to one another (60 degrees), __
                 else:
-                    assert (((directions[0].state + 1)%6 == directions[1].state) or ((directions[0].state - 1)%6 == directions[1].state))
+                    breakpoint()
+                    assert(((directions[0].state + 1)%6 == directions[1].state) or ((directions[0].state - 1)%6 == directions[1].state))
+                    
+                    # TODO: Check this calculation (%3?)
+                    closer_to_dir_0 = (abs(self.state - directions[0].state)%3) > (abs(self.state - directions[1].state)%3)
+                    # if current direction is closer to directions[0] than directions[1], take the state of directions[1]
+                    if closer_to_dir_0:
+                        self.__rotate_adopt(w.hex_matrix[self.matrix_index][self.list_index], w.ident_list, dir_final = directions[1].state)
+                    # else take the state of directions[0]
+                    else:
+                        self.__rotate_adopt(w.hex_matrix[self.matrix_index][self.list_index], w.ident_list, dir_final = directions[0].state)
+
                     # TODO: Figure out the averaging calculation
         # else, we are dealing with multiple hexes, including a stationary hex
         # TODO: Did you mean idents in the above comment? - Skyler

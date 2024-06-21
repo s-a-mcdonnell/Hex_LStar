@@ -1,3 +1,3 @@
 5 7 move GREEN 3
+6 7 move BLUE 4
 6 8 move PURPLE 5
-4 9 move PINK 1
