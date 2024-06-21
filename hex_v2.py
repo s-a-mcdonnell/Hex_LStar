@@ -208,33 +208,6 @@ class Ident:
 
                 self.__rotate_adopt(hex_of_origin, w.ident_list, dir_final = -1)
 
-                
-<<<<<<< Updated upstream
-                # Copy and rotate
-=======
-                '''# Copy and set to stationary
->>>>>>> Stashed changes
-                ident_to_move = self.__copy()
-                ident_to_move.state = -1
-
-
-                # Update location stored in hex
-                ident_to_move.matrix_index = hex_of_origin.matrix_index
-                ident_to_move.list_index = hex_of_origin.list_index
-
-                w.ident_list.append(ident_to_move)
-                hex_of_origin.idents.append(ident_to_move)'''
-
-
-                # TODO: Stop it from moving after it turns stationary
-
-            '''to_become = self.__copy()
-            to_become.state = directions[0].state
-            # TODO: Is the following comment true?
-            # additionally, move it forward depending on the direction
-            # if the other hex was stationary, do not move it forward at all, keep it in place
-            w.ident_list.append(to_become)
-            write_to_hex.idents.append(to_become)'''
         # if there is more than one other ident than self, we do averaging things
         # if the idents contain an opposite direction ident, we bounce!! :)
         elif hex.contains_direction((dir + 3) % 6) is not None:
