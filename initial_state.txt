@@ -2,3 +2,4 @@
 8 7 move BLUE 5
 2 7 move PURPLE 2
 5 10 move CYAN 0
+2 10 move GREY 1

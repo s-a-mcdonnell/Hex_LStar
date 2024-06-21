@@ -308,8 +308,28 @@ class Ident:
                     self.__rotate_adopt(write_to_hex, w.ident_list, dir_final = directions[0].state)
             
                 elif len(directions) == 2:
-                    pass
-                    # TODO: Write this
+                    # TODO: Note that this is copied directly from above --> how can we restructure?
+                        # if the other two are at 120 degrees to each other, take the value in between
+                    if (directions[0].state + 2)%6 == directions[1].state:
+                        print("rotate call a")
+                        self.__rotate_adopt(write_to_hex, w.ident_list, dir_final = (directions[0].state + 1)%6)
+                    elif (directions[0].state - 2)%6 == directions[1].state:
+                        print("rotate call b")
+                        self.__rotate_adopt(write_to_hex, w.ident_list, dir_final = (directions[0].state - 1)%6)
+                    
+                    # if the other two cohabitants are adjacent to one another (60 degrees), take one of the states (arbitrary formula)
+                    # TODO: ^^ Note that this is an arbitrary decision ^^
+                    else:
+                        assert(((directions[0].state + 1)%6 == directions[1].state) or ((directions[0].state - 1)%6 == directions[1].state))
+                        
+                        # TODO: Change decision-making for which state to take?
+                        state_to_take = directions[0].state
+                        if (directions[0].state - directions[1].state)%6 > 3:
+                            state_to_take = directions[1].state
+                        
+                        self.__rotate_adopt(write_to_hex, w.ident_list, dir_final = state_to_take)
+                        
+                        
                 elif len(directions) == 3:
                     pass
                     # TODO: Write this
