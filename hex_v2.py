@@ -334,10 +334,8 @@ class Ident:
 
     # If the neighbor in the direction in which the ident is pointing is a wall, returns that ident
     # Else returns None
-    def __neighbor_is_wall(self, neighbor_index=None):
-         # Default value
-        if neighbor_index == None:
-            neighbor_index = self.state
+    def __neighbor_is_wall(self, neighbor_index_offset=0):
+        neighbor_index = (self.state + neighbor_index_offset)%6
 
         return self.__neighbor_contains_direction(-2, neighbor_index)
         
@@ -380,11 +378,26 @@ class Ident:
 
             return
 
+        # If need to bounce head-on off of a wall, then bounce and return
+        head_on_wall = self.__neighbor_is_wall() and not (self.__neighbor_is_wall(1) or self.__neighbor_is_wall(-1))
+        double_adjacent_wall = self.__neighbor_is_wall(1) and self.__neighbor_is_wall(-1)
+        if head_on_wall or double_adjacent_wall:
+            
+            self.__rotate_adopt(future_hex, future_list, 3)
+
+            '''copy_to_flip = self.__copy()
+            copy_to_flip.state = (copy_to_flip.state + 3)%6
+            future_list.append(copy_to_flip)
+            future_hex.idents.append(copy_to_flip)'''
+            
+            return
+
+
         # If need to bounce diagonally off of a wall, then bounce and return
         # TODO: Prioritization of diagonal bounces over head-on?
         '''neighbor_minus_one = self.__get_neighbor(self.world.hex_matrix, (self.state - 1)%6)
         if neighbor_minus_one and neighbor_minus_one.contains_direction(-2):'''
-        if self.__neighbor_is_wall((self.state - 1)%6):
+        if self.__neighbor_is_wall(-1):
             self.__rotate_adopt(future_hex, future_list, 1)
             
             '''copy_to_flip = self.__copy()
@@ -397,7 +410,7 @@ class Ident:
         # Other diagonal wall bounce case
         '''neighbor_plus_one = self.__get_neighbor(self.world.hex_matrix, (self.state + 1)%6)
         if neighbor_plus_one and neighbor_plus_one.contains_direction(-2):'''
-        if self.__neighbor_is_wall((self.state - 1)%6):
+        if self.__neighbor_is_wall(1):
             self.__rotate_adopt(future_hex, future_list, -1)
 
             '''copy_to_flip = self.__copy()
@@ -405,18 +418,6 @@ class Ident:
             future_list.append(copy_to_flip)
             future_hex.idents.append(copy_to_flip)'''
 
-            return
-
-        # If need to bounce head-on off of a wall, then bounce and return
-        if self.__neighbor_is_wall():
-            
-            self.__rotate_adopt(future_hex, future_list, 3)
-
-            '''copy_to_flip = self.__copy()
-            copy_to_flip.state = (copy_to_flip.state + 3)%6
-            future_list.append(copy_to_flip)
-            future_hex.idents.append(copy_to_flip)'''
-            
             return
                 
         # If need to bounce head-on off of another ident, then bounce and return
