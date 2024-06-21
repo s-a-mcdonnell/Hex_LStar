@@ -205,17 +205,25 @@ class Ident:
                 hex_of_origin = self.__get_neighbor(w.hex_matrix, (self.state + 3)%6)
 
                 assert hex_of_origin
+
+                self.__rotate_adopt(hex_of_origin, w.ident_list, dir_final = -1)
+
                 
+<<<<<<< Updated upstream
                 # Copy and rotate
+=======
+                '''# Copy and set to stationary
+>>>>>>> Stashed changes
                 ident_to_move = self.__copy()
                 ident_to_move.state = -1
+
 
                 # Update location stored in hex
                 ident_to_move.matrix_index = hex_of_origin.matrix_index
                 ident_to_move.list_index = hex_of_origin.list_index
 
                 w.ident_list.append(ident_to_move)
-                hex_of_origin.idents.append(ident_to_move)
+                hex_of_origin.idents.append(ident_to_move)'''
 
 
                 # TODO: Stop it from moving after it turns stationary
@@ -298,6 +306,17 @@ class Ident:
         # TODO: stationary cases here!!!
         else:
             assert(hex.contains_direction(-1))
+            
+            # A stationary ident colliding with a stationary ident
+            if self.state == -1:
+                pass 
+            # A moving ident colliding with a stationary ident
+            else:
+                assert self.state >= 0
+                if hex.contains_direction((dir + 3) % 6) is not None:
+                    self.__rotate_adopt(write_to_hex, w.ident_list)
+                    return
+                pass
 
             # If there is only one moving ident in directions, 
 
@@ -437,12 +456,16 @@ class Ident:
 
         ident = self.__copy()
         ident.state = dir_final
+
+        # This is necessary for moving hexes colliding with stationary hexes
+        ident.matrix_index = future_hex.matrix_index
+        ident.list_index = future_hex.list_index
+
         future_ident_list.append(ident)
         future_hex.idents.append(ident)
 
-
     ##########################################################################################################
-
+    
     # If an ident is stationary or a wall, writes this value to the hex_matrix_new
     # Elif an ident is running into a wall or a head-on collision, flips it in place (writing to hex_matrix_new)
     # Else advances an ident by one hex in its direction of motion (if that hex exists)
@@ -503,7 +526,7 @@ class Ident:
     def visited(self, m, l):
         # push onto stack history
         # pushed onto the history is
-            # hex matix index
+            # hex matrix index
             # hex list index
             # current state
 

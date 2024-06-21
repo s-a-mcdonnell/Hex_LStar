@@ -1,2 +1,3 @@
 5 7 occupied RED
 9 7 move BLUE 5
+5 11 move PURPLE 0
