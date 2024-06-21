@@ -155,6 +155,9 @@ class Ident:
 
         w = self.world
 
+        if self.state != 2:
+            breakpoint()
+
         # If dealing with a wall, maintain it and return
         if self.state == -2:
             # TODO: Is copying necessary here?
@@ -189,13 +192,19 @@ class Ident:
                 directions.append(hex.idents[i])
 
         # if there was only one other ident in the collision, take its attributes
+        # Note that this also deals with the most simple collision betwen a moving ident and a stationary one
+        # TODO: ^^ Check if this is true ^^
         if len(directions) == 1:
-            to_become = self.__copy()
+            breakpoint()
+            self.__rotate_adopt(w.hex_matrix[self.matrix_index][self.list_index], w.ident_list, dir_final = directions[0].state)
+
+            '''to_become = self.__copy()
             to_become.state = directions[0].state
+            # TODO: Is the following comment true?
             # additionally, move it forward depending on the direction
             # if the other hex was stationary, do not move it forward at all, keep it in place
             w.ident_list.append(to_become)
-            w.hex_matrix[self.matrix_index][self.list_index].idents.append(to_become)
+            w.hex_matrix[self.matrix_index][self.list_index].idents.append(to_become)'''
         # if there is more than one other ident than self, we do averaging things
         # if the idents contain an opposite direction ident, we bounce!! :)
         elif hex.contains_direction((dir + 3) % 6) is not None:
@@ -262,11 +271,16 @@ class Ident:
                         print("rotate call d")
                         self.__rotate_adopt(w.hex_matrix[self.matrix_index][self.list_index], w.ident_list, dir_final = directions[0].state)
 
-                    # TODO: Figure out the averaging calculation
         # else, we are dealing with multiple hexes, including a stationary hex
         # TODO: Did you mean idents in the above comment? - Skyler
         # TODO: stationary cases here!!!
         else:
+            assert(hex.contains_direction(-1))
+
+            # If there is only one moving ident in directions, 
+
+            # Else...?
+
             pass
 
     ##########################################################################################################

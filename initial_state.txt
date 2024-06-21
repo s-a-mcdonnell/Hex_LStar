@@ -1,2 +1,2 @@
-1 10 move PINK 0
-2 9 move RED 4
+3 7 occupied RED
+7 7 move BLUE 5
