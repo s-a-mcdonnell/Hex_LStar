@@ -151,7 +151,7 @@ class Ident:
      # TODO: Write this method
     # note that I should never have to deal with walls in this method
     # note that this reads from hex_matrix_new and ident_list_new and writes to hex_matrix and ident_list
-    def repair_collisions(self):
+    def resolve_collisions(self):
 
         w = self.world
 
@@ -416,7 +416,6 @@ class Ident:
         future_list = self.world.ident_list_new
     
         # Maintain stationaries and return
-        # Walls were never deleted
         if self.state == -1:
             future_list.append(self.__copy())
             future_hex.idents.append(self.__copy())
@@ -672,11 +671,11 @@ class World:
         
         self.ident_list_new.clear()
 
-        # Move or flip all idents except for walls
+        # Move or flip all idents (except for walls)
         for ident in self.ident_list:
             ident.advance_or_flip()
 
-        # Clear the current matrix and list so that repair_collisions can write to it
+        # Clear the current matrix and list so that resolve_collisions can write to it
         for hex_list in self.hex_matrix:
             for hex in hex_list:
                 # Save wall_ident to add back in, if applicable
@@ -689,9 +688,9 @@ class World:
         
         self.ident_list.clear()
                 
-        # Fix collisions in all idents except for walls
+        # Fix collisions in all idents (except for walls)
         for ident in self.ident_list_new:
-            ident.repair_collisions()
+            ident.resolve_collisions()
 
         # Pause between each frame
         pygame.time.delay(600)
