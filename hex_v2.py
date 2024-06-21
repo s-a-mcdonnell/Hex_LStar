@@ -220,6 +220,7 @@ class Ident:
             if (hex_plus_two is not None) and (hex_minus_one is not None):
                 directions.remove(hex_plus_two)
                 directions.remove(hex_minus_one)
+            
             # if, at this point, there is only one direction left, take that one
             if len(directions) == 1:
                 self.__rotate_adopt(w.hex_matrix[self.matrix_index][self.list_index], w.ident_list, dir_final = directions[0].state)
@@ -243,12 +244,12 @@ class Ident:
                 elif (directions[0].state - 2)%6 == directions[1].state:
                     self.__rotate_adopt(w.hex_matrix[self.matrix_index][self.list_index], w.ident_list, dir_final = (directions[0].state - 1)%6)
                 
-                # if the other two are adjacent to one another (60 degrees), __
+                # if the other two cohabitants are adjacent to one another (60 degrees), take the state of the one we are further away from
                 else:
                     assert(((directions[0].state + 1)%6 == directions[1].state) or ((directions[0].state - 1)%6 == directions[1].state))
                     
                     # TODO: Check this calculation (%3?)
-                    closer_to_dir_0 = (abs(self.state - directions[0].state)%3) > (abs(self.state - directions[1].state)%3)
+                    closer_to_dir_0 = (abs(self.state - directions[0].state)%6) > (abs(self.state - directions[1].state)%6)
                     # if current direction is closer to directions[0] than directions[1], take the state of directions[1]
                     if closer_to_dir_0:
                         self.__rotate_adopt(w.hex_matrix[self.matrix_index][self.list_index], w.ident_list, dir_final = directions[1].state)
