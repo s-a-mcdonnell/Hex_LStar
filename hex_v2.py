@@ -199,36 +199,70 @@ class Ident:
         # if there is more than one other ident than self, we do averaging things
         # if the idents contain an opposite direction ident, we bounce!! :)
         elif hex.contains_direction((dir + 3) % 6) is not None:
-            to_become = self.__copy()
-            to_become.state = (dir + 3) % 6
+            
+            self.__rotate_adopt(w.hex_matrix[self.matrix_index][self.list_index], w.ident_list)
+            '''to_become = self.__copy()
+            to_become.state = (self.state + 3) % 6
             w.ident_list.append(to_become)
-            w.hex_matrix[self.matrix_index][self.list_index].idents.append(to_become)
+            w.hex_matrix[self.matrix_index][self.list_index].idents.append(to_become)'''
         # otherwise, determine whether we contain a stationary hex or not
         # if not, we are all moving hexes and none of them are opposite me, so we average them
         elif hex.contains_direction(-1) is None:
             # if we contain opposite pairs, remove them from the directions list
-            if (hex.contains_direction((dir + 1)%6) is not None) and (hex.contains_direction((dir - 2)%6) is not None):
-                directions.remove(hex.contains_direction((dir + 1)%6))
-                directions.remove(hex.contains_direction((dir - 2)%6))
-            if (hex.contains_direction((dir + 2)%6) is not None) and (hex.contains_direction((dir - 1)%6) is not None):
-                directions.remove(hex.contains_direction((dir + 2)%6))
-                directions.remove(hex.contains_direction((dir - 1)%6))
+            # TODO: Note that using contains_direction leaves us vulnerable if there are somehow multiple idents in the hex that share a direction
+            hex_plus_one = hex.contains_direction((dir + 1) % 6)
+            hex_minus_two = hex.contains_direction((dir - 2) % 6)
+            if (hex_plus_one is not None) and (hex_minus_two is not None):
+                directions.remove(hex_plus_one)
+                directions.remove(hex_minus_two)
+            
+            hex_plus_two = hex.contains_direction((dir + 2) % 6)
+            hex_minus_one = hex.contains_direction((dir - 1) % 6)
+            if (hex_plus_two is not None) and (hex_minus_one is not None):
+                directions.remove(hex_plus_two)
+                directions.remove(hex_minus_one)
             # if, at this point, there is only one direction left, take that one
             if len(directions) == 1:
-                to_become = self.__copy()
+                self.__rotate_adopt(w.hex_matrix[self.matrix_index][self.list_index], w.ident_list, dir_final = directions[0].state)
+
+                '''to_become = self.__copy()
                 to_become.state = directions[0].state
                 w.ident_list.append(to_become)
-                w.hex_matrix[self.matrix_index][self.list_index].idents.append(to_become)
-            # if we end up with a net zero average and use the opposite of our own direction to break ties
+                w.hex_matrix[self.matrix_index][self.list_index].idents.append(to_become)'''
+            # otherwise, if we ended up with a net zero average (all other idents in the hex cancelled out in opposite pairs),
+            # use the opposite of our own direction to break the tie
             elif len(directions) == 0:
-                to_become = self.__copy()
+                self.__rotate_adopt(w.hex_matrix[self.matrix_index][self.list_index], w.ident_list)
+
+                '''to_become = self.__copy()
                 to_become.state = (dir - 3) %  6
                 w.ident_list.append(to_become)
-                w.hex_matrix[self.matrix_index][self.list_index].idents.append(to_become)
-            # otherwise, for this matrix, take the average of the other two hexes (there will be exactly two at this point)
+                w.hex_matrix[self.matrix_index][self.list_index].idents.append(to_become)'''
+            # otherwise, there are exactly two other directions stored in this hex
             else:
-                pass
+                assert(len(directions) == 2)
 
+                # if the other two are at 120 degrees to each other, take the value in between
+                if (directions[0].state + 2)%6 == directions[1].state:
+                    self.__rotate_adopt(w.hex_matrix[self.matrix_index][self.list_index], w.ident_list, dir_final = (directions[0].state + 1)%6)
+                elif (directions[0].state - 2)%6 == directions[1].state:
+                    self.__rotate_adopt(w.hex_matrix[self.matrix_index][self.list_index], w.ident_list, dir_final = (directions[0].state - 1)%6)
+                
+                # if the other two are adjacent to one another (60 degrees), __
+                else:
+                    breakpoint()
+                    assert(((directions[0].state + 1)%6 == directions[1].state) or ((directions[0].state - 1)%6 == directions[1].state))
+                    
+                    # TODO: Check this calculation (%3?)
+                    closer_to_dir_0 = (abs(self.state - directions[0].state)%3) > (abs(self.state - directions[1].state)%3)
+                    # if current direction is closer to directions[0] than directions[1], take the state of directions[1]
+                    if closer_to_dir_0:
+                        self.__rotate_adopt(w.hex_matrix[self.matrix_index][self.list_index], w.ident_list, dir_final = directions[1].state)
+                    # else take the state of directions[0]
+                    else:
+                        self.__rotate_adopt(w.hex_matrix[self.matrix_index][self.list_index], w.ident_list, dir_final = directions[0].state)
+
+                    # TODO: Figure out the averaging calculation
         # else, we are dealing with multiple hexes, including a stationary hex
         # TODO: Did you mean idents in the above comment? - Skyler
         # TODO: stationary cases here!!!
@@ -354,9 +388,13 @@ class Ident:
     
     # Copies self and rotates it by the indicated number of directions
     # Adopts said rotated ident
-    def __rotate_adopt(self, future_hex, future_ident_list, dir):
+    def __rotate_adopt(self, future_hex, future_ident_list, dir_offset=3, dir_final=None):
+        # Calculate final direction
+        if dir_final == None:
+            dir_final = (self.state + dir_offset)%6
+
         ident = self.__copy()
-        ident.state = (ident.state + dir)%6
+        ident.state = dir_final
         future_ident_list.append(ident)
         future_hex.idents.append(ident)
 
@@ -384,26 +422,26 @@ class Ident:
         double_adjacent_wall = self.__neighbor_is_wall(1) and self.__neighbor_is_wall(-1)
         if head_on_wall or double_adjacent_wall:
             
-            self.__rotate_adopt(future_hex, future_list, 3)
+            self.__rotate_adopt(future_hex, future_list)
             
             return
 
 
         # If need to bounce diagonally off of a wall, then bounce and return
         if self.__neighbor_is_wall(-1):
-            self.__rotate_adopt(future_hex, future_list, 1)
+            self.__rotate_adopt(future_hex, future_list, dir_offset=1)
 
             return
         
         # Other diagonal wall bounce case
         if self.__neighbor_is_wall(1):
-            self.__rotate_adopt(future_hex, future_list, -1)
+            self.__rotate_adopt(future_hex, future_list, dir_offset=-1)
 
             return
                 
         # If need to bounce head-on off of another ident, then bounce and return
         if self.__head_on_collision():
-            self.__rotate_adopt(future_hex, future_list, 3)
+            self.__rotate_adopt(future_hex, future_list)
 
             return
 
