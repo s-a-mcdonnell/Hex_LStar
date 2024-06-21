@@ -78,7 +78,8 @@ class Hex:
     # Returns a boolean indicating if the given hex contains any moving idents
     def is_moving(self):
         for ident in self.idents:
-            if ident.state >= 0:
+            if ident.get_state() >= 0:
+            # if (ident.state != -1) and (ident.state != -2):
                 return True
         
         return False
@@ -145,30 +146,66 @@ class Hex:
 # for storing information about a particular moving hex
 class Ident:
 
+
     # TODO: Do we still need this?
     idents_created = 0
+
+    ##########################################################################################################
+
+    # Returns the ident's state
+    def get_state(self):
+        return self.state
 
     ##########################################################################################################
 
     # Helper method for resolve_collisions()
     # Takes the hex in which the ident is located and the direcs list of other idents in that hex
     # Returns the direcs list with pairs of idents which cancel out removed
-    def __remove_pairs(self, hex, direcs):
-        dir = self.state
-        
-        # TODO: Note that using contains_direction leaves us vulnerable if there are somehow multiple idents in the hex that share a direction
+    @staticmethod
+    def __remove_pairs(hex, dir, directions):
+        # breakpoint()
+        direcs = directions.copy()
 
-        hex_plus_one = hex.contains_direction((dir + 1) % 6)
-        hex_minus_two = hex.contains_direction((dir - 2) % 6)
-        if (hex_plus_one is not None) and (hex_minus_two is not None):
-            direcs.remove(hex_plus_one)
-            direcs.remove(hex_minus_two)
-        
-        hex_plus_two = hex.contains_direction((dir + 2) % 6)
-        hex_minus_one = hex.contains_direction((dir - 1) % 6)
-        if (hex_plus_two is not None) and (hex_minus_one is not None):
-            direcs.remove(hex_plus_two)
-            direcs.remove(hex_minus_one)
+
+        if dir == -1:
+            '''# TODO: Explain how this needs to be written weirdly to work for dir = -1 (can't math right)
+            return Ident.__remove_pairs(hex, 0, Ident.__remove_pairs(hex, 1, direcs))'''
+
+            hex_zero = hex.contains_direction(0)
+            hex_three = hex.contains_direction(3)
+            if hex_zero and hex_three:
+                direcs.remove(hex_zero)
+                direcs.remove(hex_three)
+            
+            hex_one = hex.contains_direction(1)
+            hex_four = hex.contains_direction(4)
+            if hex_one and hex_four:
+                direcs.remove(hex_one)
+                direcs.remove(hex_four)
+
+            hex_two = hex.contains_direction(2)
+            hex_five = hex.contains_direction(5)
+            if hex_two and hex_five:
+                direcs.remove(hex_two)
+                direcs.remove(hex_five)
+            
+            return direcs
+
+        else:
+            
+            # TODO: Note that using contains_direction leaves us vulnerable if there are somehow multiple idents in the hex that share a direction
+
+            hex_plus_one = hex.contains_direction((dir + 1) % 6)
+            hex_minus_two = hex.contains_direction((dir - 2) % 6)
+            if hex_plus_one and hex_minus_two:
+                direcs.remove(hex_plus_one)
+                direcs.remove(hex_minus_two)
+            
+            hex_plus_two = hex.contains_direction((dir + 2) % 6)
+            hex_minus_one = hex.contains_direction((dir - 1) % 6)
+            if hex_plus_two and hex_minus_one:
+                direcs.remove(hex_plus_two)
+                direcs.remove(hex_minus_one)
         
         return direcs
 
@@ -218,13 +255,16 @@ class Ident:
         # if there was only one other ident in the collision, take its attributes
         # Note that this also deals with the most simple collision betwen a moving ident and a stationary one
         # TODO: ^^ Check if this is true ^^
-        if len(directions) == 1:
+
+        # TODO: I think this whole section can be collapsed downwards into after the pairs are removed from directions
+        '''if len(directions) == 1:
             # breakpoint()
             if directions[0].state != -1:
-                # If colliding with a non-moving ident, take its direction
+                # If colliding with a single moving ident, take its direction
                 # breakpoint()
                 self.__rotate_adopt(write_to_hex, w.ident_list, dir_final = directions[0].state)
             else:
+                # TODO: Move this down to section dealing with stationary hexes?
                 # If colliding with a stationary ident, become stationary in the hex from whence you came
                 assert self.state != -1
                 # The place it came from must exist, or else this ident couldn't be here, right?
@@ -237,8 +277,11 @@ class Ident:
 
         # if there is more than one other ident than self, we do averaging things
         # if the idents contain an opposite direction ident, we bounce!! :)
-        elif hex.contains_direction((dir + 3) % 6) is not None:
-            
+        el'''
+        
+        # If colliding with an ident pointing in the opposite direction, bounce off
+        if (dir != -1) and (hex.contains_direction((dir + 3) % 6) is not None):
+            # TODO: Can this section just be dealt with in the stationary/not stationary section?
             self.__rotate_adopt(write_to_hex, w.ident_list)
 
             return
@@ -247,19 +290,19 @@ class Ident:
         # if not, we are all moving hexes and none of them are opposite me, so we average them
         elif hex.contains_direction(-1) is None:
             # if we contain opposite pairs, remove them from the directions list
-            directions = self.__remove_pairs(hex, directions)
+            directions = self.__remove_pairs(hex, dir, directions)
             
             
+            # if we ended up with a net zero average (all other idents in the hex cancelled out in opposite pairs),
+            # bounce off in the opposite direction
+            if len(directions) == 0:
+                self.__rotate_adopt(write_to_hex, w.ident_list)
+
             # if, at this point, there is only one direction left, take that one
-            if len(directions) == 1:
+            elif len(directions) == 1:
                 print("rotate call e")
                 self.__rotate_adopt(write_to_hex, w.ident_list, dir_final = directions[0].state)
 
-            # otherwise, if we ended up with a net zero average (all other idents in the hex cancelled out in opposite pairs),
-            # use the opposite of our own direction to break the tie
-            elif len(directions) == 0:
-                self.__rotate_adopt(write_to_hex, w.ident_list)
-            
             # otherwise, there are exactly two other directions stored in this hex
             else:
                 # Sanity checks
@@ -299,19 +342,37 @@ class Ident:
             
             # A stationary ident colliding with a moving ident
             if self.state == -1:
-                pass 
+                # breakpoint()                
 
-                # If there is only one moving ident in directions, 
+                # if we contain opposite pairs, remove them from the directions list
+                directions = self.__remove_pairs(hex, dir, directions)
 
-                # Else...?
+                # If there are no idents left in directions, remain stationary
+                if len(directions) == 0:
+                    # TODO: Is copying necessary?
+                    my_copy = self.__copy()
+                    write_to_hex.idents.append(my_copy)
+                    w.ident_list.append(my_copy)
 
-                '''# if we contain opposite pairs, remove them from the directions list
-                directions = self.__remove_pairs(hex, directions)'''
+                # If there is only one ident left in directions, take its state
+                elif len(directions) == 1:
+                    self.__rotate_adopt(write_to_hex, w.ident_list, dir_final = directions[0])
+            
+                elif len(directions) == 2:
+                    pass
+                    # TODO: Write this
+                elif len(directions) == 3:
+                    pass
+                    # TODO: Write this
+
+                else:
+                    print("unexpected length of directions")
+                    pass
 
             # A moving ident colliding with a stationary ident
             else:
 
-                assert self.state >= 0
+                assert self.get_state() >= 0
 
                 hex_of_origin = self.__get_neighbor(w.hex_matrix, (self.state + 3)%6)
                 assert hex_of_origin
@@ -332,7 +393,9 @@ class Ident:
             hist = []
         self.color = color
 
+        self.state : int
         self.state = state
+
         self.hist = hist
         if serial_number == -1:
             # If no serial number is provided
