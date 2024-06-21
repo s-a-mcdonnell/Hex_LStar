@@ -87,10 +87,10 @@ class Hex:
 
     # Gives the designated hex a wall identity
     # TODO: Could also clear other idents?
-    def make_wall(self, world, ident_list_to_append):
+    def make_wall(self, world, list_to_append):
         wall_ident = Ident(self.matrix_index, self.list_index, world, color = (0,0,0), state = -2)
         self.idents.append(wall_ident)
-        ident_list_to_append.append(wall_ident)
+        list_to_append.append(wall_ident)
 
     ##########################################################################################################
 
@@ -155,20 +155,7 @@ class Ident:
 
         w = self.world
 
-        '''if self.state != 2:
-            breakpoint()'''
-
-        # This is not covered in not zeroing out walls
-        '''# If dealing with a wall, maintain it and return
-        if self.state == -2:
-            # TODO: Is copying necessary here?
-
-            w.ident_list.append(self.__copy())
-            w.hex_matrix[self.matrix_index][self.list_index].idents.append(self.__copy())
-
-            # print("maintain wall in repair_collisions")
-
-            return'''
+        '''breakpoint()'''
 
         # obtain the hex that this ident is currently a part of
         hex = w.hex_matrix_new[self.matrix_index][self.list_index]
@@ -563,18 +550,18 @@ class World:
         # TODO: Could add boolean so user can specify if they want walls or not
         # Left edge
         for hex in self.hex_matrix[0]:
-            hex.make_wall(self, self.ident_list)
+            hex.make_wall(self, self.wall_list)
         # Right edge
         for hex in self.hex_matrix[13]:
-            hex.make_wall(self, self.ident_list)
+            hex.make_wall(self, self.wall_list)
         for i in range(6):
             # Top edge
-            self.hex_matrix[1+2*i][6-i].make_wall(self, self.ident_list)
-            self.hex_matrix[2+2*i][6-i].make_wall(self, self.ident_list)
+            self.hex_matrix[1+2*i][6-i].make_wall(self, self.wall_list)
+            self.hex_matrix[2+2*i][6-i].make_wall(self, self.wall_list)
 
             # Bottom edge
-            self.hex_matrix[1+2*i][15-i].make_wall(self, self.ident_list)
-            self.hex_matrix[2+2*i][14-i].make_wall(self, self.ident_list)
+            self.hex_matrix[1+2*i][15-i].make_wall(self, self.wall_list)
+            self.hex_matrix[2+2*i][14-i].make_wall(self, self.wall_list)
 
     ##########################################################################################################
 
@@ -635,9 +622,7 @@ class World:
         elif command == "wall" or command == "wall\n":
             new_ident = Ident(matrix_index, list_index, self, color = (0,0,0), state = -2)
             
-            # Don't add walls to ident list
-            # TODO: Think hard about whether or not walls should be on the ident_list
-            # self.ident_list.append(new_ident)
+            # Add wall ident to wall list instead of ident list
             self.wall_list.append(new_ident)     
                
             # Add ident to hex
@@ -689,8 +674,7 @@ class World:
 
         # Move or flip all idents except for walls
         for ident in self.ident_list:
-            if ident.state != 2:
-                ident.advance_or_flip()
+            ident.advance_or_flip()
 
         # Clear the current matrix and list so that repair_collisions can write to it
         for hex_list in self.hex_matrix:
