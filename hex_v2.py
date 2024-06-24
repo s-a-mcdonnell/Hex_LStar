@@ -200,8 +200,13 @@ class Ident:
             print("No collision to resolve")
 
             # TODO: Is copying necessary here?
-            w.ident_list.append(self.__copy())
-            write_to_hex.idents.append(self.__copy())
+            my_copy = self.__copy()
+
+            w.ident_list.append(my_copy)
+            write_to_hex.idents.append(my_copy)
+
+            if self is w.agent:
+                w.agent = Agent(my_copy)
 
             return
         
@@ -298,6 +303,9 @@ class Ident:
                     write_to_hex.idents.append(my_copy)
                     w.ident_list.append(my_copy)
 
+                    if self is w.agent:
+                        w.agent = Agent(my_copy)
+
                 # If there is only one ident left in directions, take its state
                 elif len(directions) == 1:
                     self.__rotate_adopt(write_to_hex, w.ident_list, dir_final = directions[0].state)
@@ -339,6 +347,9 @@ class Ident:
                         my_copy = self.__copy()
                         write_to_hex.idents.append(my_copy)
                         w.ident_list.append(my_copy)
+
+                        if self is w.agent:
+                            w.agent = Agent(my_copy)
                     
                     # Adjacent case (the three moving idents are clumped together) --> stationary hex is bumped in the direction of the middle ident
                     else:
@@ -452,6 +463,9 @@ class Ident:
         future_ident_list.append(ident)
         future_hex.idents.append(ident)
 
+        if self is self.world.agent:
+            self.world.agent = ident
+
     ##########################################################################################################
     
     # If an ident is stationary or a wall, writes this value to the hex_matrix_new
@@ -465,8 +479,13 @@ class Ident:
     
         # Maintain stationaries and return
         if self.state == -1:
-            future_list.append(self.__copy())
-            future_hex.idents.append(self.__copy())
+            my_copy = self.copy()
+
+            future_list.append(my_copy)
+            future_hex.idents.append(my_copy)
+
+            if self is self.world.agent:
+                self.world.agent = my_copy
 
             return
 
@@ -509,6 +528,9 @@ class Ident:
             future_list.append(copy_to_move)
             future_neighbor.idents.append(copy_to_move)
 
+            if self is self.world.agent:
+                self.world.agent = copy_to_move
+
     ##########################################################################################################
 
     def visited(self, m, l):
@@ -536,6 +558,8 @@ class Ident:
         # TODO: Should any of these components be done with .copy()?
         new_copy = Ident(self.matrix_index, self.list_index, self.world, color = self.color, state = self.state, serial_number = self.serial_number, hist = self.hist, property = self.property, partner_serial_number=self.partner_serial_number)
         return new_copy
+    
+        # TODO: Relocate the re-assigning of World.agent here?
 
     ###############################################################################################################
 
