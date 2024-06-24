@@ -227,8 +227,7 @@ class Ident:
                 # i have confirmed that these neighbors are the correct hexes
                 if left_neighbor is not None:
                     ident_to_edit = left_neighbor.contains_direction(-1)
-                    already_moved = ident_to_edit.being_pointed_at()
-                    if (ident_to_edit is not None) and (not already_moved):
+                    if (ident_to_edit is not None) and (not ident_to_edit.being_pointed_at()):
                         # if the left neighbor of the original stationary wall is also stationary, make it move
                         print("Influencing left stationary neighbor")
                         to_become = ident_to_edit.__copy()
