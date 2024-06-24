@@ -852,7 +852,12 @@ class World:
             self.hex_matrix[2+2*i][14-i].make_wall(self, self.wall_list)
 
     ##########################################################################################################
-
+    
+    # ___
+    def swap_agents(self, agent_to_remove, agent_to_append):
+        pass
+    
+    ##########################################################################################################
     @classmethod
     def __get_color(self, color_text):
         if color_text == "YELLOW" or color_text == "YELLOW\n":
