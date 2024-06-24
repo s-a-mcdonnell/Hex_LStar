@@ -928,8 +928,6 @@ class World:
             # Add ident to hex
             self.hex_matrix[matrix_index][list_index].idents.append(new_ident)
         elif command == "portal" or command == "portal\n":
-            # TODO: Create method for making portals?
-            
             # TODO: Replace string property tag with int (easier to compair)
             new_ident_1 = Ident(matrix_index, list_index, self, color = (75, 4, 122), state = -1, property = "portal")
              
@@ -991,19 +989,6 @@ class World:
         for hex_list in self.hex_matrix:
             for hex in hex_list:
                 hex.draw(self.screen)
-
-    ##########################################################################################################
-
-    # TODO: Delete this?
-    # Swaps which matrix is being used
-    def __swap_matrices_and_lists(self):
-        temp_matrix = self.hex_matrix
-        self.hex_matrix = self.hex_matrix_new
-        self.hex_matrix_new = temp_matrix
-
-        temp_list = self.ident_list
-        self.ident_list = self.ident_list_new
-        self.ident_list_new = temp_list
 
     ##########################################################################################################
 
@@ -1098,10 +1083,12 @@ class World:
     ##########################################################################################################
 
     def __update(self):
-        # TODO: Note that this (calling swap_matrices) will just cause flashing until these two methods are written
+        # Agents act
         for agent in self.agents:
             agent.get_next_move()
 
+        # Push history of idents and walls
+        # TODO: Should this go before or after the rotation of the agents?
         for ident in self.ident_list:
             ident.visited(ident.matrix_index, ident.list_index)
         
