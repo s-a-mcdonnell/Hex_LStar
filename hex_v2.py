@@ -205,8 +205,9 @@ class Ident:
             w.ident_list.append(my_copy)
             write_to_hex.idents.append(my_copy)
 
-            if self is w.agent:
-                w.agent = my_copy
+            if self in w.agents:
+                w.agents.remove(self)
+                w.agents.append(my_copy)
 
             return
         
@@ -303,8 +304,9 @@ class Ident:
                     write_to_hex.idents.append(my_copy)
                     w.ident_list.append(my_copy)
 
-                    if self is w.agent:
-                        w.agent = my_copy
+                    if self in w.agents:
+                        w.agents.remove(self)
+                        w.aggents.append(my_copy)
 
                 # If there is only one ident left in directions, take its state
                 elif len(directions) == 1:
@@ -348,8 +350,9 @@ class Ident:
                         write_to_hex.idents.append(my_copy)
                         w.ident_list.append(my_copy)
 
-                        if self is w.agent:
-                            w.agent = my_copy
+                        if self in w.agents:
+                            w.agents.remove(self)
+                            w.aggents.append(my_copy)
                     
                     # Adjacent case (the three moving idents are clumped together) --> stationary hex is bumped in the direction of the middle ident
                     else:
@@ -463,8 +466,9 @@ class Ident:
         future_ident_list.append(ident)
         future_hex.idents.append(ident)
 
-        if self is self.world.agent:
-            self.world.agent = ident
+        if self in self.world.agents:
+            self.world.agents.remove(self)
+            self.world.agents.append(ident)
 
     ##########################################################################################################
     
@@ -484,8 +488,9 @@ class Ident:
             future_list.append(my_copy)
             future_hex.idents.append(my_copy)
 
-            if self is self.world.agent:
-                self.world.agent = my_copy
+            if self in self.world.agents:
+                self.world.agents.remove(self)
+                self.world.agents.append(my_copy)
 
             return
 
@@ -528,8 +533,9 @@ class Ident:
             future_list.append(copy_to_move)
             future_neighbor.idents.append(copy_to_move)
 
-            if self is self.world.agent:
-                self.world.agent = copy_to_move
+            if self in self.world.agents:
+                self.world.agents.remove(self)
+                self.world.agents.append(copy_to_move)
 
     ##########################################################################################################
 
@@ -579,7 +585,7 @@ class Ident:
     # Adjust's agent's state based on input from file, read into world.agent_choices
     def get_next_move(self):
 
-        assert self is self.world.agent
+        assert self in self.world.agents
 
         # Get influence of the agent on its direction, wrapping around to the start of the file if necessary
         self.world.agent_index %= len(self.world.agent_choices)
@@ -792,7 +798,7 @@ class World:
         self.wall_list = []
 
         # Default agent to None (will be assigned a value in __read_line if one exists)
-        self.agent = None
+        self.agents = []
 
 
         # reading the intiial state of the hex board from a file
@@ -806,7 +812,7 @@ class World:
 
         # reading the decisions of the agent from the provided file
         # TODO: This would not be part of the final project, but is helpful for demonstration/testing
-        if self.agent:
+        if len(self.agents) > 0:
             agent_file = open(os.path.join(__location__, "agent_choices.txt"), "r")
             self.agent_index = 0
             self.agent_choices = []
@@ -932,7 +938,7 @@ class World:
             self.hex_matrix[matrix_index][list_index].idents.append(new_agent)
 
             # Store ident as agent
-            self.agent = new_agent
+            self.agents.append(new_agent)
 
     ##########################################################################################################
 
@@ -1065,8 +1071,8 @@ class World:
 
     def __update(self):
         # TODO: Note that this (calling swap_matrices) will just cause flashing until these two methods are written
-        if self.agent:
-            self.agent.get_next_move()
+        for agent in self.agents:
+            agent.get_next_move()
 
         for ident in self.ident_list:
             ident.visited(ident.matrix_index, ident.list_index)
