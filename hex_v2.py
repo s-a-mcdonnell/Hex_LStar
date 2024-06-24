@@ -811,12 +811,9 @@ class World:
         file = open(os.path.join(__location__, "initial_state.txt"), "r")
         for line in file:
             self.__read_line(line)
-            # pass
-            # TODO: uncomment the above line for proper fie reading once we implement moving, stationary, wall hexes back into the program
-
 
         # reading the decisions of the agent from the provided file
-        # TODO: This would not be part of the final project, but is helpful for demonstration/testing
+        # NOTE: This would not be part of the final project, but is helpful for demonstration/testing
         if len(self.agents) > 0:
             agent_file = open(os.path.join(__location__, "agent_choices.txt"), "r")
             
@@ -832,7 +829,6 @@ class World:
                 self.agent_choices.append(empty_list)
             
             row_counter = 0
-            # TODO: Check that the number of agents created is equal to the number of lines in agent_file
             for agent_line in agent_file:
 
                 # Sanity checker that we haven't provided more instructions than we have agents for
