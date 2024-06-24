@@ -25,7 +25,7 @@ class Ident:
 
     ##########################################################################################################
     
-    def __init__(self, matrix_index, list_index, world, color=(255, 255, 255), state: int = -1, serial_number = -1, hist = None, property = None, portal_partner = None):
+    def __init__(self, matrix_index, list_index, world, color=(255, 255, 255), state: int = -1, serial_number = -1, hist = None, property = None, partner_serial_number = -1):
         if hist is None:
             hist = []
         self.color = color
@@ -59,8 +59,7 @@ class Ident:
 
         self.property = property
 
-        # TODO: Figure out how to update this for moving portals, if we want to implement that --> Maybe store the partner's serial number instead of the Ident itself?
-        self.portal_partner : Ident = portal_partner
+        self.partner_serial_number = partner_serial_number
     
     ##########################################################################################################
 
@@ -177,8 +176,15 @@ class Ident:
     # note that I should never have to deal with walls in this method
     # note that this reads from hex_matrix_new and ident_list_new and writes to hex_matrix and ident_list
     def resolve_collisions(self):
-
         w = self.world
+
+        
+        # If self is a portal, do nothing
+        if self.property == "portal":
+            w.hex_matrix[self.matrix_index][self.list_index].idents.append(self)
+            w.ident_list.append(self)
+            return
+
 
         # breakpoint()
 
@@ -208,7 +214,8 @@ class Ident:
             '''if i != my_index:
                 directions.append(hex.idents[i])'''
             # TODO: This is the only way I've found to not accidentally append self when examining a stationary hex. Why is that?
-            if ident.serial_number != self.serial_number:
+            # Do not add portal idents to list
+            if (ident.serial_number != self.serial_number) and (ident.property != "portal"):
                 directions.append(ident)
             '''if ident is not self:
                 directions.append(ident)'''
@@ -216,42 +223,8 @@ class Ident:
         # if there was only one other ident in the collision, take its attributes
         # Note that this also deals with the most simple collision betwen a moving ident and a stationary one
         # TODO: ^^ Check if this is true ^^
-
-        # TODO: I think this whole section can be collapsed downwards into after the pairs are removed from directions
-        '''if len(directions) == 1:
-            # breakpoint()
-            if directions[0].state != -1:
-                # If colliding with a single moving ident, take its direction
-                # breakpoint()
-                self.__rotate_adopt(write_to_hex, w.ident_list, dir_final = directions[0].state)
-            else:
-                # TODO: Move this down to section dealing with stationary hexes?
-                # If colliding with a stationary ident, become stationary in the hex from whence you came
-                assert self.state != -1
-                # The place it came from must exist, or else this ident couldn't be here, right?
-                # TODO: Move ident back and make stationary
-                hex_of_origin = self.__get_neighbor(w.hex_matrix, (self.state + 3)%6)
-
-                assert hex_of_origin
-
-                self.__rotate_adopt(hex_of_origin, w.ident_list, dir_final = -1)
-
-        # if there is more than one other ident than self, we do averaging things
-        # if the idents contain an opposite direction ident, we bounce!! :)
-        el'''
         
-        '''# If colliding with an ident pointing in the opposite direction, bounce off
-        if (dir != -1) and (hex.contains_direction((dir + 3) % 6) is not None):
-            # TODO: Can this section just be dealt with in the stationary/not stationary section?
-            self.__rotate_adopt(write_to_hex, w.ident_list)
-
-            return
-        
-        # otherwise, determine whether we contain a stationary hex or not
-        # if not, we are all moving hexes and none of them are opposite me, so we average them
-        el'''
-        
-        if hex.contains_direction(-1) is None:
+        if (hex.contains_direction(-1) is None) or (hex.contains_direction(-1).property == "portal"):
             # if we contain opposite pairs, remove them from the directions list
             directions = self.__remove_pairs(hex, dir, directions)
             
@@ -554,7 +527,7 @@ class Ident:
 
     def __copy(self):
         # TODO: Should any of these components be done with .copy()?
-        new_copy = Ident(self.matrix_index, self.list_index, self.world, color = self.color, state = self.state, serial_number = self.serial_number, hist = self.hist, property = self.property)
+        new_copy = Ident(self.matrix_index, self.list_index, self.world, color = self.color, state = self.state, serial_number = self.serial_number, hist = self.hist, property = self.property, partner_serial_number=self.partner_serial_number)
         return new_copy
 
     ###############################################################################################################
@@ -849,8 +822,8 @@ class World:
             pair_matrix_index = int(line_parts[3])
             pair_list_index = int(line_parts[4])
                
-            new_ident_2 = Ident(pair_matrix_index, pair_list_index, self, color = (75, 4, 122), state = -1, property = "portal", portal_partner = new_ident_1)
-            new_ident_1.portal_partner = new_ident_2
+            new_ident_2 = Ident(pair_matrix_index, pair_list_index, self, color = (75, 4, 122), state = -1, property = "portal", partner_serial_number = new_ident_1.serial_number)
+            new_ident_1.partner_serial_number = new_ident_2.serial_number
 
             # Add idents to hexes and lists
             self.hex_matrix[matrix_index][list_index].idents.append(new_ident_1)
@@ -858,9 +831,6 @@ class World:
 
             self.hex_matrix[pair_matrix_index][pair_list_index].idents.append(new_ident_2)
             self.ident_list.append(new_ident_2)
-
-            assert(new_ident_1.portal_partner)
-            assert(new_ident_2.portal_partner)
 
     ##########################################################################################################
 
@@ -952,19 +922,29 @@ class World:
         # Move idents from temp storage into destination hexes
         for i in range(len(self.ident_list)):
             if self.ident_list[i].property != "portal":
-                continue
+                continue            
 
             portal = self.ident_list[i]
 
+            # Find the destination portal ident
+            portal_partner = None
+            #TODO: More efficient way to access portal partner
+            for ident in self.ident_list:
+                if ident.serial_number == portal.partner_serial_number:
+                    portal_partner = ident
+                    break
+
+            assert (portal_partner)
+
             # TODO: Will have to change this depending on how portals are copied
-            destination_hex = self.hex_matrix[portal.portal_partner.matrix_index][portal.portal_partner.list_index]
+            destination_hex = self.hex_matrix[portal_partner.matrix_index][portal_partner.list_index]
 
             # Pass idents from temp storage to destination hex
             
             for ident in updated_portal_idents[i]:
                 ident.matrix_index = destination_hex.matrix_index
                 ident.list_index = destination_hex.list_index
-                destination_hex.take_ident(ident)
+                destination_hex.idents.append(ident)
 
 
     ##########################################################################################################
@@ -980,7 +960,7 @@ class World:
             wall.visited(wall.matrix_index, wall.list_index)
 
 
-        # Clear the _new matrix and list so that advance_or_flip can write to it
+        # Clear the new matrix and list so that advance_or_flip can write to it
         for hex_list in self.hex_matrix_new:
             for hex in hex_list:
                 # Save wall_ident to add back in, if applicable
