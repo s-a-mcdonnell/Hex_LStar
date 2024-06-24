@@ -559,7 +559,7 @@ class Agent(Ident):
     # Adjust's agent's state based on input from file, read into world.agent_choices
     def get_next_move(self):
 
-        breakpoint()
+        # breakpoint()
 
         # Get influence of the agent on its direction, wrapping around to the start of the file if necessary
         self.world.agent_index %= len(self.world.agent_choices)
@@ -787,8 +787,8 @@ class World:
             agent_file = open(os.path.join(__location__, "agent_choices.txt"), "r")
             self.agent_index = 0
             self.agent_choices = []
-            for line in agent_file:
-                self.__read_agent_line(line)
+            for agent_line in agent_file:
+                self.__read_agent_line(agent_line)
 
         
         # Create walls around the edges
