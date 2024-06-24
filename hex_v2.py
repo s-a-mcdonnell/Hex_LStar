@@ -483,7 +483,7 @@ class Ident:
     
         # Maintain stationaries and return
         if self.state == -1:
-            my_copy = self.copy()
+            my_copy = self.__copy()
 
             future_list.append(my_copy)
             future_hex.idents.append(my_copy)
@@ -817,16 +817,18 @@ class World:
             agent_file = open(os.path.join(__location__, "agent_choices.txt"), "r")
             
             # Initialize arrays with information about agents
+            # agent_indices stores the index in the row of influences which is currently effecting the agent
             self.agent_indices = []
+            # agent_choices stores the row of potential influences in list form for easy access
             self.agent_choices = []
             for agent in self.agents:
                 self.agent_indices.append(0)
 
                 empty_list = []
                 self.agent_choices.append(empty_list)
-            # TODO: Enable multiple agent choices files (or each row read as we previously read a file) to enable multiple sets of instructions
             
             row_counter = 0
+            # TODO: Check that the number of agents created is equal to the number of lines in agent_file
             for agent_line in agent_file:
                 self.__read_agent_line(row_counter, agent_line)
                 row_counter += 1
@@ -951,7 +953,10 @@ class World:
 
             # Store ident as agent
             self.agents.append(new_agent)
-
+        
+        # Print error message
+        else:
+            print("Command " + command + " invalid.")
     ##########################################################################################################
 
     # Parses agent choices text file
