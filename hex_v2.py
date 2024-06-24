@@ -559,6 +559,8 @@ class Agent(Ident):
     # Adjust's agent's state based on input from file, read into world.agent_choices
     def get_next_move(self):
 
+        # breakpoint()
+
         # Get influence of the agent on its direction, wrapping around to the start of the file if necessary
         self.world.agent_index %= len(self.world.agent_choices)
         influence = self.world.agent_choices[self.world.agent_index]
@@ -567,6 +569,16 @@ class Agent(Ident):
         if self.state >= 0:
             self.state += influence
             self.state %= 6
+
+            # TODO: Make sure adjusted state is passed on
+            '''adjusted_state = self.state + influence
+            adjusted_state %= 6
+
+            copy = self.__copy()
+            copy.state = adjusted_state'''
+
+        # Iterature agent index
+        self.world.agent_index += 1
 
     
 ###############################################################################################################
