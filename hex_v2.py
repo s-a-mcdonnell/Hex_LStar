@@ -236,8 +236,8 @@ class Ident:
         # Note that this also deals with the most simple collision betwen a moving ident and a stationary one
         # TODO: ^^ Check if this is true ^^
         
-        # TODO: Note that using contains_direction to check for portal status may cause issues with superimposition
-        if (hex.contains_direction(-1) is None) or (hex.contains_direction(-1).is_portal):
+        # TODO: What if something contains both a stationary hex and a portal? (How would that come to be?)
+        if (hex.contains_direction(-1) is None) or (hex.contains_portal()):
             # if we contain opposite pairs, remove them from the directions list
             directions = self.__remove_pairs(hex, dir, directions)
             

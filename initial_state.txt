@@ -1,4 +1,4 @@
-5 8 portal 8 7
-5 6 move RED 3
-7 8 move PURPLE 5
-3 10 move ORANGE 1
+5 5 move RED 0
+4 6 occupied ORANGE
+6 6 move PURPLE 5
+5 7 occupied YELLOW
