@@ -528,7 +528,7 @@ class Ident:
         else:
             self.hist.append((m, l, self.state))
 
-        print("------------------------------------------------------------------------------------------------------------------------", self.hist)
+        # print("------------------------------------------------------------------------------------------------------------------------", self.hist)
 
     ##########################################################################################################
 
@@ -564,6 +564,9 @@ class Agent(Ident):
         # Get influence of the agent on its direction, wrapping around to the start of the file if necessary
         self.world.agent_index %= len(self.world.agent_choices)
         influence = self.world.agent_choices[self.world.agent_index]
+
+        print("Next move " + str(influence))
+
 
         # TODO: What if the agent is currently stationary?
         if self.state >= 0:
