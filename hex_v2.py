@@ -771,8 +771,6 @@ class World:
         self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
         pygame.display.set_caption("Hex Simulator")
 
-        # TODO: Copy over timer
-
         # Set up hex matrix
         self.hex_matrix = []
 
