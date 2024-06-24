@@ -102,7 +102,6 @@ class Hex:
         # TODO: What if the hex contains multiple idents with that state?
         for ident in self.idents:
             if ident.state == dir:
-                print("We contain direction " + str(dir))
                 return ident
 
         return None
@@ -227,38 +226,99 @@ class Ident:
                 # i have confirmed that these neighbors are the correct hexes
                 if left_neighbor is not None:
                     ident_to_edit = left_neighbor.contains_direction(-1)
-                    already_moved = ident_to_edit.being_pointed_at()
-                    if (ident_to_edit is not None) and (not already_moved):
+                    if (ident_to_edit is not None) and (len(left_neighbor.idents) == 1):
                         # if the left neighbor of the original stationary wall is also stationary, make it move
                         print("Influencing left stationary neighbor")
                         to_become = ident_to_edit.__copy()
                         to_become.state = (self.state - 1) % 6
 
-                        # remove an existing idents in the future with the same serial number
-                        trouble = next((Ident for Ident in w.ident_list if Ident.serial_number == to_become.serial_number), None)
-                        w.ident_list.remove(trouble)
-                        w.ident_list.append(to_become)
-
                         # write to matrix in the future
                         to_write_to = w.hex_matrix[left_neighbor.matrix_index][left_neighbor.list_index]
-                        to_write_to.idents.clear()
                         to_write_to.idents.append(to_become)
+
+                        # remove an existing idents in the future with the same serial number
+                        # NOTE: may need to addendum to only be a nonmoving hex
+                        trouble = next((Ident for Ident in w.ident_list if (Ident.serial_number == to_become.serial_number) and (Ident.state == -1)), None)
+                        if trouble is not None:
+                            w.ident_list.remove(trouble)
+                        trouble = next((Ident for Ident in to_write_to.idents if (Ident.state == -1)), None)
+                        if trouble is not None:
+                            to_write_to.idents.remove(trouble)
+                        w.ident_list.append(to_become)
+
+
+                        # TODO: what to do about the case where you need to average them..?
+                        # check the length of to write to idents and if it is longer than 1 now, average them! :)
+                        # would they have the same serial number though???
+                        print("LEFT testing ident length...")
+                        if(len(to_write_to.idents) == 2) and (to_write_to.idents[0] in w.ident_list) and (to_write_to.idents[1] in w.ident_list):
+                            print("LEFT CALL: Overlapping influences on stationary hex!!!")
+                            to_add = None
+                            if to_write_to.idents[0].state == (to_write_to.idents[1].state + 3) % 6:
+                                # they are opposites, keep the hex stationary
+                                to_add = to_write_to.idents[0].__copy()
+                                to_add.state = -1
+                            # else if they are 120 degrees apart
+                            elif (to_write_to.idents[0].state == (to_write_to.idents[1].state + 2) % 6):
+                                to_add = to_write_to.idents[0].__copy()
+                                to_add.state = (to_write_to.idents[0].state - 1) % 6
+                            elif (to_write_to.idents[0].state == (to_write_to.idents[1].state + 4) % 6):
+                                to_add = to_write_to.idents[0].__copy()
+                                to_add.state = (to_write_to.idents[0].state + 1) % 6
+                            # else if they are 60 degrees apart <- NOTE idk if this ever actually happens
+                            else:
+                                pass
+                            w.ident_list.remove(to_write_to.idents[0])
+                            w.ident_list.remove(to_write_to.idents[1])
+                            to_write_to.idents.clear()
+                            if (to_add is not None):
+                                to_write_to.idents.append(to_add)
+                                w.ident_list.append(to_add)
 
                 if right_neighbor is not None:
                     ident_to_edit = right_neighbor.contains_direction(-1)
-                    if (ident_to_edit is not None) and (not ident_to_edit.being_pointed_at()):
+                    if (ident_to_edit is not None) and (len(right_neighbor.idents) == 1):
                         # if the left neighbor of the original stationary wall is also stationary, make it move
                         to_become = ident_to_edit.__copy()
                         to_become.state = (self.state + 1) % 6
 
-                        trouble = next((Ident for Ident in w.ident_list if Ident.serial_number == to_become.serial_number), None)
-                        w.ident_list.remove(trouble)
-                        w.ident_list.append(to_become)
-
                         to_write_to = w.hex_matrix[right_neighbor.matrix_index][right_neighbor.list_index]
                         # TODO note to self, might also have to remove the other version of this ident from the ident_list in the world (not ident list new)
-                        to_write_to.idents.clear()
+                        # to_write_to.idents.clear()
                         to_write_to.idents.append(to_become)
+
+                        trouble = next((Ident for Ident in w.ident_list if (Ident.serial_number == to_become.serial_number) and (Ident.state == -1)), None)
+                        if trouble is not None:
+                            w.ident_list.remove(trouble)
+                        trouble = next((Ident for Ident in to_write_to.idents if (Ident.state == -1)), None)
+                        if trouble is not None:
+                            to_write_to.idents.remove(trouble)
+                        w.ident_list.append(to_become)
+
+
+                        print("RIGHT testing ident length...")
+                        if(len(to_write_to.idents) == 2) and (to_write_to.idents[0] in w.ident_list) and (to_write_to.idents[1] in w.ident_list):
+                            print("RIGHT CALL: Overlapping influences on stationary hex!!!")
+                            if to_write_to.idents[0].state == (to_write_to.idents[1].state + 3) % 6:
+                                # they are opposites, keep the hex stationary
+                                to_add = to_write_to.idents[0].__copy()
+                                to_add.state = -1
+                            # else if they are 120 degrees apart
+                            elif (to_write_to.idents[0].state == (to_write_to.idents[1].state + 2) % 6):
+                                to_add = to_write_to.idents[0].__copy()
+                                to_add.state = (to_write_to.idents[0].state - 1) % 6
+                            elif (to_write_to.idents[0].state == (to_write_to.idents[1].state + 4) % 6):
+                                to_add = to_write_to.idents[0].__copy()
+                                to_add.state = (to_write_to.idents[0].state + 1) % 6
+                            # else if they are 60 degrees apart <- NOTE idk if this ever actually happens
+                            else:
+                                pass
+                            w.ident_list.remove(to_write_to.idents[0])
+                            w.ident_list.remove(to_write_to.idents[1])
+                            to_write_to.idents.clear()
+                            if (to_add is not None):
+                                to_write_to.idents.append(to_add)
+                                w.ident_list.append(to_add)
 
 
         # if there is more than one other ident than self, we do averaging things
@@ -427,48 +487,15 @@ class Ident:
     # If the head-on (direction of self.state) neighboring hex contains an ident with the given direction, returns said ident
     # Else returns None
     # TODO: Does this method still have a purpose?
-    def __neighbor_contains_direction(self, neighbor_state, neighbor_index=None, matrix = None):
+    def __neighbor_contains_direction(self, neighbor_state, neighbor_index=None):
         # Default value
         if neighbor_index == None:
             neighbor_index = self.state
-        if matrix == None:
-            print("Testing " + str(self.matrix_index) + str(self.list_index) + " with its neighbor in direction " + str(neighbor_index) + " if it is facing " + str(neighbor_state))
-            try:
-                return self.__get_neighbor(self.world.hex_matrix, neighbor_index).contains_direction(neighbor_state)
-            except:
-                print("Neighbor DNE")
-                return None
-        elif matrix == "new":
-            print("Testing IN NEW MATRIX " + str(self.matrix_index) + str(self.list_index) + " with its neighbor in direction " + str(neighbor_index) + " if it is facing " + str(neighbor_state))
-            try:
-                print("Trying.")
-                to_test = self.__get_neighbor(self.world.hex_matrix_new, neighbor_index)
-                print("neighbor in direction " + str(neighbor_index) + " is " + str(to_test.matrix_index) + str(to_test.list_index))
-                to_return = to_test.contains_direction(neighbor_state)
-                print(str(to_return))
-                return to_return
-            except:
-                print("Neighbor DNE")
-                return None
-
-    ##########################################################################################################
-
-    def being_pointed_at(self):
-        if self.__neighbor_contains_direction(0, 3, "new") is not None:
-            return True
-        elif self.__neighbor_contains_direction(3, 0, "new") is not None:
-            return True
-        elif self.__neighbor_contains_direction(2, 5, "new") is not None:
-            return True
-        elif self.__neighbor_contains_direction(5, 2, "new") is not None:
-            return True
-        elif self.__neighbor_contains_direction(1, 4, "new") is not None:
-            return True
-        elif self.__neighbor_contains_direction(4, 1, "new") is not None:
-            return True
-        print(str(self.matrix_index) + " " + str(self.list_index) + " is not being pointed at by another hex")
-        return False
-
+        try:
+            return self.__get_neighbor(self.world.hex_matrix, neighbor_index).contains_direction(neighbor_state)
+        except:
+            print("Neighbor DNE")
+            return None
 
     # If the neighbor in the direction in which the ident is pointing is a wall, returns that ident
     # Else returns None
