@@ -164,11 +164,17 @@ class Ident:
 
     ##########################################################################################################
 
-    # Returns the absolute value of the 
+    # Returns the absolute value of the difference between the directions of two idents
     def find_offset(self, other):
         for i in range(5):
             if ((self.state + i) % 6 == other.state) or ((self.state - i) % 6 == other.state):
                 return i
+    
+    ##########################################################################################################
+
+    # Returns a boolean indicating whether or not the given ident is a portal
+    def is_portal(self):
+        return self.property == "portal"
 
     ##########################################################################################################
 
@@ -180,7 +186,7 @@ class Ident:
 
         
         # If self is a portal, do nothing
-        if self.property == "portal":
+        if self.is_portal():
             w.hex_matrix[self.matrix_index][self.list_index].idents.append(self)
             w.ident_list.append(self)
             return
@@ -215,7 +221,7 @@ class Ident:
                 directions.append(hex.idents[i])'''
             # TODO: This is the only way I've found to not accidentally append self when examining a stationary hex. Why is that?
             # Do not add portal idents to list
-            if (ident.serial_number != self.serial_number) and (ident.property != "portal"):
+            if (ident.serial_number != self.serial_number) and (not ident.is_portal()):
                 directions.append(ident)
             '''if ident is not self:
                 directions.append(ident)'''
@@ -224,7 +230,8 @@ class Ident:
         # Note that this also deals with the most simple collision betwen a moving ident and a stationary one
         # TODO: ^^ Check if this is true ^^
         
-        if (hex.contains_direction(-1) is None) or (hex.contains_direction(-1).property == "portal"):
+        # TODO: Note that using contains_direction to check for portal status may cause issues with superimposition
+        if (hex.contains_direction(-1) is None) or (hex.contains_direction(-1).is_portal):
             # if we contain opposite pairs, remove them from the directions list
             directions = self.__remove_pairs(hex, dir, directions)
             
@@ -875,7 +882,7 @@ class World:
         # Fill temp storage
         for i in range(len(self.ident_list)):
             # If not a portal, do nothing
-            if self.ident_list[i].property != "portal":
+            if not self.ident_list[i].is_portal():
                 continue
 
             portal = self.ident_list[i]
@@ -887,12 +894,12 @@ class World:
 
             # Pass all non-portal idents in the hex to temp storage
             for ident in origin_hex.idents:
-                if ident.property != "portal":
+                if not ident.is_portal():
                     sub_list_temp.append(ident)
 
         # Clear out existing idents
         for i in range(len(self.ident_list)):
-            if self.ident_list[i].property != "portal":
+            if not self.ident_list[i].is_portal():
                 continue
 
             portal = self.ident_list[i]
@@ -911,7 +918,7 @@ class World:
 
             # Throw error if the origin_hex still contains any non-portal identities (debugging)
             assert(len(origin_hex.idents) == 1)
-            assert(origin_hex.idents[0].property == "portal")
+            assert(origin_hex.idents[0].is_portal())
 
         '''# Checking length of idents lists
         for coords in portal_list:
@@ -921,7 +928,7 @@ class World:
 
         # Move idents from temp storage into destination hexes
         for i in range(len(self.ident_list)):
-            if self.ident_list[i].property != "portal":
+            if not self.ident_list[i].is_portal():
                 continue            
 
             portal = self.ident_list[i]
