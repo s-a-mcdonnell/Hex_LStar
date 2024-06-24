@@ -587,11 +587,17 @@ class Ident:
 
         assert self in self.world.agents
 
-        my_index = self.world.agents.index(self)
+        w = self.world
+        my_index = w.agents.index(self)
+
+        if len(w.agent_choices[my_index]) == 0:
+            print("No instructions provided for agent " + str(my_index))
+            return
+
 
         # Get influence of the agent on its direction, wrapping around to the start of the file if necessary
-        self.world.agent_indices[my_index] %= len(self.world.agent_choices[my_index])
-        influence = self.world.agent_choices[my_index][self.world.agent_indices[my_index]]
+        w.agent_indices[my_index] %= len(w.agent_choices[my_index])
+        influence = w.agent_choices[my_index][w.agent_indices[my_index]]
 
         print("Next move " + str(influence))
 
@@ -608,7 +614,7 @@ class Ident:
             copy.state = adjusted_state'''
 
         # Iterature agent index
-        self.world.agent_indices[my_index] += 1
+        w.agent_indices[my_index] += 1
 
     
 ###############################################################################################################
@@ -830,6 +836,11 @@ class World:
             row_counter = 0
             # TODO: Check that the number of agents created is equal to the number of lines in agent_file
             for agent_line in agent_file:
+
+                # Sanity checker that we haven't provided more instructions than we have agents for
+                if row_counter >= len(self.agents):
+                    break
+
                 self.__read_agent_line(row_counter, agent_line)
                 row_counter += 1
 

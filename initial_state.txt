@@ -1,3 +1,4 @@
-5 8 agent BLUE 2
-5 9 occupied ORANGE
-5 7 move RED 3
+5 5 move RED 0
+6 6 move PURPLE 5
+5 7 occupied YELLOW
+5 9 agent BLUE 3
