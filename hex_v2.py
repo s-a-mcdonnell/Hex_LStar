@@ -1028,31 +1028,39 @@ class World:
         # Reverts every hex to how it was one state back.
         # Each ident holds its own history of the past 5 steps at any given time.
         # Because the code is deterministic, the next step will be re-calculated the same way.
-
-        # First, clear the matrix and list
-        for hex_list in self.hex_matrix:
-            for hex in hex_list:
-
-                # Walls are managed separately to other idents, so re-draw them from their own list
-                wall_ident = hex.contains_direction(-2)
-
-                hex.idents.clear()
-
-                if wall_ident:
-                    self.hex_matrix[wall_ident.matrix_index][wall_ident.list_index].idents.append(wall_ident)
-
-        # Then, apply step back on all idents
-        # After applying the step back, return those idents to the list in their respective hexes
-        for ident in self.ident_list:
-            ident.backstep()
-
-            self.hex_matrix[ident.matrix_index][ident.list_index].idents.append(ident)
         
-        for wall in self.wall_list:
-            # wall.backstep()
-            self.hex_matrix[wall.matrix_index][wall.list_index].idents.append(wall)
+        # Only take any steps if there is history left to be shown
+        # TODO: This is a pretty janky way to check if there is space to step back
+        if (len(self.ident_list) > 0) and (len(self.ident_list[0].hist) > 0):
+        
+            # First, clear the matrix and list
+            for hex_list in self.hex_matrix:
+                for hex in hex_list:
 
-            ident.world.hex_matrix[ident.matrix_index][ident.list_index].idents.append(ident)
+                    # Walls are managed separately to other idents, so re-draw them from their own list
+                    wall_ident = hex.contains_direction(-2)
+
+                    hex.idents.clear()
+
+                    if wall_ident:
+                        self.hex_matrix[wall_ident.matrix_index][wall_ident.list_index].idents.append(wall_ident)
+
+            # Then, apply step back on all idents
+            # After applying the step back, return those idents to the list in their respective hexes
+            for ident in self.ident_list:
+                ident.backstep()
+
+                self.hex_matrix[ident.matrix_index][ident.list_index].idents.append(ident)
+            
+            for wall in self.wall_list:
+                # wall.backstep()
+                self.hex_matrix[wall.matrix_index][wall.list_index].idents.append(wall)
+
+                ident.world.hex_matrix[ident.matrix_index][ident.list_index].idents.append(ident)
+        
+        # If there are no previous states to step back to, print an error message
+        else:
+            print("Maximum steps back have been taken.")
 
 
     ##########################################################################################################
