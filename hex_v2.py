@@ -25,7 +25,7 @@ class Ident:
 
     ##########################################################################################################
     
-    def __init__(self, matrix_index, list_index, world, color=(255, 255, 255), state: int = -1, serial_number = -1, hist = None):
+    def __init__(self, matrix_index, list_index, world, color=(255, 255, 255), state: int = -1, serial_number = -1, hist = None, property = None, portal_partner = None):
         if hist is None:
             hist = []
         self.color = color
@@ -56,6 +56,11 @@ class Ident:
         self.list_index = list_index
 
         self.world = world
+
+        self.property = property
+
+        # TODO: Figure out how to update this for moving portals, if we want to implement that --> Maybe store the partner's serial number instead of the Ident itself?
+        self.portal_partner : Ident = portal_partner
     
     ##########################################################################################################
 
@@ -328,6 +333,9 @@ class Ident:
                     # if the other two cohabitants are adjacent to one another (60 degrees), take one of the states (arbitrary formula)
                     # TODO: ^^ Note that this is an arbitrary decision ^^
                     else:
+                        # TODO: Note that this runs into issues when there is superimposition of multiple stationary idents
+                        assert(directions[0].state != -1 and directions[1].state != 1)
+
                         assert(((directions[0].state + 1)%6 == directions[1].state) or ((directions[0].state - 1)%6 == directions[1].state))
                         
                         # TODO: Change decision-making for which state to take?
@@ -546,7 +554,7 @@ class Ident:
 
     def __copy(self):
         # TODO: Should any of these components be done with .copy()?
-        new_copy = Ident(self.matrix_index, self.list_index, self.world, color = self.color, state = self.state, serial_number = self.serial_number, hist = self.hist)
+        new_copy = Ident(self.matrix_index, self.list_index, self.world, color = self.color, state = self.state, serial_number = self.serial_number, hist = self.hist, property = self.property)
         return new_copy
 
     ###############################################################################################################
@@ -832,6 +840,27 @@ class World:
                
             # Add ident to hex
             self.hex_matrix[matrix_index][list_index].idents.append(new_ident)
+        elif command == "portal" or command == "portal\n":
+            # TODO: Create method for making portals?
+            
+            # TODO: Replace string property tag with int (easier to compair)
+            new_ident_1 = Ident(matrix_index, list_index, self, color = (75, 4, 122), state = -1, property = "portal")
+             
+            pair_matrix_index = int(line_parts[3])
+            pair_list_index = int(line_parts[4])
+               
+            new_ident_2 = Ident(pair_matrix_index, pair_list_index, self, color = (75, 4, 122), state = -1, property = "portal", portal_partner = new_ident_1)
+            new_ident_1.portal_partner = new_ident_2
+
+            # Add idents to hexes and lists
+            self.hex_matrix[matrix_index][list_index].idents.append(new_ident_1)
+            self.ident_list.append(new_ident_1)
+
+            self.hex_matrix[pair_matrix_index][pair_list_index].idents.append(new_ident_2)
+            self.ident_list.append(new_ident_2)
+
+            assert(new_ident_1.portal_partner)
+            assert(new_ident_2.portal_partner)
 
     ##########################################################################################################
 
@@ -847,6 +876,7 @@ class World:
 
     ##########################################################################################################
 
+    # TODO: Delete this?
     # Swaps which matrix is being used
     def __swap_matrices_and_lists(self):
         temp_matrix = self.hex_matrix
@@ -856,6 +886,86 @@ class World:
         temp_list = self.ident_list
         self.ident_list = self.ident_list_new
         self.ident_list_new = temp_list
+
+    ##########################################################################################################
+
+    # Moves other idents stored in the same hex as this portal ident to its paired location
+    def __handle_portals(self):
+
+    # Set up temp storage for idents to be moved
+        # TODO: There must be a better way to initialize this
+        updated_portal_idents = []
+        
+        # TODO: Use portal list instead of ident list?
+        for i in range(len(self.ident_list)):
+            sub_list = []
+            updated_portal_idents.append(sub_list)
+
+
+        # Fill temp storage
+        for i in range(len(self.ident_list)):
+            # If not a portal, do nothing
+            if self.ident_list[i].property != "portal":
+                continue
+
+            portal = self.ident_list[i]
+
+            origin_hex = self.hex_matrix[portal.matrix_index][portal.list_index]
+            assert(origin_hex)
+
+            sub_list_temp = updated_portal_idents[i]
+
+            # Pass all non-portal idents in the hex to temp storage
+            for ident in origin_hex.idents:
+                if ident.property != "portal":
+                    sub_list_temp.append(ident)
+
+        # Clear out existing idents
+        for i in range(len(self.ident_list)):
+            if self.ident_list[i].property != "portal":
+                continue
+
+            portal = self.ident_list[i]
+
+            origin_hex = self.hex_matrix[portal.matrix_index][portal.list_index]
+            assert(origin_hex)
+
+            # Remove all non-portal idents from the origin hex
+            origin_hex.idents.clear()
+
+            # Sanity checking
+            assert(len(origin_hex.idents) == 0)
+
+            # Re-assign portal identity
+            origin_hex.idents.append(portal)
+
+            # Throw error if the origin_hex still contains any non-portal identities (debugging)
+            assert(len(origin_hex.idents) == 1)
+            assert(origin_hex.idents[0].property == "portal")
+
+        '''# Checking length of idents lists
+        for coords in portal_list:
+            hex_to_check = hex_matrix_new[coords[0]][coords[1]]
+            assert(len(hex_matrix_new[coords[0]][coords[1]].idents)==1)
+            assert(len(hex_to_check.idents)==1)'''
+
+        # Move idents from temp storage into destination hexes
+        for i in range(len(self.ident_list)):
+            if self.ident_list[i].property != "portal":
+                continue
+
+            portal = self.ident_list[i]
+
+            # TODO: Will have to change this depending on how portals are copied
+            destination_hex = self.hex_matrix[portal.portal_partner.matrix_index][portal.portal_partner.list_index]
+
+            # Pass idents from temp storage to destination hex
+            
+            for ident in updated_portal_idents[i]:
+                ident.matrix_index = destination_hex.matrix_index
+                ident.list_index = destination_hex.list_index
+                destination_hex.take_ident(ident)
+
 
     ##########################################################################################################
 
@@ -903,6 +1013,10 @@ class World:
         # Fix collisions in all idents (except for walls)
         for ident in self.ident_list_new:
             ident.resolve_collisions()
+
+        # Move idents between portals
+        # TODO: Maintain separate portal list?
+        self.__handle_portals()
 
     ##########################################################################################################
 
