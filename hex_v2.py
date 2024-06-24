@@ -702,7 +702,7 @@ class Hex:
 # for setting initial state of the world / having a student interact
 # while loop for running game goes in World
 class World:
-    def __init__(self):
+    def __init__(self, agent_exists = False):
         pygame.init()
 
         SCREEN_WIDTH = 800
@@ -744,6 +744,11 @@ class World:
 
         # Set up wall list
         self.wall_list = []
+
+        # Record if an agent exists
+        self.agent_exists = agent_exists
+        if agent_exists:
+            agent = Ident()
 
         # reading the intiial state of the hex board from a file
         __location__ = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__)))
@@ -1021,6 +1026,9 @@ class World:
         # Move idents between portals
         # TODO: Maintain separate portal list?
         self.__handle_portals()
+
+        if self.agent_exists:
+            agent.get_next_move()
 
     ##########################################################################################################
 
