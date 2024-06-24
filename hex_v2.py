@@ -587,12 +587,13 @@ class Ident:
 
         assert self in self.world.agents
 
+        my_index = self.world.agents.index(self)
+
         # Get influence of the agent on its direction, wrapping around to the start of the file if necessary
-        self.world.agent_index %= len(self.world.agent_choices)
-        influence = self.world.agent_choices[self.world.agent_index]
+        self.world.agent_indices[my_index] %= len(self.world.agent_choices[my_index])
+        influence = self.world.agent_choices[my_index][self.world.agent_indices[my_index]]
 
         print("Next move " + str(influence))
-
 
         # TODO: What if the agent is currently stationary?
         if self.state >= 0:
@@ -607,7 +608,7 @@ class Ident:
             copy.state = adjusted_state'''
 
         # Iterature agent index
-        self.world.agent_index += 1
+        self.world.agent_indices[my_index] += 1
 
     
 ###############################################################################################################
@@ -814,10 +815,21 @@ class World:
         # TODO: This would not be part of the final project, but is helpful for demonstration/testing
         if len(self.agents) > 0:
             agent_file = open(os.path.join(__location__, "agent_choices.txt"), "r")
-            self.agent_index = 0
+            
+            # Initialize arrays with information about agents
+            self.agent_indices = []
             self.agent_choices = []
+            for agent in self.agents:
+                self.agent_indices.append(0)
+
+                empty_list = []
+                self.agent_choices.append(empty_list)
+            # TODO: Enable multiple agent choices files (or each row read as we previously read a file) to enable multiple sets of instructions
+            
+            row_counter = 0
             for agent_line in agent_file:
-                self.__read_agent_line(agent_line)
+                self.__read_agent_line(row_counter, agent_line)
+                row_counter += 1
 
         
         # Create walls around the edges
@@ -943,13 +955,14 @@ class World:
     ##########################################################################################################
 
     # Parses agent choices text file
-    def __read_agent_line(self, line):
+    def __read_agent_line(self, agent_num, line):
+        # breakpoint()
+        print("Reading agent line " + str(agent_num))
 
         line_parts = line.split(" ")
         
-        direction = int(line_parts[0])
-
-        self.agent_choices.append(direction)
+        for direction in line_parts:
+            self.agent_choices[agent_num].append(int(direction))
 
     ##########################################################################################################
     
