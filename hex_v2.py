@@ -66,6 +66,7 @@ class Ident:
     # Returns the neighboring hex in the given direction in the given matrix
     # If that hex does not exist, returns None
     def __get_neighbor(self, matrix, dir):
+        
         if dir == 0:
             try:
                 return matrix[self.matrix_index][self.list_index - 1]
@@ -116,7 +117,6 @@ class Ident:
     # Returns the direcs list with pairs of idents which cancel out removed
     @staticmethod
     def __remove_pairs(hex, dir, directions):
-        # breakpoint()
         direcs = directions.copy()
 
 
@@ -191,9 +191,6 @@ class Ident:
             w.ident_list.append(self)
             return
 
-
-        # breakpoint()
-
         # The hex to which we will be writing
         write_to_hex = w.hex_matrix[self.matrix_index][self.list_index]
 
@@ -203,8 +200,14 @@ class Ident:
             print("No collision to resolve")
 
             # TODO: Is copying necessary here?
-            w.ident_list.append(self.__copy())
-            write_to_hex.idents.append(self.__copy())
+            my_copy = self.__copy()
+
+            w.ident_list.append(my_copy)
+            write_to_hex.idents.append(my_copy)
+
+            if self in w.agents:
+                w.agents.remove(self)
+                w.agents.append(my_copy)
 
             return
         
@@ -290,7 +293,6 @@ class Ident:
             
             # A stationary ident colliding with a moving ident
             if self.state == -1:
-                # breakpoint()                
 
                 # if we contain opposite pairs, remove them from the directions list
                 directions = self.__remove_pairs(hex, dir, directions)
@@ -301,6 +303,10 @@ class Ident:
                     my_copy = self.__copy()
                     write_to_hex.idents.append(my_copy)
                     w.ident_list.append(my_copy)
+
+                    if self in w.agents:
+                        w.agents.remove(self)
+                        w.aggents.append(my_copy)
 
                 # If there is only one ident left in directions, take its state
                 elif len(directions) == 1:
@@ -343,10 +349,13 @@ class Ident:
                         my_copy = self.__copy()
                         write_to_hex.idents.append(my_copy)
                         w.ident_list.append(my_copy)
+
+                        if self in w.agents:
+                            w.agents.remove(self)
+                            w.aggents.append(my_copy)
                     
                     # Adjacent case (the three moving idents are clumped together) --> stationary hex is bumped in the direction of the middle ident
                     else:
-                        # breakpoint()
 
                         # TODO: Add assertion here?
 
@@ -381,7 +390,6 @@ class Ident:
 
             # A moving ident colliding with a stationary ident
             else:
-                # breakpoint()
 
                 assert self.state >= 0
 
@@ -459,6 +467,10 @@ class Ident:
         future_ident_list.append(ident)
         future_hex.idents.append(ident)
 
+        if self in self.world.agents:
+            self.world.agents.remove(self)
+            self.world.agents.append(ident)
+
     ##########################################################################################################
     
     # If an ident is stationary or a wall, writes this value to the hex_matrix_new
@@ -472,8 +484,14 @@ class Ident:
     
         # Maintain stationaries and return
         if self.state == -1:
-            future_list.append(self.__copy())
-            future_hex.idents.append(self.__copy())
+            my_copy = self.__copy()
+
+            future_list.append(my_copy)
+            future_hex.idents.append(my_copy)
+
+            if self in self.world.agents:
+                self.world.agents.remove(self)
+                self.world.agents.append(my_copy)
 
             return
 
@@ -516,6 +534,10 @@ class Ident:
             future_list.append(copy_to_move)
             future_neighbor.idents.append(copy_to_move)
 
+            if self in self.world.agents:
+                self.world.agents.remove(self)
+                self.world.agents.append(copy_to_move)
+
     ##########################################################################################################
 
     def visited(self, m, l):
@@ -535,7 +557,7 @@ class Ident:
         else:
             self.hist.append((m, l, self.state))
 
-        print("------------------------------------------------------------------------------------------------------------------------", self.hist)
+        # print("------------------------------------------------------------------------------------------------------------------------", self.hist)
 
     ##########################################################################################################
 
@@ -543,6 +565,8 @@ class Ident:
         # TODO: Should any of these components be done with .copy()?
         new_copy = Ident(self.matrix_index, self.list_index, self.world, color = self.color, state = self.state, serial_number = self.serial_number, hist = self.hist, property = self.property, partner_serial_number=self.partner_serial_number)
         return new_copy
+    
+        # TODO: Relocate the re-assigning of World.agent here?
 
     ###############################################################################################################
 
@@ -558,6 +582,41 @@ class Ident:
 
 
     ###############################################################################################################
+
+    # Adjust's agent's state based on input from file, read into world.agent_choices
+    def get_next_move(self):
+
+        assert self in self.world.agents
+
+        w = self.world
+        my_index = w.agents.index(self)
+
+        if len(w.agent_choices[my_index]) == 0:
+            print("No instructions provided for agent " + str(my_index))
+            return
+
+
+        # Get influence of the agent on its direction, wrapping around to the start of the file if necessary
+        w.agent_indices[my_index] %= len(w.agent_choices[my_index])
+        influence = w.agent_choices[my_index][w.agent_indices[my_index]]
+
+        print("Next move " + str(influence))
+
+        # TODO: What if the agent is currently stationary?
+        if self.state >= 0:
+            self.state += influence
+            self.state %= 6
+
+            # TODO: Make sure adjusted state is passed on
+            '''adjusted_state = self.state + influence
+            adjusted_state %= 6
+
+            copy = self.__copy()
+            copy.state = adjusted_state'''
+
+        # Iterature agent index
+        w.agent_indices[my_index] += 1
+
     
 ###############################################################################################################
 
@@ -713,8 +772,6 @@ class World:
         self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
         pygame.display.set_caption("Hex Simulator")
 
-        # TODO: Copy over timer
-
         # Set up hex matrix
         self.hex_matrix = []
 
@@ -746,13 +803,41 @@ class World:
         # Set up wall list
         self.wall_list = []
 
+        # Default agent to None (will be assigned a value in __read_line if one exists)
+        self.agents = []
+
+
         # reading the intiial state of the hex board from a file
         __location__ = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__)))
         file = open(os.path.join(__location__, "initial_state.txt"), "r")
         for line in file:
             self.__read_line(line)
-            # pass
-            # TODO: uncomment the above line for proper fie reading once we implement moving, stationary, wall hexes back into the program
+
+        # reading the decisions of the agent from the provided file
+        # NOTE: This would not be part of the final project, but is helpful for demonstration/testing
+        if len(self.agents) > 0:
+            agent_file = open(os.path.join(__location__, "agent_choices.txt"), "r")
+            
+            # Initialize arrays with information about agents
+            # agent_indices stores the index in the row of influences which is currently effecting the agent
+            self.agent_indices = []
+            # agent_choices stores the row of potential influences in list form for easy access
+            self.agent_choices = []
+            for agent in self.agents:
+                self.agent_indices.append(0)
+
+                empty_list = []
+                self.agent_choices.append(empty_list)
+            
+            row_counter = 0
+            for agent_line in agent_file:
+
+                # Sanity checker that we haven't provided more instructions than we have agents for
+                if row_counter >= len(self.agents):
+                    break
+
+                self.__read_agent_line(row_counter, agent_line)
+                row_counter += 1
 
         
         # Create walls around the edges, if requested
@@ -773,7 +858,12 @@ class World:
                 self.hex_matrix[2+2*i][14-i].make_wall(self, self.wall_list)
 
     ##########################################################################################################
-
+    
+    # ___
+    def swap_agents(self, agent_to_remove, agent_to_append):
+        pass
+    
+    ##########################################################################################################
     @classmethod
     def __get_color(self, color_text):
         if color_text == "YELLOW" or color_text == "YELLOW\n":
@@ -839,8 +929,6 @@ class World:
             # Add ident to hex
             self.hex_matrix[matrix_index][list_index].idents.append(new_ident)
         elif command == "portal" or command == "portal\n":
-            # TODO: Create method for making portals?
-            
             # TODO: Replace string property tag with int (easier to compair)
             new_ident_1 = Ident(matrix_index, list_index, self, color = (75, 4, 122), state = -1, property = "portal")
              
@@ -857,7 +945,41 @@ class World:
             self.hex_matrix[pair_matrix_index][pair_list_index].idents.append(new_ident_2)
             self.ident_list.append(new_ident_2)
 
+        elif command == "agent" or command == "agent\n":
+            # NOTE: This is currently only equipped to create one agent
+            
+            direction = int(line_parts[4])
+            color_text = line_parts[3]
+            color = World.__get_color(color_text)
+
+            new_agent = Ident(matrix_index, list_index, self, color = color, state = direction)
+
+            # Add ident to ident list
+            self.ident_list.append(new_agent)
+            
+            # Add ident to hex
+            self.hex_matrix[matrix_index][list_index].idents.append(new_agent)
+
+            # Store ident as agent
+            self.agents.append(new_agent)
+        
+        # Print error message
+        else:
+            print("Command " + command + " invalid.")
     ##########################################################################################################
+
+    # Parses agent choices text file
+    def __read_agent_line(self, agent_num, line):
+        # breakpoint()
+        print("Reading agent line " + str(agent_num))
+
+        line_parts = line.split(" ")
+        
+        for direction in line_parts:
+            self.agent_choices[agent_num].append(int(direction))
+
+    ##########################################################################################################
+    
 
     # Draws world
     def __draw(self):
@@ -868,19 +990,6 @@ class World:
         for hex_list in self.hex_matrix:
             for hex in hex_list:
                 hex.draw(self.screen)
-
-    ##########################################################################################################
-
-    # TODO: Delete this?
-    # Swaps which matrix is being used
-    def __swap_matrices_and_lists(self):
-        temp_matrix = self.hex_matrix
-        self.hex_matrix = self.hex_matrix_new
-        self.hex_matrix_new = temp_matrix
-
-        temp_list = self.ident_list
-        self.ident_list = self.ident_list_new
-        self.ident_list_new = temp_list
 
     ##########################################################################################################
 
@@ -975,9 +1084,12 @@ class World:
     ##########################################################################################################
 
     def __update(self):
-        # TODO: Note that this (calling swap_matrices) will just cause flashing until these two methods are written
+        # Agents act
+        for agent in self.agents:
+            agent.get_next_move()
 
-
+        # Push history of idents and walls
+        # TODO: Should this go before or after the rotation of the agents?
         for ident in self.ident_list:
             ident.visited(ident.matrix_index, ident.list_index)
         
@@ -1022,6 +1134,9 @@ class World:
         # Move idents between portals
         # TODO: Maintain separate portal list?
         self.__handle_portals()
+
+        '''if self.agent:
+            self.agent.get_next_move()'''
 
     ##########################################################################################################
 
