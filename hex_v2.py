@@ -320,7 +320,8 @@ class Ident:
                     # TODO: ^^ Note that this is an arbitrary decision ^^
                     else:
                         # TODO: Note that this runs into issues when there is superimposition of multiple stationary idents
-                        assert(directions[0].state != -1 and directions[1].state != 1)
+                        breakpoint()
+                        assert(directions[0].state != -1 and directions[1].state != -1)
 
                         assert(((directions[0].state + 1)%6 == directions[1].state) or ((directions[0].state - 1)%6 == directions[1].state))
                         
@@ -398,6 +399,7 @@ class Ident:
 
                 # Else become stationary
                 else:
+                    print("ident with serial number " + str(self.serial_number) + " becoming stationary")
                     self.__rotate_adopt(hex_of_origin, w.ident_list, dir_final = - 1)
                 
 
