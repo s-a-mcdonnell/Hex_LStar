@@ -320,7 +320,6 @@ class Ident:
                     # TODO: ^^ Note that this is an arbitrary decision ^^
                     else:
                         # TODO: Note that this runs into issues when there is superimposition of multiple stationary idents
-                        breakpoint()
                         assert(directions[0].state != -1 and directions[1].state != -1)
 
                         assert(((directions[0].state + 1)%6 == directions[1].state) or ((directions[0].state - 1)%6 == directions[1].state))
