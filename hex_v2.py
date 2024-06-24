@@ -559,7 +559,7 @@ class Agent(Ident):
     # Adjust's agent's state based on input from file, read into world.agent_choices
     def get_next_move(self):
 
-        # breakpoint()
+        breakpoint()
 
         # Get influence of the agent on its direction, wrapping around to the start of the file if necessary
         self.world.agent_index %= len(self.world.agent_choices)
