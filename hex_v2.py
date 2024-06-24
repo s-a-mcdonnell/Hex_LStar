@@ -206,7 +206,7 @@ class Ident:
             write_to_hex.idents.append(my_copy)
 
             if self is w.agent:
-                w.agent = Agent(my_copy)
+                w.agent = my_copy
 
             return
         
@@ -304,7 +304,7 @@ class Ident:
                     w.ident_list.append(my_copy)
 
                     if self is w.agent:
-                        w.agent = Agent(my_copy)
+                        w.agent = my_copy
 
                 # If there is only one ident left in directions, take its state
                 elif len(directions) == 1:
@@ -349,7 +349,7 @@ class Ident:
                         w.ident_list.append(my_copy)
 
                         if self is w.agent:
-                            w.agent = Agent(my_copy)
+                            w.agent = my_copy
                     
                     # Adjacent case (the three moving idents are clumped together) --> stationary hex is bumped in the direction of the middle ident
                     else:
@@ -576,14 +576,10 @@ class Ident:
 
     ###############################################################################################################
 
-###############################################################################################################
-
-class Agent(Ident):
-
     # Adjust's agent's state based on input from file, read into world.agent_choices
     def get_next_move(self):
 
-        # breakpoint()
+        assert self is self.world.agent
 
         # Get influence of the agent on its direction, wrapping around to the start of the file if necessary
         self.world.agent_index %= len(self.world.agent_choices)
@@ -927,7 +923,7 @@ class World:
             color_text = line_parts[3]
             color = World.__get_color(color_text)
 
-            new_agent = Agent(matrix_index, list_index, self, color = color, state = direction)
+            new_agent = Ident(matrix_index, list_index, self, color = color, state = direction)
 
             # Add ident to ident list
             self.ident_list.append(new_agent)
