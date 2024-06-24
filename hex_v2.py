@@ -703,7 +703,7 @@ class Hex:
 # for setting initial state of the world / having a student interact
 # while loop for running game goes in World
 class World:
-    def __init__(self):
+    def __init__(self, automatic_walls=True):
         pygame.init()
 
         SCREEN_WIDTH = 800
@@ -755,22 +755,22 @@ class World:
             # TODO: uncomment the above line for proper fie reading once we implement moving, stationary, wall hexes back into the program
 
         
-        # Create walls around the edges
-        # TODO: Could add boolean so user can specify if they want walls or not
-        # Left edge
-        for hex in self.hex_matrix[0]:
-            hex.make_wall(self, self.wall_list)
-        # Right edge
-        for hex in self.hex_matrix[13]:
-            hex.make_wall(self, self.wall_list)
-        for i in range(6):
-            # Top edge
-            self.hex_matrix[1+2*i][6-i].make_wall(self, self.wall_list)
-            self.hex_matrix[2+2*i][6-i].make_wall(self, self.wall_list)
+        # Create walls around the edges, if requested
+        if automatic_walls:
+            # Left edge
+            for hex in self.hex_matrix[0]:
+                hex.make_wall(self, self.wall_list)
+            # Right edge
+            for hex in self.hex_matrix[13]:
+                hex.make_wall(self, self.wall_list)
+            for i in range(6):
+                # Top edge
+                self.hex_matrix[1+2*i][6-i].make_wall(self, self.wall_list)
+                self.hex_matrix[2+2*i][6-i].make_wall(self, self.wall_list)
 
-            # Bottom edge
-            self.hex_matrix[1+2*i][15-i].make_wall(self, self.wall_list)
-            self.hex_matrix[2+2*i][14-i].make_wall(self, self.wall_list)
+                # Bottom edge
+                self.hex_matrix[1+2*i][15-i].make_wall(self, self.wall_list)
+                self.hex_matrix[2+2*i][14-i].make_wall(self, self.wall_list)
 
     ##########################################################################################################
 
