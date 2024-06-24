@@ -1042,7 +1042,8 @@ class World:
 
     def __update(self):
         # TODO: Note that this (calling swap_matrices) will just cause flashing until these two methods are written
-
+        if self.agent:
+            self.agent.get_next_move()
 
         for ident in self.ident_list:
             ident.visited(ident.matrix_index, ident.list_index)
@@ -1089,8 +1090,8 @@ class World:
         # TODO: Maintain separate portal list?
         self.__handle_portals()
 
-        if self.agent:
-            self.agent.get_next_move()
+        '''if self.agent:
+            self.agent.get_next_move()'''
 
     ##########################################################################################################
 
