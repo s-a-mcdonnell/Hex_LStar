@@ -208,6 +208,12 @@ class Ident:
 
             return
         
+        # If the hex contains only one other state, and that state is a portal, nothing else needs be done
+        if len(hex.idents) == 2 and hex.contains_portal():
+            w.hex_matrix[self.matrix_index][self.list_index].idents.append(self)
+            w.ident_list.append(self)
+            return
+        
         # now we have determined that the ident has other idents with it
         # TODO: I think we can do this without getting index (just only append to directions if ident is not self)
         '''my_index = hex.get_ident_index(self)'''
@@ -622,6 +628,17 @@ class Hex:
                 return True
         
         return False
+    
+    ##########################################################################################################
+
+    # If the given hex contains any portal idents, returns the first one found
+    # Otherwise returns None
+    def contains_portal(self):
+        for ident in self.idents:
+            if ident.is_portal():
+                return ident
+            
+        return None
     
     ##########################################################################################################
 
