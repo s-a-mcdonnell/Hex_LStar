@@ -102,6 +102,7 @@ class Hex:
         # TODO: What if the hex contains multiple idents with that state?
         for ident in self.idents:
             if ident.state == dir:
+                print("We contain direction " + str(dir))
                 return ident
 
         return None
@@ -169,6 +170,7 @@ class Ident:
             if (self.state != -1) or (len(write_to_hex.idents) == 0):
                 w.ident_list.append(self.__copy())
                 write_to_hex.idents.append(self.__copy())
+                print("Basic collision resolve")
 
             return
         
@@ -225,8 +227,10 @@ class Ident:
                 # i have confirmed that these neighbors are the correct hexes
                 if left_neighbor is not None:
                     ident_to_edit = left_neighbor.contains_direction(-1)
-                    if ident_to_edit is not None:
+                    already_moved = ident_to_edit.being_pointed_at()
+                    if (ident_to_edit is not None) and (not already_moved):
                         # if the left neighbor of the original stationary wall is also stationary, make it move
+                        print("Influencing left stationary neighbor")
                         to_become = ident_to_edit.__copy()
                         to_become.state = (self.state - 1) % 6
 
@@ -239,10 +243,10 @@ class Ident:
                         to_write_to = w.hex_matrix[left_neighbor.matrix_index][left_neighbor.list_index]
                         to_write_to.idents.clear()
                         to_write_to.idents.append(to_become)
-                        print(str())
+
                 if right_neighbor is not None:
                     ident_to_edit = right_neighbor.contains_direction(-1)
-                    if ident_to_edit is not None:
+                    if (ident_to_edit is not None) and (not ident_to_edit.being_pointed_at()):
                         # if the left neighbor of the original stationary wall is also stationary, make it move
                         to_become = ident_to_edit.__copy()
                         to_become.state = (self.state + 1) % 6
@@ -423,18 +427,47 @@ class Ident:
     # If the head-on (direction of self.state) neighboring hex contains an ident with the given direction, returns said ident
     # Else returns None
     # TODO: Does this method still have a purpose?
-    def __neighbor_contains_direction(self, neighbor_state, neighbor_index=None, ):
+    def __neighbor_contains_direction(self, neighbor_state, neighbor_index=None, matrix = None):
         # Default value
         if neighbor_index == None:
             neighbor_index = self.state
-
-        try:
-            return self.__get_neighbor(self.world.hex_matrix, neighbor_index).contains_direction(neighbor_state)
-        except:
-            print("Neighbor DNE")
-            return None
+        if matrix == None:
+            print("Testing " + str(self.matrix_index) + str(self.list_index) + " with its neighbor in direction " + str(neighbor_index) + " if it is facing " + str(neighbor_state))
+            try:
+                return self.__get_neighbor(self.world.hex_matrix, neighbor_index).contains_direction(neighbor_state)
+            except:
+                print("Neighbor DNE")
+                return None
+        elif matrix == "new":
+            print("Testing IN NEW MATRIX " + str(self.matrix_index) + str(self.list_index) + " with its neighbor in direction " + str(neighbor_index) + " if it is facing " + str(neighbor_state))
+            try:
+                print("Trying.")
+                to_test = self.__get_neighbor(self.world.hex_matrix_new, neighbor_index)
+                print("neighbor in direction " + str(neighbor_index) + " is " + str(to_test.matrix_index) + str(to_test.list_index))
+                to_return = to_test.contains_direction(neighbor_state)
+                print(str(to_return))
+                return to_return
+            except:
+                print("Neighbor DNE")
+                return None
 
     ##########################################################################################################
+
+    def being_pointed_at(self):
+        if self.__neighbor_contains_direction(0, 3, "new") is not None:
+            return True
+        elif self.__neighbor_contains_direction(3, 0, "new") is not None:
+            return True
+        elif self.__neighbor_contains_direction(2, 5, "new") is not None:
+            return True
+        elif self.__neighbor_contains_direction(5, 2, "new") is not None:
+            return True
+        elif self.__neighbor_contains_direction(1, 4, "new") is not None:
+            return True
+        elif self.__neighbor_contains_direction(4, 1, "new") is not None:
+            return True
+        print(str(self.matrix_index) + " " + str(self.list_index) + " is not being pointed at by another hex")
+        return False
 
 
     # If the neighbor in the direction in which the ident is pointing is a wall, returns that ident
