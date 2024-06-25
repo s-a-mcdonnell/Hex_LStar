@@ -697,8 +697,8 @@ class Ident:
 
 
         # Get influence of the agent on its direction, wrapping around to the start of the file if necessary
-        w.agent_indices[my_index] %= len(w.agent_choices[my_index])
-        influence = w.agent_choices[my_index][w.agent_indices[my_index]]
+        w.agent_step_indices[my_index] %= len(w.agent_choices[my_index])
+        influence = w.agent_choices[my_index][w.agent_step_indices[my_index]]
 
         print("Next move " + str(influence))
 
@@ -715,7 +715,7 @@ class Ident:
             copy.state = adjusted_state'''
 
         # Iterature agent index
-        w.agent_indices[my_index] += 1
+        w.agent_step_indices[my_index] += 1
 
     
 ###############################################################################################################
@@ -919,12 +919,12 @@ class World:
             agent_file = open(os.path.join(__location__, "agent_choices.txt"), "r")
             
             # Initialize arrays with information about agents
-            # agent_indices stores the index in the row of influences which is currently effecting the agent
-            self.agent_indices = []
+            # agent_step_indices stores the index in the row of influences which is currently effecting the agent
+            self.agent_step_indices = []
             # agent_choices stores the row of potential influences in list form for easy access
             self.agent_choices = []
             for agent in self.agents:
-                self.agent_indices.append(0)
+                self.agent_step_indices.append(0)
 
                 empty_list = []
                 self.agent_choices.append(empty_list)
@@ -1275,10 +1275,9 @@ class World:
                 ident.world.hex_matrix[ident.matrix_index][ident.list_index].idents.append(ident)
 
             # agents must be set back one index spot so they step forward the same
-
-            for i in range (len(self.agent_indices)):
-                self.agent_indices[i] -= 1
-                self.agent_indices[i] %= len(self.agent_choices[i])
+            for i in range (len(self.agent_step_indices)):
+                self.agent_step_indices[i] -= 1
+                self.agent_step_indices[i] %= len(self.agent_choices[i])
 
         # If there are no previous states to step back to, print an error message
         else:
