@@ -1273,7 +1273,13 @@ class World:
                 self.hex_matrix[wall.matrix_index][wall.list_index].idents.append(wall)
 
                 ident.world.hex_matrix[ident.matrix_index][ident.list_index].idents.append(ident)
-        
+
+            # agents must be set back one index spot so they step forward the same
+
+            for i in range (len(self.agent_indices)):
+                self.agent_indices[i] -= 1
+                self.agent_indices[i] %= len(self.agent_choices[i])
+
         # If there are no previous states to step back to, print an error message
         else:
             print("Maximum steps back have been taken.")

@@ -1,7 +1,1 @@
-4 10 portal 7 8
-5 7 occupied RED
-4 8 occupied YELLOW
-6 7 occupied ORANGE
-5 8 move BLUE 0
-4 9 move GREEN 0
-7 6 move PURPLE 3
+7 6 agent PURPLE 3
