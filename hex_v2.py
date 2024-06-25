@@ -409,7 +409,7 @@ class Ident:
                     # TODO: additionally, make sure that you only influence a neighbor if that neighbor is not being influenced by its own direct hit
                     # TODO: what if one neighbor is being influenced by two different hits on neighboring stationaries????
                     # i have confirmed that these neighbors are the correct hexes
-                    if left_neighbor is not None:
+                    if left_neighbor is not None and not(left_neighbor.contains_portal()):
                         ident_to_edit = left_neighbor.contains_direction(-1)
                         if (ident_to_edit is not None) and (len(left_neighbor.idents) == 1):
                             # if the left neighbor of the original stationary wall is also stationary, make it move
@@ -460,7 +460,7 @@ class Ident:
                                     to_write_to.idents.append(to_add)
                                     w.ident_list.append(to_add)
 
-                    if right_neighbor is not None:
+                    if right_neighbor is not None and not(right_neighbor.contains_portal()):
                         ident_to_edit = right_neighbor.contains_direction(-1)
                         if (ident_to_edit is not None) and (len(right_neighbor.idents) == 1):
                             # if the right neighbor of the original stationary wall is also stationary, make it move
