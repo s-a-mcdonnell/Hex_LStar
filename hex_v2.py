@@ -892,14 +892,19 @@ class Hex:
             if portal:
                 corrected_hex.idents.append(portal)
 
-            # If the hex contains opposite pairs of idents, rotate them by 180 degrees
+            # If the hex contains opposite pairs of idents, remove said pairs from the moving_idents list
             # TODO: Refactor to use same code as in resolve_collisions?
             for i in range(3):
                 if moving_idents[i] and moving_idents[i+3]:
-                    print("bouncing idents with states " + str(i) + " and " + str((i+3)%6))
-                    
+                    # NOTE: I don't think doing this makes sense unless we know that one of them is the newly-shifted ident (otherwise we're double-bouncing, which un-bounces)
+
+                    '''print("bouncing idents with states " + str(i) + " and " + str((i+3)%6))
+
                     moving_idents[i].rotate_adopt(corrected_hex, world.corrected_idents)
-                    moving_idents[i+3].rotate_adopt(corrected_hex, world.corrected_idents)
+                    moving_idents[i+3].rotate_adopt(corrected_hex, world.corrected_idents)'''
+                    corrected_hex.idents.append(moving_idents[i].copy())
+                    corrected_hex.idents.append(moving_idents[i+3].copy())
+
 
                     # Erase the rotated idents from our running log
                     moving_idents[i] = None
@@ -1389,17 +1394,17 @@ class World:
         for new_ident in self.corrected_idents:
             for old_ident in self.ident_list:
                 if old_ident.serial_number == new_ident.serial_number:
+                    print("removing old ident with serial number " + str(old_ident.serial_number) + " and state " + str(old_ident.state))
                     self.ident_list.remove(old_ident)
         
         for new_ident in self.corrected_idents:
-            self.ident_list.append(new_ident)
+            print("appending new ident with serial number " + str(new_ident.serial_number) + " and state " + str(new_ident.state))
 
+            self.ident_list.append(new_ident)
+        
         # Move idents between portals
         # TODO: Maintain separate portal list?
         self.__handle_portals()
-
-        '''if self.agent:
-            self.agent.get_next_move()'''
 
     ##########################################################################################################
 
