@@ -16,6 +16,7 @@ Process of the game:
    b: Else, take the average of all other idents EXCEPT SELF, but break ties by using the opposite ident of self
 '''
 
+global goalEnd
 goalEnd = False
 
 # for storing information about a particular moving hex
@@ -148,7 +149,7 @@ class Ident:
 
         else:
             
-            # TODO: Note that using contains_direction leaves us vulnerable if there are somehow multiple idents in the hex that share a direction
+            # NOTE: using contains_direction leaves us vulnerable if there are somehow multiple idents in the hex that share a direction
 
             hex_plus_one = hex.contains_direction((dir + 1) % 6)
             hex_minus_two = hex.contains_direction((dir - 2) % 6)
@@ -186,7 +187,6 @@ class Ident:
         return self.property == "goal"
     ##########################################################################################################
 
-     # TODO: Write this method
     # note that I should never have to deal with walls in this method
     # note that this reads from hex_matrix_new and ident_list_new and writes to hex_matrix and ident_list
     def resolve_collisions(self):
@@ -228,8 +228,12 @@ class Ident:
             return
         
         # TODO: implement handling of agent hitting goalpost here!! :)
-        if len(hex.idents) > 1 and (self in w.agents) and hex.contains_property("goal"):
-            pass
+        if (len(hex.idents) > 1) and (self in w.agents) and (hex.contains_property("goal") is not None):
+            print("agent run into goal")
+            global goalEnd
+            goalEnd = True
+            print("goalEnd allegedly changed")
+            return
         
         # now we have determined that the ident has other idents with it
         # TODO: I think we can do this without getting index (just only append to directions if ident is not self)
@@ -1362,7 +1366,8 @@ class World:
         clock = pygame.time.Clock()
         dt = 0
 
-        while run:
+        global goalEnd
+        while run and (not goalEnd):
 
             # Event handler (closing window)
             for event in pygame.event.get():
@@ -1418,7 +1423,6 @@ class World:
             self.screen.fill((0, 0, 0))
             # TODO: insert info page here
             print()
-            # TODO: re-implement the frames_created variable
             print("It took " + str(frames_created) + " frames to get into the goal.")
             # something about where the goal was located (matrix coords) and which hex went into it? (ident/color)
             # pretty drawing here

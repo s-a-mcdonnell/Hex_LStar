@@ -1,2 +1,2 @@
-7 6 goal
-7 8 move RED 0
+5 8 goal
+5 10 agent RED 0
