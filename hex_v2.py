@@ -847,23 +847,20 @@ class Hex:
     
     ##########################################################################################################
     @staticmethod
-    # Returns a list containing:
-    #   an integer indicating the number of non-None objects in the passed list
-    #   a list of truthy objects in the passed list
-    # Based on: https://stackoverflow.com/questions/3393431/how-to-count-non-null-elements-in-an-iterable
-    def count(my_list):
-        returnable = [0, []]
-
-        returnable[0] = sum(1 for object in my_list if object)
+    # Returns a list containing only truthy objects in the passed list
+    def condense(my_list):
+        returnable = []
 
         for object in my_list:
             if object:
-                returnable[1].append(object)
+                returnable.append(object)
         
         return returnable
 
     ##########################################################################################################
 
+    # Resolves cases of superimposition caused by steps backward in resolve_collisions
+    # TODO: Check if this cases issues with backstepping
     def check_superimposition(self, world):
         # All the hexes in this list should contain at least one ident
         assert len(self.idents)
@@ -879,8 +876,7 @@ class Hex:
         if self.contains_stationary():
             print("hex with mixed superimposition")
 
-        # If the hex contains multiple moving idents, ____
-        # TODO: Decide what to do here and implement it
+        # If the hex contains multiple moving idents, bounce them off of one another as necessary
         else:
             # Create sorted list of moving idents in hex
             # TODO: What if there are multiple idents of the same state? (Could that even happen?)
@@ -889,7 +885,7 @@ class Hex:
                 if (ident.state >= 0) and (not ident.is_portal()):
                     moving_idents[ident.state] = ident
             
-            corrected_hex = Hex(self.matrix_identity, self.list_identity)
+            corrected_hex = Hex(self.matrix_index, self.list_index)
 
             # If hex is a portal, preserve said ident
             portal = self.contains_portal()
@@ -900,38 +896,58 @@ class Hex:
             # TODO: Refactor to use same code as in resolve_collisions?
             for i in range(3):
                 if moving_idents[i] and moving_idents[i+3]:
+                    print("bouncing idents with states " + str(i) + " and " + str((i+3)%6))
                     
-                    moving_idents[i].rotate_adopt(corrected_hex)
-                    moving_idents[i+3].rotate_adopt(corrected_hex)
+                    moving_idents[i].rotate_adopt(corrected_hex, world.corrected_idents)
+                    moving_idents[i+3].rotate_adopt(corrected_hex, world.corrected_idents)
 
                     # Erase the rotated idents from our running log
                     moving_idents[i] = None
                     moving_idents[i+3] = None
             
-            counted_list = Hex.count(moving_idents)
-            remaining_idents = counted_list[0]
+            condensed_list = Hex.condense(moving_idents)
+            remaining_idents = len(condensed_list)
             
             # If there is only one ident remaining, preserve it
-            if remaining_idents == 1:        
-                corrected_hex.idents.append(counted_list[0][0])
+            # TODO: is copying really necessary here?
+
+            if remaining_idents == 1:
+                my_copy = condensed_list[0].copy()        
+                corrected_hex.idents.append(my_copy)
+                world.corrected_idents.append(my_copy)
+
             elif remaining_idents == 3:
                 # There are three idents remaining
                 
-                #____
-                pass
+                # If the three idents remaining are at 120 degrees to one another, they all bounce off in the opposite direction
+                if (condensed_list[0].find_offset(condensed_list[1]) == 2) and (condensed_list[0].find_offset(condensed_list[2]) == 2):
+                    condensed_list[0].rotate_adopt(corrected_hex, world.corrected_idents)
+                    condensed_list[1].rotate_adopt(corrected_hex, world.corrected_idents)
+                    condensed_list[2].rotate_adopt(corrected_hex, world.corrected_idents)
+
+                # Else (if the three idents remaining are at 60 degrees to one another), the two on the sides swap states and the one in the middle stays the same
+                else:
+                    for i in range(6):
+                        if moving_idents[i] and moving_idents[(i+1)%6] and moving_idents[(i+2)%6]:
+                            # The two outer idents swap states
+                            moving_idents[i].rotate_adopt(corrected_hex, world.corrected_idents, dir_final = moving_idents[(i+2)%6].state)
+                            moving_idents[(i+2)%6].rotate_adopt(corrected_hex, world.corrected_idents, dir_final = moving_idents[i].state)
+
+                            # The middle ident is preserved
+                            # TODO: is copying really necessary here?
+                            middle_copy = moving_idents[(i+1)%6].copy()
+                            corrected_hex.idents.append(middle_copy)
+                            world.corrected_idents.append(middle_copy)
             
             else:
                 assert remaining_idents == 2
 
                 # If there are only two idents remaining, they take one another's states
-                counted_list[0][0].rotate_adopt(corrected_hex, dir_final = counted_list[0][1].state)
-                counted_list[0][1].rotate_adopt(corrected_hex, dir_final = counted_list[0][0].state)
+                condensed_list[0].rotate_adopt(corrected_hex, world.corrected_idents, dir_final = condensed_list[1].state)
+                condensed_list[1].rotate_adopt(corrected_hex, world.corrected_idents, dir_final = condensed_list[0].state)
 
 
-
-
-
-            # Add the hex to corrected_hexes
+            # Add the updated hex to corrected_hexes
             world.corrected_hexes.append(corrected_hex)
 
             print("hex with moving-only superimposition")
@@ -1017,9 +1033,10 @@ class World:
         # Set up wall list
         self.wall_list = []
 
-        # Set up list of hexes to double-check and a list to store the corrections
+        # Set up list of hexes to double-check and lists to store the corrections
         self.double_check = []
         self.corrected_hexes = []
+        self.corrected_idents = []
 
         # Default agent to None (will be assigned a value in __read_line if one exists)
         self.agents = []
@@ -1306,8 +1323,9 @@ class World:
         # TODO: We should be able to delete this, as the while loop that checks for superimposition pops until this list is empty
         self.double_check.clear()
 
-        # Clear list of corrected hexes
+        # Clear lists of corrected hexes and idents
         self.corrected_hexes.clear()
+        self.corrected_idents.clear()
 
         # Agents act
         for agent in self.agents:
@@ -1361,9 +1379,20 @@ class World:
             check_hex = self.double_check.pop()
             check_hex.check_superimposition(self)
         
-        # Substitute in corrected hexes
+        # Substitute in corrected hexes and idents
+        # TODO: Will waiting to swap these in cause issues in iteratively calling check_superimposition()?
         for hex in self.corrected_hexes:
+            print("swap in corrected hex")
             self.hex_matrix[hex.matrix_index][hex.list_index] = hex
+
+        # TODO: There must be a more efficient way to do this
+        for new_ident in self.corrected_idents:
+            for old_ident in self.ident_list:
+                if old_ident.serial_number == new_ident.serial_number:
+                    self.ident_list.remove(old_ident)
+        
+        for new_ident in self.corrected_idents:
+            self.ident_list.append(new_ident)
 
         # Move idents between portals
         # TODO: Maintain separate portal list?
