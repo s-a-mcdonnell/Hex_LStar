@@ -227,6 +227,10 @@ class Ident:
             w.ident_list.append(self)
             return
         
+        # TODO: implement handling of agent hitting goalpost here!! :)
+        if len(hex.idents) > 1 and (self in w.agents) and hex.contains_property("goal"):
+            pass
+        
         # now we have determined that the ident has other idents with it
         # TODO: I think we can do this without getting index (just only append to directions if ident is not self)
         '''my_index = hex.get_ident_index(self)'''
@@ -1222,6 +1226,7 @@ class World:
     ##########################################################################################################
 
     def __update(self):
+
         # Agents act
         for agent in self.agents:
             agent.get_next_move()
@@ -1283,6 +1288,11 @@ class World:
         # TODO: Maintain separate portal list?
         self.__handle_portals()
 
+        global frames_created
+        frames_created += 1
+
+        print(str(frames_created))
+
         '''if self.agent:
             self.agent.get_next_move()'''
 
@@ -1332,11 +1342,16 @@ class World:
         else:
             print("Maximum steps back have been taken.")
 
+        global frames_created
+        frames_created -= 1
+
 
     ##########################################################################################################
 
     def run(self):
         run = True
+        global frames_created
+        frames_created = 0
 
         state = "pause"
         clock = pygame.time.Clock()
@@ -1393,4 +1408,18 @@ class World:
                 self.__update()
         
         # Exit
+        if(goalEnd):
+            print("SIM OVER, WE HIT GOAL")
+            self.screen.fill((0, 0, 0))
+            # TODO: insert info page here
+            print()
+            # TODO: re-implement the frames_created variable
+            print("It took " + str(frames_created) + " frames to get into the goal.")
+            # something about where the goal was located (matrix coords) and which hex went into it? (ident/color)
+            # pretty drawing here
+            pygame.display.update()
+            while(goalEnd):
+                for event in pygame.event.get():
+                    if event.type == pygame.QUIT:
+                        goalEnd = False
         pygame.quit()
