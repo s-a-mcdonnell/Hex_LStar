@@ -920,13 +920,6 @@ class Hex:
                     modified_ident = condensed_list[0].rotate_adopt(moving_hex_of_origin, world.corrected_idents, dir_final=-1)
                     world.double_check.append([moving_hex_of_origin, modified_ident])
 
-                    # TODO: Why is the yellow hex in the following case being duplicated for one frame?
-                    '''
-                    5 5 move YELLOW 0
-                    4 6 occupied BLUE
-                    6 6 move ORANGE 5
-                    '''
-
                     # Make stationary ident (ident_to_check) move
                     ident_to_check.rotate_adopt(corrected_hex, world.corrected_idents, dir_final = condensed_list[0].state)
                                     
