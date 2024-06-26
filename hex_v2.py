@@ -16,12 +16,8 @@ Process of the game:
    b: Else, take the average of all other idents EXCEPT SELF, but break ties by using the opposite ident of self
 '''
 
-global goalEnd
-goalEnd = False
-
 # for storing information about a particular moving hex
 class Ident:
-
 
     # TODO: Do we still need this?
     idents_created = 0
@@ -184,14 +180,28 @@ class Ident:
     # returns a boolean indicating whether the given ident is a goalpost
     # Returns a boolean indicating whether or not the given ident is a portal
     def is_goal(self):
-        return self.property == "goal"
+        return self in self.world.goals
     ##########################################################################################################
 
     # note that I should never have to deal with walls in this method
     # note that this reads from hex_matrix_new and ident_list_new and writes to hex_matrix and ident_list
     def resolve_collisions(self):
         w = self.world
+        hex = w.hex_matrix_new[self.matrix_index][self.list_index]
 
+        # TODO: implement handling of agent hitting goalpost here!! :)
+        if (hex.contains_property("agent")):
+            print("agent in hex " + str(self.matrix_index) + " " + str(self.list_index))
+            print("I am an agent")
+            # find the first ident in goals with matching grid positions to self
+            # if it exists, close da game!!!
+            if hex.contains_property("goal"):
+                w.goalEnd = True
+                print("goalEnd allegedly changed")
+                return
+
+        else:
+            print("ident at " + str(self.matrix_index) + " " + str(self.list_index) + " not an agent.")
         
         # If self is a portal, do nothing
         if self.is_portal():
@@ -203,7 +213,6 @@ class Ident:
         write_to_hex = w.hex_matrix[self.matrix_index][self.list_index]
 
         # obtain the hex that this ident is currently a part of
-        hex = w.hex_matrix_new[self.matrix_index][self.list_index]
         if len(hex.idents) <= 1:
             print("No collision to resolve")
 
@@ -215,24 +224,12 @@ class Ident:
                 write_to_hex.idents.append(my_copy)
                 print("Basic collision resolve")
 
-            if self in w.agents:
-                w.agents.remove(self)
-                w.agents.append(my_copy)
-
             return
         
         # If the hex contains only one other state, and that state is a portal, nothing else needs be done
         if len(hex.idents) == 2 and hex.contains_portal():
             w.hex_matrix[self.matrix_index][self.list_index].idents.append(self)
             w.ident_list.append(self)
-            return
-        
-        # TODO: implement handling of agent hitting goalpost here!! :)
-        if (len(hex.idents) > 1) and (self in w.agents) and (hex.contains_property("goal") is not None):
-            print("agent run into goal")
-            global goalEnd
-            goalEnd = True
-            print("goalEnd allegedly changed")
             return
         
         # now we have determined that the ident has other idents with it
@@ -842,7 +839,7 @@ class Hex:
         for ident in self.idents:
             if ident.property == prop:
                 return ident
-
+            
         return None
 
     ##########################################################################################################
@@ -900,7 +897,11 @@ class Hex:
 # for setting initial state of the world / having a student interact
 # while loop for running game goes in World
 class World:
+
     def __init__(self, automatic_walls=True):
+
+        self.goalEnd = False
+
         pygame.init()
 
         SCREEN_WIDTH = 800
@@ -1093,7 +1094,7 @@ class World:
             color_text = line_parts[3]
             color = World.__get_color(color_text)
 
-            new_agent = Ident(matrix_index, list_index, self, color = color, state = direction)
+            new_agent = Ident(matrix_index, list_index, self, color = color, state = direction, serial_number = -1, hist = None, property = "agent")
 
             # Add ident to ident list
             self.ident_list.append(new_agent)
@@ -1243,6 +1244,8 @@ class World:
         for wall in self.wall_list:
             wall.visited(wall.matrix_index, wall.list_index)
 
+        for goal in self.goals:
+            goal.visited(goal.matrix_index, goal.list_index)
 
         # Clear the new matrix and list so that advance_or_flip can write to it
         for hex_list in self.hex_matrix_new:
@@ -1366,8 +1369,7 @@ class World:
         clock = pygame.time.Clock()
         dt = 0
 
-        global goalEnd
-        while run and (not goalEnd):
+        while run and (not self.goalEnd):
 
             # Event handler (closing window)
             for event in pygame.event.get():
@@ -1418,17 +1420,17 @@ class World:
                 self.__update()
         
         # Exit
-        if(goalEnd):
+        if(self.goalEnd):
             print("SIM OVER, WE HIT GOAL")
-            self.screen.fill((0, 0, 0))
+            self.screen.fill((200, 200, 200))
             # TODO: insert info page here
             print()
             print("It took " + str(frames_created) + " frames to get into the goal.")
             # something about where the goal was located (matrix coords) and which hex went into it? (ident/color)
             # pretty drawing here
             pygame.display.update()
-            while(goalEnd):
+            while(self.goalEnd):
                 for event in pygame.event.get():
                     if event.type == pygame.QUIT:
-                        goalEnd = False
+                        self.goalEnd = False
         pygame.quit()
