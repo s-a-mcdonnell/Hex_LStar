@@ -199,10 +199,11 @@ class Ident:
         
         # If self is the only ident in the hex, or if the hex contains only stationary idents, copy self into the future
         hex_only_stationary = True
-        breakpoint()
         for ident in hex.idents:
             if ident.state != -1:
                 hex_only_stationary = False
+        '''if hex_only_stationary:
+            breakpoint()'''
         if len(hex.idents) <= 1 or hex_only_stationary:
             print("No collision to resolve")
 
