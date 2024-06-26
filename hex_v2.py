@@ -60,7 +60,14 @@ class Ident:
         self.property = property
 
         self.partner_serial_number = partner_serial_number
-    
+
+    ##########################################################################################################
+
+    # Public version of __get_neighbor
+    # TODO: Check access control terminology for python
+    def get_neighbor(self, matrix, dir):
+        return self.__get_neighbor(matrix, dir)
+
     ##########################################################################################################
 
     # Returns the neighboring hex in the given direction in the given matrix
@@ -883,6 +890,17 @@ class Hex:
         if portal:
             corrected_hex.idents.append(portal)
 
+        # Create sorted list of moving idents in hex (including the ident we're checking)
+        # TODO: What if there are multiple idents of the same state? (Could that even happen?)
+        moving_idents = [None]*6
+        for ident in self.idents:
+            if (ident.state >= 0) and (not ident.is_portal()):
+                moving_idents[ident.state] = ident
+        
+        # And create a list of moving idents without null spacers
+        condensed_list = Hex.condense(moving_idents)
+
+
 
         # If the hex contains a mix of stationary and moving idents, ____
         # TODO: What if the hex contains multiple stationary idents?
@@ -890,9 +908,31 @@ class Hex:
         if self.contains_stationary():
             print("hex with mixed superimposition")
             
-            # If said stationary hex is the ident we're checking, do nothing (the necessary bouncing has already happened)
+            # If said stationary hex is the ident we're checking:
             if (ident_to_check.state == -1) and (not ident_to_check.is_portal()):
-                return
+                
+                # and if there is only one moving ident in the hex, take its state and make it stationary, pushing its newly stationary self to the checkable list
+                if len(condensed_list) == 1:
+                    
+                    # Make moving hex stationary and push it to be dealt with
+                    # TODO: What matrix to pass to get_neighbor here? I (Skyler) have passed hex_matrix to get its current value, but we need to check if that causes issues with the iterative calls to check_superimposition
+                    moving_hex_of_origin = condensed_list[0].get_neighbor(world.hex_matrix, (condensed_list[0].state + 3)%6)
+                    modified_ident = condensed_list[0].rotate_adopt(moving_hex_of_origin, world.corrected_idents, dir_final=-1)
+                    world.double_check.append([moving_hex_of_origin, modified_ident])
+
+                    # TODO: Why is the yellow hex in the following case being duplicated for one frame?
+                    '''
+                    5 5 move YELLOW 0
+                    4 6 occupied BLUE
+                    6 6 move ORANGE 5
+                    '''
+
+                    # Make stationary ident (ident_to_check) move
+                    ident_to_check.rotate_adopt(corrected_hex, world.corrected_idents, dir_final = condensed_list[0].state)
+                                    
+                # else do nothing (the necessary bouncing has already happened)
+                else:
+                    return
             
             # Else bounce the ident we're checking off of the stationary hex
             # TODO: Do we need to bounce anything else?
@@ -902,14 +942,7 @@ class Hex:
 
         # If the hex contains multiple moving idents, bounce them off of one another as necessary
         else:
-            # Create sorted list of moving idents in hex (including the ident we're checking)
-            # TODO: What if there are multiple idents of the same state? (Could that even happen?)
-            moving_idents = [None]*6
-            for ident in self.idents:
-                if (ident.state >= 0) and (not ident.is_portal()):
-                    moving_idents[ident.state] = ident
-        
-
+            
             # If the hex contains opposite pairs of idents, remove said pairs from the moving_idents list
             # TODO: Refactor to use same code as in resolve_collisions?
             for i in range(3):
