@@ -193,9 +193,10 @@ class Ident:
         if (hex.contains_property("agent")):
             print("agent in hex " + str(self.matrix_index) + " " + str(self.list_index))
             print("I am an agent")
+            maybe_goal = next((Ident for Ident in w.goals if (Ident.matrix_index == self.matrix_index) and (Ident.list_index == self.list_index)), None)
             # find the first ident in goals with matching grid positions to self
             # if it exists, close da game!!!
-            if hex.contains_property("goal"):
+            if maybe_goal is not None:
                 w.goalEnd = True
                 print("goalEnd allegedly changed")
                 return
