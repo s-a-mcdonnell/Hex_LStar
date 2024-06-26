@@ -1,1 +1,1 @@
-7 6 agent PURPLE 3
+7 6 move PURPLE 3

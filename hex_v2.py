@@ -1274,10 +1274,11 @@ class World:
 
                 ident.world.hex_matrix[ident.matrix_index][ident.list_index].idents.append(ident)
 
-            # agents must be set back one index spot so they step forward the same
-            for i in range (len(self.agent_step_indices)):
-                self.agent_step_indices[i] -= 1
-                self.agent_step_indices[i] %= len(self.agent_choices[i])
+            # agents (if they exist) must be set back one index spot so they step forward the same
+            if len(self.agents):
+                for i in range (len(self.agent_step_indices)):
+                    self.agent_step_indices[i] -= 1
+                    self.agent_step_indices[i] %= len(self.agent_choices[i])
 
         # If there are no previous states to step back to, print an error message
         else:
