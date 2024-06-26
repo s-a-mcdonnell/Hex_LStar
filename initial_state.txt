@@ -1,4 +1,4 @@
 5 9 occupied RED
-5 8 move ORANGE 3
+5 5 move ORANGE 3
 5 7 move YELLOW 3
 5 6 move GREEN 3
