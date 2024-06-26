@@ -691,14 +691,16 @@ class Ident:
     ###############################################################################################################
 
     def backstep(self):
+        if (len(self.hist) > 0):
+            past = self.hist.pop()
 
-        past = self.hist.pop()
-
-        # first we change the state to the state it was at that point in time
-        self.state = past[2]
-        # then we put the ident into the hex it was before
-        self.matrix_index = past[0]
-        self.list_index = past[1]
+            # first we change the state to the state it was at that point in time
+            self.state = past[2]
+            # then we put the ident into the hex it was before
+            self.matrix_index = past[0]
+            self.list_index = past[1]
+        else:
+            print("no further steps backwards can be taken")
 
 
     ###############################################################################################################
