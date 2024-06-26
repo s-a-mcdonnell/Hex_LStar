@@ -197,15 +197,9 @@ class Ident:
         # obtain the hex that this ident is currently a part of
         hex = w.hex_matrix_new[self.matrix_index][self.list_index]
         
-        # If self is the only ident in the hex, or if the hex contains only stationary idents, copy self into the future
-        hex_only_stationary = True
-        for ident in hex.idents:
-            if ident.state != -1:
-                hex_only_stationary = False
-        '''if hex_only_stationary:
-            breakpoint()'''
-        if len(hex.idents) <= 1 or hex_only_stationary:
-            print("No collision to resolve")
+        # If self is the only ident in the hex, copy self into the future
+        if len(hex.idents) <= 1:
+            # print("No collision to resolve")
 
             # TODO: Is copying necessary here?
             my_copy = self.__copy()
@@ -213,7 +207,7 @@ class Ident:
             if (self.state != -1) or (len(write_to_hex.idents) == 0):
                 w.ident_list.append(my_copy)
                 write_to_hex.idents.append(my_copy)
-                print("Basic collision resolve")
+                # print("Basic collision resolve")
 
             if self in w.agents:
                 w.agents.remove(self)
@@ -413,13 +407,25 @@ class Ident:
                 # If an ident with the opposite state is present, bounce off
                 if hex.contains_direction((dir + 3) % 6):
                     self.__rotate_adopt(hex_of_origin, w.ident_list)
+
+                    # Save hex to double-check for superimposed idents
+                    w.double_check.append(hex_of_origin)
+
                 
                 # If two idents that sum to the opposite state are present, bounce off
                 elif hex.contains_direction((dir + 2) % 6) and hex.contains_direction((dir + 4) % 6):
                     self.__rotate_adopt(hex_of_origin, w.ident_list)
+                    
+                    # Save hex to double-check for superimposed idents
+                    w.double_check.append(hex_of_origin)
+
 
                 # Else become stationary
                 else:
+
+                    # Save hex to double-check for superimposed idents
+                    w.double_check.append(hex_of_origin)
+
                     print("ident with serial number " + str(self.serial_number) + " becoming stationary")
                     self.__rotate_adopt(hex_of_origin, w.ident_list, dir_final = - 1)
 
@@ -566,8 +572,7 @@ class Ident:
         if dir_final == -3:
             dir_final = (self.state + dir_offset)%6
         
-        
-        print("Rotating ident " + str(self.serial_number) + " from state " + str(self.state) + " to " + str(dir_final))
+        # print("Rotating ident " + str(self.serial_number) + " from state " + str(self.state) + " to " + str(dir_final))
 
         ident = self.__copy()
         ident.state = dir_final
@@ -834,6 +839,42 @@ class Hex:
                 return ident
 
         return None
+    
+    ##########################################################################################################
+    # Checks if a hex contains a stationary, non-portal ident
+    # If it does, returns that ident
+    # Else returns None
+    def contains_stationary(self):
+
+        # TODO: What if the hex contains multiple stationary idents?
+        for ident in self.idents:
+            if (ident.state == -1) and (not ident.is_portal()):
+                return ident
+
+        return None
+
+    ##########################################################################################################
+
+    def check_superimposition(self):
+        # All the hexes in this list should contain at least one ident
+        assert len(self.idents)
+
+        # If the hex only contains one ident, that's fine
+        if len(self.idents) == 1:
+            print("no superimposition to resolve")
+            return
+
+        # If the hex contains a mix of stationary and moving idents, ____
+        # TODO: What if the hex contains multiple stationary idents?
+        # TODO: Decide what to do here and implement it
+        if self.contains_stationary():
+            print("hex with mixed superimposition")
+
+        # If the hex contains multiple moving idents, ____
+        # TODO: Decide what to do here and implement it
+        else:
+            print("hex with moving-only superimposition")
+
 
     ##########################################################################################################
 
@@ -914,6 +955,9 @@ class World:
 
         # Set up wall list
         self.wall_list = []
+
+        # Set up list of hexes to double-check
+        self.double_check = []
 
         # Default agent to None (will be assigned a value in __read_line if one exists)
         self.agents = []
@@ -1195,6 +1239,10 @@ class World:
     ##########################################################################################################
 
     def __update(self):
+
+        # Clear list of hexes to double-check for superimposed idents
+        self.double_check.clear()
+
         # Agents act
         for agent in self.agents:
             agent.get_next_move()
@@ -1241,6 +1289,11 @@ class World:
         # Fix collisions in all idents (except for walls)
         for ident in self.ident_list_new:
             ident.resolve_collisions()
+
+        # Fix issues caused by moving idents backwards when moving idents collide with stationary idents and step back
+        while len(self.double_check):
+            check_hex = self.double_check.pop()
+            check_hex.check_superimposition()
 
         # Move idents between portals
         # TODO: Maintain separate portal list?
