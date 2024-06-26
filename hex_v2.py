@@ -676,7 +676,7 @@ class Ident:
 
     def __copy(self):
         # TODO: Should any of these components be done with .copy()?
-        new_copy = Ident(self.matrix_index, self.list_index, self.world, color = self.color, state = self.state, serial_number = self.serial_number, hist = self.hist, property = self.property, partner_serial_number=self.partner_serial_number)
+        new_copy = Ident(self.matrix_index, self.list_index, self.world, color = self.color, state = self.state, serial_number = self.serial_number, hist = self.hist.copy(), property = self.property, partner_serial_number=self.partner_serial_number)
         return new_copy
     
         # TODO: Relocate the re-assigning of World.agent here?
