@@ -224,18 +224,22 @@ class Ident:
         '''my_index = hex.get_ident_index(self)'''
         dir = self.state
 
-        directions = []
 
-        # TODO: consider appending just the directions/states of the idents instead of appending the idents themselves
+        # Store all idents in self's hex except for self
+        directions = []
+        '''stationary_found = False'''
         for ident in hex.idents:
-            '''if i != my_index:
-                directions.append(hex.idents[i])'''
-            # TODO: This is the only way I've found to not accidentally append self when examining a stationary hex. Why is that?
+        
             # Do not add portal idents to list
+            '''if (ident.serial_number != self.serial_number) and (ident.state != -1) and (not ident.is_portal()):'''
             if (ident.serial_number != self.serial_number) and (not ident.is_portal()):
                 directions.append(ident)
-            '''if ident is not self:
-                directions.append(ident)'''
+            
+            '''# Only allow one stationary (non-portal) ident to be stored the directions list
+            # TODO: The goal of enacting this restriction is to avoid errors from the corner collision case, but this doesn't address the root cause of that issue. Is it a good enough patch?
+            elif ident.state == -1 and (not stationary_found) and (not ident.is_portal()):
+                directions.append(ident)
+                stationary_found = True'''
 
         # if there was only one other ident in the collision, take its attributes
         # Note that this also deals with the most simple collision betwen a moving ident and a stationary one
@@ -327,6 +331,7 @@ class Ident:
                     # if the other two cohabitants are adjacent to one another (60 degrees), take one of the states (arbitrary formula)
                     # TODO: ^^ Note that this is an arbitrary decision ^^
                     else:
+                        breakpoint()
                         # TODO: Note that this runs into issues when there is superimposition of multiple stationary idents
                         assert(directions[0].state != -1 and directions[1].state != -1)
 
