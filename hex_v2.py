@@ -1006,11 +1006,10 @@ class Hex:
                 condensed_list[0].rotate_adopt(corrected_hex, world.corrected_idents, dir_final = condensed_list[1].state)
                 condensed_list[1].rotate_adopt(corrected_hex, world.corrected_idents, dir_final = condensed_list[0].state)
 
-
-            # Add the updated hex to corrected_hexes
-            world.corrected_hexes.append(corrected_hex)
-
             print("hex with moving-only superimposition")
+        
+        # Add the updated hex to corrected_hexes
+        world.corrected_hexes.append(corrected_hex)
 
 
     ##########################################################################################################
