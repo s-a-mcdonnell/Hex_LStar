@@ -16,6 +16,8 @@ Process of the game:
    b: Else, take the average of all other idents EXCEPT SELF, but break ties by using the opposite ident of self
 '''
 
+goalEnd = False
+
 # for storing information about a particular moving hex
 class Ident:
 
@@ -1238,11 +1240,16 @@ class World:
             for hex in hex_list:
                 # Save wall_ident to add back in, if applicable
                 wall_ident = hex.contains_direction(-2)
+                # also save and add back in goalposts
+                goal_ident = hex.contains_property("goal")
                 
                 hex.idents.clear()
                 
                 if wall_ident:
                     self.hex_matrix_new[wall_ident.matrix_index][wall_ident.list_index].idents.append(wall_ident)
+                if goal_ident:
+                    self.hex_matrix_new[goal_ident.matrix_index][goal_ident.list_index].idents.append(goal_ident)
+                    print("goal ident added to hex matrix new")
         
         self.ident_list_new.clear()
 
@@ -1255,11 +1262,16 @@ class World:
             for hex in hex_list:
                 # Save wall_ident to add back in, if applicable
                 wall_ident = hex.contains_direction(-2)
+                # also save and add back in goalposts
+                goal_ident = hex.contains_property("goal")
                 
                 hex.idents.clear()
                 
                 if wall_ident:
                     self.hex_matrix[wall_ident.matrix_index][wall_ident.list_index].idents.append(wall_ident)
+                if goal_ident:
+                    self.hex_matrix[goal_ident.matrix_index][goal_ident.list_index].idents.append(goal_ident)
+                    print("goal ident added to hex matrix after advance/flip")
         
         self.ident_list.clear()
                 
