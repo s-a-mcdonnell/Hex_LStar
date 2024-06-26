@@ -1313,11 +1313,16 @@ class World:
 
                     # Walls are managed separately to other idents, so re-draw them from their own list
                     wall_ident = hex.contains_direction(-2)
+                    goal_ident = hex.contains_property("goal")
 
                     hex.idents.clear()
 
                     if wall_ident:
                         self.hex_matrix[wall_ident.matrix_index][wall_ident.list_index].idents.append(wall_ident)
+                    if goal_ident:
+                        self.hex_matrix[goal_ident.matrix_index][goal_ident.list_index].idents.append(goal_ident)
+
+                    # also redraw the goalpost idents separately
 
             # Then, apply step back on all idents
             # After applying the step back, return those idents to the list in their respective hexes
