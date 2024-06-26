@@ -1,1 +1,2 @@
-7 6 move PURPLE 3
+7 6 goal
+7 8 move RED 0

@@ -178,6 +178,12 @@ class Ident:
 
     ##########################################################################################################
 
+    # returns a boolean indicating whether the given ident is a goalpost
+    # Returns a boolean indicating whether or not the given ident is a portal
+    def is_goal(self):
+        return self.property == "goal"
+    ##########################################################################################################
+
      # TODO: Write this method
     # note that I should never have to deal with walls in this method
     # note that this reads from hex_matrix_new and ident_list_new and writes to hex_matrix and ident_list
@@ -811,6 +817,26 @@ class Hex:
 
     ##########################################################################################################
 
+    # Gives the designated hex a goalpost identity
+    # TODO: properly implement this method and ensure that copying it from above actually works
+    def make_goal(self, world, list_to_append):
+        goal_ident = Ident(self.matrix_index, self.list_index, world, color = (247, 173, 45), state = -1, serial_number = -1, hist = None, property = "goal")
+        self.idents.append(goal_ident)
+        list_to_append.append(goal_ident)
+
+    ##########################################################################################################
+
+    # Checks if a hex contains an ident with a specifies property, otherwise, returns none
+    def contains_property(self, prop):
+
+        for ident in self.idents:
+            if ident.property == prop:
+                return ident
+
+        return None
+
+    ##########################################################################################################
+
     # Checks if a hex contains an ident heading in the given directon
     # If it does, returns that ident
     # Else returns None
@@ -843,7 +869,9 @@ class Hex:
         if self.contains_direction(-1) != None:
             new_color = [max(0, c - 120) for c in color_to_draw]
             pygame.draw.polygon(screen, new_color, self.small_hexagon)
-        
+
+        if self.contains_property("goal"):
+            pygame.draw.polygon(screen, (255, 230, 155), self.small_hexagon)
     
         # Draw multiple nesting circles indicating colors for hexes with superimposed idents/states
         for i in range(1, len(self.idents)):
@@ -905,6 +933,9 @@ class World:
 
         # Default agent to None (will be assigned a value in __read_line if one exists)
         self.agents = []
+
+        # set up goalpost list
+        self.goals = []
 
 
         # reading the intiial state of the hex board from a file
@@ -1062,7 +1093,12 @@ class World:
 
             # Store ident as agent
             self.agents.append(new_agent)
-        
+
+        elif command == "goal" or command == "goal\n":
+            goal_ident = Ident(matrix_index, list_index, self, color = (247, 173, 45), state = -1, serial_number = -1, hist = None, property = "goal")
+            self.hex_matrix[matrix_index][list_index].idents.append(goal_ident)
+            self.goals.append(goal_ident)
+                
         # Print error message
         else:
             print("Command " + command + " invalid.")
