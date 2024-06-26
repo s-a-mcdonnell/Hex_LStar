@@ -1,3 +1,4 @@
 5 5 move YELLOW 0
 4 6 occupied BLUE
 6 6 move ORANGE 5
+5 7 occupied MAROON

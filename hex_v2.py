@@ -227,19 +227,19 @@ class Ident:
 
         # Store all idents in self's hex except for self
         directions = []
-        '''stationary_found = False'''
+        stationary_found = False
         for ident in hex.idents:
         
             # Do not add portal idents to list
-            '''if (ident.serial_number != self.serial_number) and (ident.state != -1) and (not ident.is_portal()):'''
-            if (ident.serial_number != self.serial_number) and (not ident.is_portal()):
+            if (ident.serial_number != self.serial_number) and (ident.state != -1) and (not ident.is_portal()):
+            #if (ident.serial_number != self.serial_number) and (not ident.is_portal()):
                 directions.append(ident)
             
-            '''# Only allow one stationary (non-portal) ident to be stored the directions list
+            # Only allow one stationary (non-portal) ident to be stored the directions list
             # TODO: The goal of enacting this restriction is to avoid errors from the corner collision case, but this doesn't address the root cause of that issue. Is it a good enough patch?
-            elif ident.state == -1 and (not stationary_found) and (not ident.is_portal()):
+            elif (ident.serial_number != self.serial_number) and (ident.state == -1) and (not stationary_found) and (not ident.is_portal()):
                 directions.append(ident)
-                stationary_found = True'''
+                stationary_found = True
 
         # if there was only one other ident in the collision, take its attributes
         # Note that this also deals with the most simple collision betwen a moving ident and a stationary one
@@ -331,7 +331,6 @@ class Ident:
                     # if the other two cohabitants are adjacent to one another (60 degrees), take one of the states (arbitrary formula)
                     # TODO: ^^ Note that this is an arbitrary decision ^^
                     else:
-                        breakpoint()
                         # TODO: Note that this runs into issues when there is superimposition of multiple stationary idents
                         assert(directions[0].state != -1 and directions[1].state != -1)
 
@@ -1075,7 +1074,6 @@ class World:
 
     # Parses agent choices text file
     def __read_agent_line(self, agent_num, line):
-        # breakpoint()
         print("Reading agent line " + str(agent_num))
 
         line_parts = line.split(" ")
@@ -1279,10 +1277,11 @@ class World:
 
                 ident.world.hex_matrix[ident.matrix_index][ident.list_index].idents.append(ident)
 
-            # agents must be set back one index spot so they step forward the same
-            for i in range (len(self.agent_step_indices)):
-                self.agent_step_indices[i] -= 1
-                self.agent_step_indices[i] %= len(self.agent_choices[i])
+            # agents (if they exist) must be set back one index spot so they step forward the same
+            if len(self.agents):
+                for i in range (len(self.agent_step_indices)):
+                    self.agent_step_indices[i] -= 1
+                    self.agent_step_indices[i] %= len(self.agent_choices[i])
 
         # If there are no previous states to step back to, print an error message
         else:
