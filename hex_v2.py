@@ -216,7 +216,7 @@ class Ident:
         
         # If the hex contains only one other state, and that state is a portal, nothing else needs be done
         if len(hex.idents) == 2 and hex.contains_portal():
-            w.hex_matrix[self.matrix_index][self.list_index].idents.append(self)
+            write_to_hex.idents.append(self)
             w.ident_list.append(self)
             return
         
@@ -234,12 +234,8 @@ class Ident:
                 directions.append(ident)
                 # TODO: Add some kind of check for multiple stationary idents if this is not fixed by check_superimposition()
 
-        # if there was only one other ident in the collision, take its attributes
-        # Note that this also deals with the most simple collision betwen a moving ident and a stationary one
-        # TODO: ^^ Check if this is true ^^
         
-        # TODO: What if something contains both a stationary hex and a portal? (How would that come to be?)
-        if (hex.contains_direction(-1) is None) or (hex.contains_portal()):
+        if not hex.contains_stationary():
             # if we contain opposite pairs, remove them from the directions list
             directions = self.__remove_pairs(hex, dir, directions)
             
@@ -284,9 +280,7 @@ class Ident:
                         print("rotate call d")
                         self.rotate_adopt(write_to_hex, w.ident_list, dir_final = directions[0].state)
 
-        # else, we are dealing with multiple hexes, including a stationary hex
-        # TODO: Did you mean idents in the above comment? - Skyler
-        # TODO: stationary cases here!!!
+        # else, we are dealing with multiple idents, including a stationary ident
         else:
             assert(hex.contains_direction(-1))
             
@@ -676,6 +670,13 @@ class Ident:
     
         # TODO: Relocate the re-assigning of World.agent here?
 
+    ##########################################################################################################
+    
+    # Public version of __copy()
+    def copy(self):
+
+        return self.__copy()
+
     ###############################################################################################################
 
     def backstep(self):
@@ -843,6 +844,23 @@ class Hex:
                 return ident
 
         return None
+    
+    ##########################################################################################################
+    @staticmethod
+    # Returns a list containing:
+    #   an integer indicating the number of non-None objects in the passed list
+    #   a list of truthy objects in the passed list
+    # Based on: https://stackoverflow.com/questions/3393431/how-to-count-non-null-elements-in-an-iterable
+    def count(my_list):
+        returnable = [0, []]
+
+        returnable[0] = sum(1 for object in my_list if object)
+
+        for object in my_list:
+            if object:
+                returnable[1].append(object)
+        
+        return returnable
 
     ##########################################################################################################
 
@@ -890,7 +908,27 @@ class Hex:
                     moving_idents[i] = None
                     moving_idents[i+3] = None
             
+            counted_list = Hex.count(moving_idents)
+            remaining_idents = counted_list[0]
             
+            # If there is only one ident remaining, preserve it
+            if remaining_idents == 1:        
+                corrected_hex.idents.append(counted_list[0][0])
+            elif remaining_idents == 3:
+                # There are three idents remaining
+                
+                #____
+                pass
+            
+            else:
+                assert remaining_idents == 2
+
+                # If there are only two idents remaining, they take one another's states
+                counted_list[0][0].rotate_adopt(corrected_hex, dir_final = counted_list[0][1].state)
+                counted_list[0][1].rotate_adopt(corrected_hex, dir_final = counted_list[0][0].state)
+
+
+
 
 
             # Add the hex to corrected_hexes
