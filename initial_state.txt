@@ -1,5 +1,4 @@
 5 7 occupied ORANGE
-4 7 move RED 2
 6 7 move YELLOW 5
 6 6 move GREEN 3
 6 8 move PURPLE 0

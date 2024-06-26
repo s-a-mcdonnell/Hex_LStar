@@ -391,28 +391,29 @@ class Ident:
 
                 # If an ident with the opposite state is present, bounce off
                 if hex.contains_direction((dir + 3) % 6):
-                    self.rotate_adopt(hex_of_origin, w.ident_list)
+                    modified_copy = self.rotate_adopt(hex_of_origin, w.ident_list)
 
-                    # Save hex to double-check for superimposed idents
-                    w.double_check.append(hex_of_origin)
+                    # Save hex and ident to double-check for superimposed idents
+                    w.double_check.append([hex_of_origin, modified_copy])
 
                 
                 # If two idents that sum to the opposite state are present, bounce off
                 elif hex.contains_direction((dir + 2) % 6) and hex.contains_direction((dir + 4) % 6):
-                    self.rotate_adopt(hex_of_origin, w.ident_list)
+                    modified_copy = self.rotate_adopt([hex_of_origin, w.ident_list])
                     
-                    # Save hex to double-check for superimposed idents
-                    w.double_check.append(hex_of_origin)
+                    # Save hex and ident to double-check for superimposed idents
+                    w.double_check.append([hex_of_origin, modified_copy])
 
 
                 # Else become stationary
                 else:
 
-                    # Save hex to double-check for superimposed idents
-                    w.double_check.append(hex_of_origin)
 
                     print("ident with serial number " + str(self.serial_number) + " becoming stationary")
-                    self.rotate_adopt(hex_of_origin, w.ident_list, dir_final = - 1)
+                    modified_copy = self.rotate_adopt(hex_of_origin, w.ident_list, dir_final = - 1)
+                    
+                    # Save hex and ident to double-check for superimposed idents
+                    w.double_check.append([hex_of_origin, modified_copy])
 
                     # additionally, check the two immediate neighbors of the stationary hex to see if it has stationary neighbors, and if so, those start moving too
                     left_neighbor = self.__get_neighbor(w.hex_matrix_new, (self.state - 2)%6)
@@ -551,6 +552,7 @@ class Ident:
     
     # Copies self and rotates it by the indicated number of directions
     # Adopts said rotated ident
+    # Returns rotated ident
     def rotate_adopt(self, future_hex, future_ident_list, dir_offset: int = 3, dir_final : int =-3):
 
         # Calculate final direction if none is given
@@ -572,6 +574,8 @@ class Ident:
         if self in self.world.agents:
             self.world.agents.remove(self)
             self.world.agents.append(ident)
+
+        return ident
 
     ##########################################################################################################
     
@@ -861,7 +865,8 @@ class Hex:
 
     # Resolves cases of superimposition caused by steps backward in resolve_collisions
     # TODO: Check if this cases issues with backstepping
-    def check_superimposition(self, world):
+    # TODO: What happens if we check the same hex multiple times with different idents?
+    def check_superimposition(self, world, ident_to_check):
         # All the hexes in this list should contain at least one ident
         assert len(self.idents)
 
@@ -870,40 +875,55 @@ class Hex:
             print("no superimposition to resolve")
             return
 
+        # Create a hex to store our updates
+        corrected_hex = Hex(self.matrix_index, self.list_index)
+
+        # If hex is a portal, preserve said ident
+        portal = self.contains_portal()
+        if portal:
+            corrected_hex.idents.append(portal)
+
+
         # If the hex contains a mix of stationary and moving idents, ____
         # TODO: What if the hex contains multiple stationary idents?
         # TODO: Decide what to do here and implement it
         if self.contains_stationary():
             print("hex with mixed superimposition")
+            
+            # If said stationary hex is the ident we're checking, do nothing (the necessary bouncing has already happened)
+            if (ident_to_check.state == -1) and (not ident_to_check.is_portal()):
+                return
+            
+            # Else bounce the ident we're checking off of the stationary hex
+            # TODO: Do we need to bounce anything else?
+            else:
+                ident_to_check.rotate_adopt(corrected_hex, world.corrected_idents)
+
 
         # If the hex contains multiple moving idents, bounce them off of one another as necessary
         else:
-            # Create sorted list of moving idents in hex
+            # Create sorted list of moving idents in hex (including the ident we're checking)
             # TODO: What if there are multiple idents of the same state? (Could that even happen?)
             moving_idents = [None]*6
             for ident in self.idents:
                 if (ident.state >= 0) and (not ident.is_portal()):
                     moving_idents[ident.state] = ident
-            
-            corrected_hex = Hex(self.matrix_index, self.list_index)
-
-            # If hex is a portal, preserve said ident
-            portal = self.contains_portal()
-            if portal:
-                corrected_hex.idents.append(portal)
+        
 
             # If the hex contains opposite pairs of idents, remove said pairs from the moving_idents list
             # TODO: Refactor to use same code as in resolve_collisions?
             for i in range(3):
                 if moving_idents[i] and moving_idents[i+3]:
-                    # NOTE: I don't think doing this makes sense unless we know that one of them is the newly-shifted ident (otherwise we're double-bouncing, which un-bounces)
 
-                    '''print("bouncing idents with states " + str(i) + " and " + str((i+3)%6))
-
-                    moving_idents[i].rotate_adopt(corrected_hex, world.corrected_idents)
-                    moving_idents[i+3].rotate_adopt(corrected_hex, world.corrected_idents)'''
-                    corrected_hex.idents.append(moving_idents[i].copy())
-                    corrected_hex.idents.append(moving_idents[i+3].copy())
+                    # If one of these opposite idents is the one we're checking, bounce them off of one another
+                    if (i == ident_to_check.state) or (i + 3 == ident_to_check.state):
+                        moving_idents[i].rotate_adopt(corrected_hex, world.corrected_idents)
+                        moving_idents[i+3].rotate_adopt(corrected_hex, world.corrected_idents)
+                    
+                    # Else these idents will already have been bounced off of one another, so we only have to preserve them
+                    else:
+                        corrected_hex.idents.append(moving_idents[i].copy())
+                        corrected_hex.idents.append(moving_idents[i+3].copy())
 
 
                     # Erase the rotated idents from our running log
@@ -921,6 +941,8 @@ class Hex:
                 corrected_hex.idents.append(my_copy)
                 world.corrected_idents.append(my_copy)
 
+            # TODO: For everything in check_superimposition from here on down, we need to account for ident_to_check either being or not being involved in the potential collision
+            # TODO: If ident_to_check is involved, deal with it. Otherwise, leave it be (it's already been handled, and messing with it would only undo that work)
             elif remaining_idents == 3:
                 # There are three idents remaining
                 
@@ -1038,7 +1060,7 @@ class World:
         # Set up wall list
         self.wall_list = []
 
-        # Set up list of hexes to double-check and lists to store the corrections
+        # Set up list of hex-ident pairs to double-check and lists to store the corrections
         self.double_check = []
         self.corrected_hexes = []
         self.corrected_idents = []
@@ -1381,8 +1403,10 @@ class World:
 
         # Fix issues caused by moving idents backwards when moving idents collide with stationary idents and step back
         while len(self.double_check):
-            check_hex = self.double_check.pop()
-            check_hex.check_superimposition(self)
+            hex_and_ident = self.double_check.pop()
+            check_hex = hex_and_ident[0]
+            check_ident = hex_and_ident[1]
+            check_hex.check_superimposition(self, check_ident)
         
         # Substitute in corrected hexes and idents
         # TODO: Will waiting to swap these in cause issues in iteratively calling check_superimposition()?
