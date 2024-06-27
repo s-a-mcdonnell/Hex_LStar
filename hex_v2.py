@@ -592,6 +592,9 @@ class Ident:
             ident.remove_repeats(future_ident_list)
 
         future_ident_list.append(ident)
+
+        # Don't double-up on idents with the same serial number in the same hex
+        ident.remove_repeats(future_hex.idents)
         future_hex.idents.append(ident)
 
         if self in self.world.agents:
@@ -964,7 +967,12 @@ class Hex:
                     
                     # Else these idents will already have been bounced off of one another, so we only have to preserve them
                     else:
+                        # Don't double-up on idents with the same serial number in the same hex
+                        # NOTE: I'm not sure if this would ever be an issue
+                        moving_idents[i].remove_repeats(corrected_hex.idents)
                         corrected_hex.idents.append(moving_idents[i].copy())
+                        
+                        moving_idents[i+3].remove_repeats(corrected_hex.idents)
                         corrected_hex.idents.append(moving_idents[i+3].copy())
 
 
@@ -979,7 +987,11 @@ class Hex:
             # TODO: is copying really necessary here?
 
             if remaining_idents == 1:
-                my_copy = condensed_list[0].copy()        
+                my_copy = condensed_list[0].copy()     
+
+                # Don't double-up on idents with the same serial number in the same hex
+                # NOTE: I'm not sure if this would ever be an issue
+                my_copy.remove_repeats(corrected_hex.idents)
                 corrected_hex.idents.append(my_copy)
                 
                 # Don't double-up on idents with the same serial number in the corrected list
@@ -1010,6 +1022,7 @@ class Hex:
                             # The middle ident is preserved
                             # TODO: is copying really necessary here?
                             middle_copy = moving_idents[(i+1)%6].copy()
+                            middle_copy.remove_repeats(corrected_hex.idents)
                             corrected_hex.idents.append(middle_copy)
 
                             # Don't double-up on idents with the same serial number in the corrected list
