@@ -191,18 +191,12 @@ class Ident:
 
         # TODO: implement handling of agent hitting goalpost here!! :)
         if (hex.contains_property("agent")):
-            print("agent in hex " + str(self.matrix_index) + " " + str(self.list_index))
-            print("I am an agent")
             maybe_goal = next((Ident for Ident in w.goals if (Ident.matrix_index == self.matrix_index) and (Ident.list_index == self.list_index)), None)
             # find the first ident in goals with matching grid positions to self
             # if it exists, close da game!!!
             if maybe_goal is not None:
                 w.goalEnd = True
-                print("goalEnd allegedly changed")
                 return
-
-        else:
-            print("ident at " + str(self.matrix_index) + " " + str(self.list_index) + " not an agent.")
         
         # If self is a portal, do nothing
         if self.is_portal():
@@ -1422,13 +1416,13 @@ class World:
         
         # Exit
         if(self.goalEnd):
+            print()
             print("SIM OVER, WE HIT GOAL")
             self.screen.fill((200, 200, 200))
-            # TODO: insert info page here
-            print()
+            # TODO: insert info page here as image on screen possibly with drawing
+            print()   
             print("It took " + str(frames_created) + " frames to get into the goal.")
-            # something about where the goal was located (matrix coords) and which hex went into it? (ident/color)
-            # pretty drawing here
+            # TODO: add more info to this: something about where the goal was located (matrix coords) and which hex went into it? (ident/color)
             pygame.display.update()
             while(self.goalEnd):
                 for event in pygame.event.get():
