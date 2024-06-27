@@ -116,6 +116,16 @@ class Ident:
         else:
             print("Invalid direction " + str(dir) + " passed to Ident.__get_neighbor(dir)")
             return None
+        
+    ##########################################################################################################
+
+    # Finds the ident(s) with the same serial number as self in the passed list and removes them
+    def remove_repeats(self, id_list):
+        for ident in id_list:
+            if ident.serial_number == self.serial_number:
+                id_list.remove(ident)
+                print("removing old ident with serial number " + str(ident.serial_number) + " and state " + str(ident.state))
+
 
     ##########################################################################################################
 
@@ -575,6 +585,12 @@ class Ident:
         ident.matrix_index = future_hex.matrix_index
         ident.list_index = future_hex.list_index
 
+        # TODO: Is this a valid way of checking if two lists are the same?
+        if future_ident_list == self.world.corrected_idents:
+            # Don't double-up on idents with the same serial number in the corrected list
+            # TODO: What to do about doubling-up within the hex.idents lists?
+            ident.remove_repeats(future_ident_list)
+
         future_ident_list.append(ident)
         future_hex.idents.append(ident)
 
@@ -965,6 +981,11 @@ class Hex:
             if remaining_idents == 1:
                 my_copy = condensed_list[0].copy()        
                 corrected_hex.idents.append(my_copy)
+                
+                # Don't double-up on idents with the same serial number in the corrected list
+                # TODO: What to do about doubling-up within the hex.idents lists?
+                my_copy.remove_repeats(world.corrected_idents)
+
                 world.corrected_idents.append(my_copy)
 
             # TODO: For everything in check_superimposition from here on down, we need to account for ident_to_check either being or not being involved in the potential collision
@@ -990,6 +1011,11 @@ class Hex:
                             # TODO: is copying really necessary here?
                             middle_copy = moving_idents[(i+1)%6].copy()
                             corrected_hex.idents.append(middle_copy)
+
+                            # Don't double-up on idents with the same serial number in the corrected list
+                            # TODO: What to do about doubling-up within the hex.idents lists?
+                            my_copy.remove_repeats(world.corrected_idents)
+
                             world.corrected_idents.append(middle_copy)
             
             else:
@@ -1439,12 +1465,9 @@ class World:
             print("swap in corrected hex")
             self.hex_matrix[hex.matrix_index][hex.list_index] = hex
 
-        # TODO: There must be a more efficient way to do this
+        # TODO: Merge the two for-loops going through self.corrected_idents?
         for new_ident in self.corrected_idents:
-            for old_ident in self.ident_list:
-                if old_ident.serial_number == new_ident.serial_number:
-                    print("removing old ident with serial number " + str(old_ident.serial_number) + " and state " + str(old_ident.state))
-                    self.ident_list.remove(old_ident)
+            new_ident.remove_repeats(self.ident_list)
         
         for new_ident in self.corrected_idents:
             print("appending new ident with serial number " + str(new_ident.serial_number) + " and state " + str(new_ident.state))
