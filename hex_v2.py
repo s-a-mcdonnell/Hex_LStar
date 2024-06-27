@@ -1108,6 +1108,8 @@ class World:
 
         self.goalEnd = False
 
+        self.frames_created = 0
+
         pygame.init()
 
         SCREEN_WIDTH = 800
@@ -1539,10 +1541,9 @@ class World:
         # TODO: Maintain separate portal list?
         self.__handle_portals()
 
-        global frames_created
-        frames_created += 1
+        self.frames_created += 1
 
-        print(str(frames_created))
+        print(str(self.frames_created))
 
     ##########################################################################################################
 
@@ -1591,13 +1592,13 @@ class World:
                 for i in range (len(self.agent_step_indices)):
                     self.agent_step_indices[i] -= 1
                     self.agent_step_indices[i] %= len(self.agent_choices[i])
+            
+            self.frames_created -= 1
 
         # If there are no previous states to step back to, print an error message
         else:
             print("Maximum steps back have been taken.")
 
-        global frames_created
-        frames_created -= 1
 
 
 
@@ -1606,8 +1607,6 @@ class World:
 
     def run(self):
         run = True
-        global frames_created
-        frames_created = 0
 
         state = "pause"
         clock = pygame.time.Clock()
@@ -1670,7 +1669,7 @@ class World:
             self.screen.fill((200, 200, 200))
             # TODO: insert info page here as image on screen possibly with drawing
             print()   
-            print("It took " + str(frames_created) + " frames to get into the goal.")
+            print("It took " + str(self.frames_created) + " frames to get into the goal.")
             # TODO: add more info to this: something about where the goal was located (matrix coords) and which hex went into it? (ident/color)
             pygame.display.update()
             while(self.goalEnd):
