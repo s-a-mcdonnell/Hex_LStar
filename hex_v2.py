@@ -685,9 +685,9 @@ class Ident:
 
         if len(self.hist) == limit + 1:
             self.hist.pop(0)
-            self.hist.append((m, l, self.state))
-        else:
-            self.hist.append((m, l, self.state))
+        
+        
+        self.hist.append((m, l, self.state))
 
         # print("------------------------------------------------------------------------------------------------------------------------", self.hist)
 
@@ -1418,10 +1418,6 @@ class World:
         self.corrected_hexes.clear()
         self.corrected_idents.clear()
 
-        # Agents act
-        for agent in self.agents:
-            agent.get_next_move()
-
         # Push history of idents and walls
         # TODO: Should this go before or after the rotation of the agents?
         for ident in self.ident_list:
@@ -1430,6 +1426,9 @@ class World:
         for wall in self.wall_list:
             wall.visited(wall.matrix_index, wall.list_index)
 
+        # Agents act
+        for agent in self.agents:
+            agent.get_next_move()
 
         # Clear the new matrix and list so that advance_or_flip can write to it
         for hex_list in self.hex_matrix_new:
