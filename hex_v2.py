@@ -1478,28 +1478,44 @@ class World:
                     if wall_ident:
                         self.hex_matrix[wall_ident.matrix_index][wall_ident.list_index].idents.append(wall_ident)
 
+            temp_ident_list = []
+            temp_agent_list = []
+
             # Then, apply step back on all idents
             # After applying the step back, return those idents to the list in their respective hexes
             for ident in self.ident_list:
                 ident.backstep()
 
                 self.hex_matrix[ident.matrix_index][ident.list_index].idents.append(ident)
+                temp_ident_list.append(ident)
+                if ident in self.agents:
+                    temp_agent_list.append(ident)
             
+            temp_wall_list = []
+
             for wall in self.wall_list:
                 # wall.backstep()
                 self.hex_matrix[wall.matrix_index][wall.list_index].idents.append(wall)
 
                 ident.world.hex_matrix[ident.matrix_index][ident.list_index].idents.append(ident)
 
+                temp_wall_list.append(wall)
+
             # agents (if they exist) must be set back one index spot so they step forward the same
             if len(self.agents):
                 for i in range (len(self.agent_step_indices)):
                     self.agent_step_indices[i] -= 1
                     self.agent_step_indices[i] %= len(self.agent_choices[i])
+            
+            self.ident_list = temp_ident_list
+            self.wall_list = temp_wall_list
+            self.agents = temp_agent_list
 
         # If there are no previous states to step back to, print an error message
         else:
             print("Maximum steps back have been taken.")
+
+
 
 
     ##########################################################################################################
