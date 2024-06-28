@@ -1,8 +1,2 @@
-5 10 goal
-5 5 move YELLOW 0
-4 6 occupied BLUE
-6 6 move ORANGE 5
-5 7 occupied red
-11 6 move GREEN 5
-5 9 portal 7 8
-8 6 agent MAROON 5
+9 6 agent MAROON 5
+6 6 goal

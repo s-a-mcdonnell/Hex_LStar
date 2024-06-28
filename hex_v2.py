@@ -1667,6 +1667,11 @@ class World:
             print()
             print("SIM OVER, WE HIT GOAL")
             self.screen.fill((200, 200, 200))
+
+            # Draw a small red square
+            # TODO: Draw something more interesting (insert an image --> cat?)
+            pygame.draw.rect(self.screen, (255, 0, 0), pygame.Rect(10, 10, 20, 20))
+            
             # TODO: insert info page here as image on screen possibly with drawing
             print()   
             print("It took " + str(self.frames_created) + " frames to get into the goal.")
