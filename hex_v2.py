@@ -1163,7 +1163,7 @@ class World:
         self.goals = []
 
 
-        # reading the intiial state of the hex board from a file
+        # reading the intial state of the hex board from a file
         __location__ = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__)))
         file = open(os.path.join(__location__, "initial_state.txt"), "r")
         for line in file:
