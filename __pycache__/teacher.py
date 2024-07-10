@@ -159,6 +159,10 @@ class Teacher:
 
                 world.hex_matrix[mi][li].idents.append(new_ident)
                 
+                # The first four bits in ever "letter" (12-bit string) form the property
+                # The properties are wall (0000), stationary non-agent (0001), moving agent (in directions 0 through 5, 0010 through 0111),
+                # stationary agent (1000), moving agent (in directions 0 through 5, 1001 through 1110), and goal (1111)
+
                 # 0000 => wall
                 if property == "0000":
                     new_ident.state = -2
