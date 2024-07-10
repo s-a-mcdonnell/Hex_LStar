@@ -74,6 +74,7 @@ class Teacher:
     # equivalency query
     # takes the DFA hypothesis m_hat
     # returns either a counterexample or False (indicating that the DFAs match)
+    # TODO: Adapt for hex world
     def equivalent(self, m_hat):
         assert m_hat
         if len(self.m[0]) != len(m_hat[0]):
@@ -126,21 +127,32 @@ class Teacher:
 
     # membership query
     # takes a string s and returns a boolean indicating whether s is accepted or rejected by the given DFA
+    # TODO: Adapt for hex world
     def member(self, s : str, dfa: list[list[int]] = None, alpha = None):
         # print("membership query called")
 
-        if not dfa:
-            dfa = self.m
-        
         if not alpha:
             alpha = self.alphabet
 
-        # Return the int boolean indicating if the final state is an accept or reject state
-        final_state : list[int] = Teacher.final_state(s, dfa, alpha)
-        return bool(final_state[0])
+        # If passed a matrix, use it as the dfa and return boolen indicating final state action
+        if dfa:        
+            # Return the int boolean indicating if the final state is an accept or reject state
+            final_state : list[int] = Teacher.final_state(s, dfa, alpha)
+            return bool(final_state[0])
+        
+        # If not passed a matrix, return an answer as if the agent's decision-making process were a DFA
+        else:
+            # Always reject the empty string
+            if s == "":
+                return False
+            
+            # TODO: Translate string into a worls and query agent
 
     ##########################################################################################################
 
+    # TODO: Adopt for hex world
+    # NOTE: For now, we will only generate 17-char strings, with the first bit indicating whether or not there are walls around the edges, the next 8 bit specifying the coordinates of the agent, the last 8 indicating the coordinates of the goal
+    # NOTE issue: How will the hex world respond when quieried like a DFA when the string is the wrong length? Could we work on how we define the alphabet to allow multiple-char letters so that things will be added/removed on the level of a unit of meaning?
     def generate_string(self):
 
         strg = ""
