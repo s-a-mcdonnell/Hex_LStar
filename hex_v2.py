@@ -727,13 +727,14 @@ class Ident:
     ###############################################################################################################
 
     # Adjust's agent's state based on input from file, read into world.agent_choices
-    def get_next_move(self):
+    @staticmethod
+    def get_next_move(agent):
 
-        assert self in self.world.agents
-        assert self in self.world.ident_list
+        assert agent in agent.world.agents
+        assert agent in agent.world.ident_list
 
-        w = self.world
-        my_index = w.agents.index(self)
+        w = agent.world
+        my_index = w.agents.index(agent)
 
         if len(w.agent_choices[my_index]) == 0:
             print("No instructions provided for agent " + str(my_index))
@@ -747,9 +748,9 @@ class Ident:
         print("Next move " + str(influence))
 
         # TODO: What if the agent is currently stationary? (Currently, does nothing)
-        if self.state >= 0:
-            self.state += influence
-            self.state %= 6
+        if agent.state >= 0:
+            agent.state += influence
+            agent.state %= 6
 
         # Iterate agent index
         w.agent_step_indices[my_index] += 1
@@ -1468,7 +1469,7 @@ class World:
         # Agents act
         for agent in self.agents:
             print("agent state was " + str(agent.state))
-            agent.get_next_move()
+            Ident.get_next_move(agent)
             print("agent state is now " + str(agent.state))
 
 
