@@ -1,2 +1,4 @@
-9 6 agent MAROON 5
-6 6 goal
+1 7 occupied BLUE
+12 8 occupied RED
+11 9 occupied GREEN
+2 7 occupied PURPLE

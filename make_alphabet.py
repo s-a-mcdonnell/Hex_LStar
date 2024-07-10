@@ -1,3 +1,34 @@
+def check_validity(input):
+
+    # splice the twelve character string into three four character chunks
+    info = input[0:4]
+    x = int(input[4:8], 2)
+    y = int(input[8:],2)
+
+    # all 16 forms of input are valid
+
+    # invalid if the second two coordinate 4-bit strings are outside of the walls
+    # x needs to be... greater than zero, and less than 13
+    if (x <= 0) or (x >= 13):
+        return False
+    
+    # y needs to be... greater than 6 - i...
+    # and less than 15 - i if x is odd, but less than 14 - i if x is even
+
+    if x % 2 == 0:
+        # if x is even, i = x - 2 / 2
+        i = (x - 2) / 2
+        if (y <= 6 - i) or (y >= 14 - i):
+            return False
+        
+    # if x is odd...
+    else:
+        i = (x - 1)/2
+        if (y <= 6 - i) or (y >= 15 - i):
+            return False
+
+    return True
+
 def write_alphabet():
     # Writing to a text file according to this tutorial: https://www.w3schools.com/python/python_file_write.asp
 
@@ -17,7 +48,9 @@ def write_alphabet():
             for k in range(16):
                 next_letter = four_bits[i] + four_bits[j] + four_bits[k]
 
-                f.write(next_letter + "\n")
+                # check if a 12 bit character is valid (ie, inside the walls of hex world), and if not, don't add it
+                if check_validity(next_letter):
+                    f.write(next_letter + "\n")
     
     f.close()
 
