@@ -1447,7 +1447,7 @@ class World:
 
     ##########################################################################################################
 
-    def __update(self):
+    def update(self):
 
         # Clear list of hexes to double-check for superimposed idents
         # TODO: We should be able to delete this, as the while loop that checks for superimposition pops until this list is empty
@@ -1641,7 +1641,7 @@ class World:
 
                     # when in pause, you can step forward or back
                     if state == "pause" and keys[pygame.K_s]:
-                        self.__update()
+                        self.update()
 
                         pygame.time.delay(100)
                         # Take one second pause
@@ -1660,10 +1660,10 @@ class World:
             if state == "go":
                 print("--------------------on go--------------------")
                 dt = clock.tick(2) / 1000
-                self.__update()
+                self.update()
             elif state == "hyper":
                 dt = clock.tick(20) / 1000
-                self.__update()
+                self.update()
         
         # Exit
         if(self.goalEnd):
