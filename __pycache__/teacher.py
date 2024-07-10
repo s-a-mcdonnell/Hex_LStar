@@ -1,4 +1,5 @@
 import random
+from hex_v2 import World, Ident
 
 ##############################################################################################################
 
@@ -146,11 +147,76 @@ class Teacher:
             if s == "":
                 return False
             
-            # TODO: Translate string into a worls and query agent
+            world = World()
+            
+            # TODO: Parse string into a world and query agent
+            for i in range(len(s)/12):
+                property = s[i*12 : i*12 + 4]
+                mi = s[i*12 + 4 : i*12 + 8]
+                li = s[i*12 + 8 : i*12 + 12]
+
+                new_ident = Ident(mi, li, world)
+
+                world.hex_matrix[mi][li].idents.append(new_ident)
+                
+                # 0000 => wall
+                if property == "0000":
+                    new_ident.state = -2
+                    world.wall_list.append(new_ident)
+
+                # If not a wall, it goes on the ident list
+                else:
+                    world.ident_list.append(new_ident)
+
+                # 0001 => stationary
+                if property == "0001":
+                    new_ident.state = -1
+                
+                # 0010 => direction 0
+                elif property == "0010":
+                    new_ident.state = 0
+
+                # 0011 => direction 1
+                elif property == "0011":
+                    new_ident.state = 1
+                
+                # 0100 => direction 2
+                elif property == "0100":
+                    new_ident.state = 2
+
+                # 0101 => direction 3
+                elif property == "0101":
+                    new_ident.state = 3
+                
+                # 0110 => direction 4
+                elif property == "0110":
+                    new_ident.state = 4
+                
+                # 0111 => direction 5
+                elif property == "0111":
+                    new_ident.state = 5
+
+                # 1000 => goal (stationary)
+                elif property == "1000":
+                    new_ident.state = -1
+                    # Mark as goal
+                    self.property = "goal"
+                
+                # The first ident described in the string is an agent
+                if i == 0:
+                    world.agents.append(new_ident)
+                    # TODO: How to specify agent type?
+
+
+                #TODO: How to identify/mark other agents?
+            
+            # TODO: Run one loop of updating the world and check was the agent's state is
+            # TODO: Return a boolean corresponding to the agent's state
+
 
     ##########################################################################################################
 
-    # TODO: Adopt for hex world
+    # TODO: Adapt for hex world
     # NOTE: For now, we will only generate 17-char strings, with the first bit indicating whether or not there are walls around the edges, the next 8 bit specifying the coordinates of the agent, the last 8 indicating the coordinates of the goal
     # NOTE issue: How will the hex world respond when quieried like a DFA when the string is the wrong length? Could we work on how we define the alphabet to allow multiple-char letters so that things will be added/removed on the level of a unit of meaning?
     def generate_string(self):
