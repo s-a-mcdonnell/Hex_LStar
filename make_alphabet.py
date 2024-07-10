@@ -21,8 +21,4 @@ def write_alphabet():
     
     f.close()
 
-    '''#open and read the file after the overwriting:
-    f = open("demofile3.txt", "r")
-    print(f.read())'''
-
 write_alphabet()
