@@ -168,47 +168,74 @@ class Teacher:
                 else:
                     world.ident_list.append(new_ident)
 
-                # 0001 => stationary
+                # 0001 => stationary (non-agent)
                 if property == "0001":
                     new_ident.state = -1
                 
-                # 0010 => direction 0
+                # 0010 => direction 0 (non-agent)
                 elif property == "0010":
                     new_ident.state = 0
 
-                # 0011 => direction 1
+                # 0011 => direction 1 (non-agent)
                 elif property == "0011":
                     new_ident.state = 1
                 
-                # 0100 => direction 2
+                # 0100 => direction 2 (non-agent)
                 elif property == "0100":
                     new_ident.state = 2
 
-                # 0101 => direction 3
+                # 0101 => direction 3 (non-agent)
                 elif property == "0101":
                     new_ident.state = 3
                 
-                # 0110 => direction 4
+                # 0110 => direction 4 (non-agent)
                 elif property == "0110":
                     new_ident.state = 4
                 
-                # 0111 => direction 5
+                # 0111 => direction 5 (non-agent)
                 elif property == "0111":
                     new_ident.state = 5
+                
+                # 1000 => stationary (agent)
+                if property == "1000":
+                    new_ident.state = -1
+                
+                # 1001 => direction 0 (agent)
+                elif property == "1001":
+                    new_ident.state = 0
+                    world.agents.append(new_ident)
 
-                # 1000 => goal (stationary)
-                elif property == "1000":
+                # 1010 => direction 1 (agent)
+                elif property == "1010":
+                    new_ident.state = 1
+                    world.agents.append(new_ident)
+                
+                # 1011 => direction 2 (agent)
+                elif property == "1011":
+                    new_ident.state = 2
+                    world.agents.append(new_ident)
+
+                # 1100 => direction 3 (agent)
+                elif property == "1100":
+                    new_ident.state = 3
+                    world.agents.append(new_ident)
+                
+                # 1101 => direction 4 (agent)
+                elif property == "1101":
+                    new_ident.state = 4
+                    world.agents.append(new_ident)
+                
+                # 1110 => direction 5 (agent)
+                elif property == "1110":
+                    new_ident.state = 5
+                    world.agents.append(new_ident)
+
+                # 1111 => goal (stationary)
+                elif property == "1111":
                     new_ident.state = -1
                     # Mark as goal
                     self.property = "goal"
-                
-                # The first ident described in the string is an agent
-                if i == 0:
-                    world.agents.append(new_ident)
-                    # TODO: How to specify agent type?
-
-
-                #TODO: How to identify/mark other agents?
+            
             
             # TODO: Run one loop of updating the world and check was the agent's state is
             # TODO: Return a boolean corresponding to the agent's state
