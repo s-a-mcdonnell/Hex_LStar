@@ -127,6 +127,7 @@ class Teacher:
     ##########################################################################################################
 
     def __create_world(self, s):
+        # TODO: Should read agent file
         returnable = World(read_file=False)
             
         # Parse string into world
@@ -255,6 +256,7 @@ class Teacher:
             original_agent_state = self.my_agent.state
 
             # TODO: Run one loop of updating the world and check was the agent's state is
+            # TODO: How to know what part of the agent instructions the world should be looking at? (potentially big issue, since we've created a world from scratch)
             self.world.update()
 
             # TODO: Return a boolean corresponding to the agent's state
