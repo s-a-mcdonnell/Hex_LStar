@@ -126,6 +126,103 @@ class Teacher:
         
     ##########################################################################################################
 
+    @staticmethod
+    def __create_world(s):
+        returnable = World(read_file=False)
+            
+        # TODO: Parse string into a world and query agent
+        for i in range(len(s)/12):
+            property = s[i*12 : i*12 + 4]
+            mi = s[i*12 + 4 : i*12 + 8]
+            li = s[i*12 + 8 : i*12 + 12]
+
+            new_ident = Ident(mi, li, returnable)
+
+            returnable.hex_matrix[mi][li].idents.append(new_ident)
+            
+            # The first four bits in ever "letter" (12-bit string) form the property
+            # The properties are wall (0000), stationary non-agent (0001), moving agent (in directions 0 through 5, 0010 through 0111),
+            # stationary agent (1000), moving agent (in directions 0 through 5, 1001 through 1110), and goal (1111)
+
+            # 0000 => wall
+            if property == "0000":
+                new_ident.state = -2
+                returnable.wall_list.append(new_ident)
+
+            # If not a wall, it goes on the ident list
+            else:
+                returnable.ident_list.append(new_ident)
+
+            # 0001 => stationary (non-agent)
+            if property == "0001":
+                new_ident.state = -1
+            
+            # 0010 => direction 0 (non-agent)
+            elif property == "0010":
+                new_ident.state = 0
+
+            # 0011 => direction 1 (non-agent)
+            elif property == "0011":
+                new_ident.state = 1
+            
+            # 0100 => direction 2 (non-agent)
+            elif property == "0100":
+                new_ident.state = 2
+
+            # 0101 => direction 3 (non-agent)
+            elif property == "0101":
+                new_ident.state = 3
+            
+            # 0110 => direction 4 (non-agent)
+            elif property == "0110":
+                new_ident.state = 4
+            
+            # 0111 => direction 5 (non-agent)
+            elif property == "0111":
+                new_ident.state = 5
+            
+            # 1000 => stationary (agent)
+            if property == "1000":
+                new_ident.state = -1
+            
+            # 1001 => direction 0 (agent)
+            elif property == "1001":
+                new_ident.state = 0
+                returnable.agents.append(new_ident)
+
+            # 1010 => direction 1 (agent)
+            elif property == "1010":
+                new_ident.state = 1
+                returnable.agents.append(new_ident)
+            
+            # 1011 => direction 2 (agent)
+            elif property == "1011":
+                new_ident.state = 2
+                returnable.agents.append(new_ident)
+
+            # 1100 => direction 3 (agent)
+            elif property == "1100":
+                new_ident.state = 3
+                returnable.agents.append(new_ident)
+            
+            # 1101 => direction 4 (agent)
+            elif property == "1101":
+                new_ident.state = 4
+                returnable.agents.append(new_ident)
+            
+            # 1110 => direction 5 (agent)
+            elif property == "1110":
+                new_ident.state = 5
+                returnable.agents.append(new_ident)
+
+            # 1111 => goal (stationary)
+            elif property == "1111":
+                new_ident.state = -1
+                # Mark as goal
+                new_ident.property = "goal"
+            
+
+
     # membership query
     # takes a string s and returns a boolean indicating whether s is accepted or rejected by the given DFA
     # TODO: Adapt for hex world
@@ -147,99 +244,7 @@ class Teacher:
             if s == "":
                 return False
             
-            world = World()
-            
-            # TODO: Parse string into a world and query agent
-            for i in range(len(s)/12):
-                property = s[i*12 : i*12 + 4]
-                mi = s[i*12 + 4 : i*12 + 8]
-                li = s[i*12 + 8 : i*12 + 12]
-
-                new_ident = Ident(mi, li, world)
-
-                world.hex_matrix[mi][li].idents.append(new_ident)
-                
-                # The first four bits in ever "letter" (12-bit string) form the property
-                # The properties are wall (0000), stationary non-agent (0001), moving agent (in directions 0 through 5, 0010 through 0111),
-                # stationary agent (1000), moving agent (in directions 0 through 5, 1001 through 1110), and goal (1111)
-
-                # 0000 => wall
-                if property == "0000":
-                    new_ident.state = -2
-                    world.wall_list.append(new_ident)
-
-                # If not a wall, it goes on the ident list
-                else:
-                    world.ident_list.append(new_ident)
-
-                # 0001 => stationary (non-agent)
-                if property == "0001":
-                    new_ident.state = -1
-                
-                # 0010 => direction 0 (non-agent)
-                elif property == "0010":
-                    new_ident.state = 0
-
-                # 0011 => direction 1 (non-agent)
-                elif property == "0011":
-                    new_ident.state = 1
-                
-                # 0100 => direction 2 (non-agent)
-                elif property == "0100":
-                    new_ident.state = 2
-
-                # 0101 => direction 3 (non-agent)
-                elif property == "0101":
-                    new_ident.state = 3
-                
-                # 0110 => direction 4 (non-agent)
-                elif property == "0110":
-                    new_ident.state = 4
-                
-                # 0111 => direction 5 (non-agent)
-                elif property == "0111":
-                    new_ident.state = 5
-                
-                # 1000 => stationary (agent)
-                if property == "1000":
-                    new_ident.state = -1
-                
-                # 1001 => direction 0 (agent)
-                elif property == "1001":
-                    new_ident.state = 0
-                    world.agents.append(new_ident)
-
-                # 1010 => direction 1 (agent)
-                elif property == "1010":
-                    new_ident.state = 1
-                    world.agents.append(new_ident)
-                
-                # 1011 => direction 2 (agent)
-                elif property == "1011":
-                    new_ident.state = 2
-                    world.agents.append(new_ident)
-
-                # 1100 => direction 3 (agent)
-                elif property == "1100":
-                    new_ident.state = 3
-                    world.agents.append(new_ident)
-                
-                # 1101 => direction 4 (agent)
-                elif property == "1101":
-                    new_ident.state = 4
-                    world.agents.append(new_ident)
-                
-                # 1110 => direction 5 (agent)
-                elif property == "1110":
-                    new_ident.state = 5
-                    world.agents.append(new_ident)
-
-                # 1111 => goal (stationary)
-                elif property == "1111":
-                    new_ident.state = -1
-                    # Mark as goal
-                    self.property = "goal"
-            
+            world = Teacher.__create_world(s)
             
             # TODO: Run one loop of updating the world and check was the agent's state is
             # TODO: Return a boolean corresponding to the agent's state
