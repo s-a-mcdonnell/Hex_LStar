@@ -126,11 +126,10 @@ class Teacher:
         
     ##########################################################################################################
 
-    @staticmethod
-    def __create_world(s):
+    def __create_world(self, s):
         returnable = World(read_file=False)
             
-        # TODO: Parse string into a world and query agent
+        # Parse string into world
         for i in range(len(s)/12):
             property = s[i*12 : i*12 + 4]
             mi = s[i*12 + 4 : i*12 + 8]
@@ -221,6 +220,11 @@ class Teacher:
                 # Mark as goal
                 new_ident.property = "goal"
             
+            # Save the first ident described in the string as my_agent
+            if i == 0:
+                self.my_agent = new_ident
+        
+        self.world = returnable    
 
 
     # membership query
@@ -240,14 +244,22 @@ class Teacher:
         
         # If not passed a matrix, return an answer as if the agent's decision-making process were a DFA
         else:
-            # Always reject the empty string
+            # Always reject the empty string (arbitrary decision)
             if s == "":
                 return False
             
-            world = Teacher.__create_world(s)
+            self.__create_world(s)
+            assert self.world
+            assert self.my_agent
             
+            original_agent_state = self.my_agent.state
+
             # TODO: Run one loop of updating the world and check was the agent's state is
+            self.world.update()
+
             # TODO: Return a boolean corresponding to the agent's state
+            # TODO: Actually we want to just report the agent's action, not how it might have been affected by the physics rules
+            
 
 
     ##########################################################################################################
