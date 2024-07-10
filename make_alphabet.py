@@ -24,7 +24,7 @@ def check_validity(input):
     # if x is odd...
     else:
         i = (x - 1)/2
-        if (y <= 6 - i) or (y >= 15 0 i):
+        if (y <= 6 - i) or (y >= 15 - i):
             return False
 
     return True
