@@ -9,16 +9,35 @@ class Direction_Teacher(Teacher):
         self.seed = seed
         if seed == -1:
             self.seed = 1821
+
         # TODO: Write constructor
 
+    ##############################################################################################################
 
+    @staticmethod
+    def final_state(s : str, dfa: list[list[int]], alpha):
 
-    def __create_world(self, s):
-        # TODO: does super() work when you're returning something??? hopefully it still makes self.world...
-        # TODO: test to see if this works properly
-        self.world = World(read_file = False)
-        super().__create_world(s)
+        input = []
 
+        assert (type(s) is str)
+        assert len(s)%3 == 0
+
+        # Convert passed string into an array of ints, where each int is the index in the alphabet array corresponding to that character
+        for i in range(int(len(s)/3)):
+            input.append(alpha.index(s[i*3 : i*3 + 3]))
+        
+        # Enter the DFA (M) at state 0
+        next_state_index = 0
+
+        # Navigate through the DFA to the final state
+        for char_index in input:
+            current_state = dfa[next_state_index]
+            next_state_index = current_state[char_index + 1]
+        
+        # Return final state
+        return dfa[next_state_index]
+    
+    ##############################################################################################################
 
     # membership query
     # takes a string s and returns a boolean indicating whether s is accepted or rejected by the given DFA
@@ -41,7 +60,7 @@ class Direction_Teacher(Teacher):
             if s == "":
                 return False
             
-            self.__create_world(s)
+            self._create_world(s)
             assert self.world
             assert self.my_agent
             
@@ -49,7 +68,7 @@ class Direction_Teacher(Teacher):
 
             # TODO: Run one loop of updating the world and check was the agent's state is
             # TODO: How to know what part of the agent instructions the world should be looking at? (potentially big issue, since we've created a world from scratch)
-            self.world.update()
+            # self.world.update()
 
             new_state = Ident.find_next_move(self.my_agent)
             # TODO: the world updating effects the agent though????
@@ -62,3 +81,30 @@ class Direction_Teacher(Teacher):
                 return True
             else:
                 return False
+            
+    ##############################################################################################################
+
+    # TODO: implement direction teacher equivalency query
+    def equivalent(self, m_hat):
+
+        assert m_hat
+        print("equivalency query called in direction teacher")
+
+        # Generate and test an arbitrarily large number of strings
+        # for each of these strings, if self.member(s, self.m) is not self.member(s, m_hat), return s
+
+        # TODO: Increase range
+        for i in range(100):
+            s = Teacher.generate_string()
+            if self.member(s) != self.member(s, m_hat):
+                assert(type(self.member(s)) is bool)
+                assert(type(self.member(s, m_hat)) is bool)
+                # TODO: Delete debugging print statement
+                # print("Counterexample found: " + s)
+                return s            
+
+        # else return false (so that the truthiness of a counterexample and a matching DFA result will be different)
+        print("No counterexample found")
+
+        # this means the DFA has been found
+        return False
