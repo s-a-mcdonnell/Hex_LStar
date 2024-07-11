@@ -46,6 +46,7 @@ class Movement_Teacher(Teacher):
             # TODO: How to know what part of the agent instructions the world should be looking at? (potentially big issue, since we've created a world from scratch)
             # self.world.update()
 
+            # TODO: How to get the agent's next move when the agent is/isn't reading from a text file?
             new_state = Ident.find_next_move(self.my_agent)
             # TODO: the world updating effects the agent though????
 
