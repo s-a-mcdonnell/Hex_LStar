@@ -96,7 +96,7 @@ class Learner:
             elif teacher_type == 0:
                 self.my_teacher = Movement_Teacher(self.alphabet, seed = seed)
             elif teacher_type == 1:
-                self.my_tacher = Direction_Teacher(self.alphabet, seed = seed)
+                self.my_teacher = Direction_Teacher(self.alphabet, seed = seed)
             else:
                 exit("Error: Invalid teacher type")
 

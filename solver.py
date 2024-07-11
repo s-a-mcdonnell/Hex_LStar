@@ -3,7 +3,7 @@ import sys
 from learner import Learner
 from movement_teacher import Movement_Teacher
 from direction_teacher import Direction_Teacher
-import pdb
+import pdb; pdb.set_trace()
 
 def __read_line(line):
     global alphabet

@@ -14,6 +14,31 @@ class Movement_Teacher(Teacher):
     
     ##########################################################################################################
 
+    @staticmethod
+    def final_state(s : str, dfa: list[list[int]], alpha):
+
+        input = []
+
+        assert (type(s) is str)
+        assert len(s)%3 == 0
+
+        # Convert passed string into an array of ints, where each int is the index in the alphabet array corresponding to that character
+        for i in range(int(len(s)/3)):
+            input.append(alpha.index(s[i*3 : i*3 + 3]))
+        
+        # Enter the DFA (M) at state 0
+        next_state_index = 0
+
+        # Navigate through the DFA to the final state
+        for char_index in input:
+            current_state = dfa[next_state_index]
+            next_state_index = current_state[char_index + 1]
+        
+        # Return final state
+        return dfa[next_state_index]
+    
+    ##########################################################################################################
+
     # membership query
     # takes a string s and returns a boolean indicating whether s is accepted or rejected by the given DFA
     # TODO: Adapt for hex world
@@ -26,7 +51,7 @@ class Movement_Teacher(Teacher):
         # If passed a matrix, use it as the dfa and return boolen indicating final state action
         if dfa:        
             # Return the int boolean indicating if the final state is an accept or reject state
-            final_state : list[int] = Teacher.final_state(s, dfa, alpha)
+            final_state : list[int] = Movement_Teacher.final_state(s, dfa, alpha)
             return bool(final_state[0])
         
         # If not passed a matrix, return an answer as if the agent's decision-making process were a DFA
@@ -73,7 +98,8 @@ class Movement_Teacher(Teacher):
         # Generate and test an arbitrarily large number of strings
         # for each of these strings, if self.member(s, self.m) is not self.member(s, m_hat), return s
 
-        for i in range(1000000):
+        # TODO: Increase range
+        for i in range(100):
             s = Teacher.generate_string()
             if self.member(s) != self.member(s, m_hat):
                 assert(type(self.member(s)) is bool)
