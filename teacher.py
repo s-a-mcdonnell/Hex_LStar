@@ -440,26 +440,20 @@ class Teacher:
             if not len(other_idents):
                 other_idents.append(new_ident)
                 print(f"adding string {new_ident} to other_idents as first string")
-
-            # If the first item in other_idents in larger than new_ident, add at the front
-            elif Teacher.__less_than(new_ident, other_idents[0]):
-                other_idents.insert(0, new_ident)
-                print(f"adding string {new_ident} to other_idents at the front")
+            
+            # Add the final ident in other_idents in smaller than the new_ident, add at the back
+            elif Teacher.__less_than(other_idents[len(other_idents) - 1], new_ident):
+                other_idents.append(new_ident)
 
             # Otherwise iterate through other_ident until the correct location is found
             else:
                 for ident in other_idents:
-                    if Teacher.__less_than(ident, new_ident):
-                        if other_idents.index(ident) == len(other_idents) - 1:
-                            other_idents.append(new_ident)
-                            print(f"adding string {new_ident} to other_idents after {ident} (at end)")
-
-                        else:
-                            other_idents.insert(other_idents.index(ident) + 1, new_ident)
-                            print(f"adding string {new_ident} to other_idents after {ident}")
+                    if not Teacher.__less_than(ident, new_ident):
+                        other_idents.insert(other_idents.index(ident), new_ident)
+                        print(f"adding string {new_ident} to other_idents before {ident}")
                         break
-                    else:
-                        print(f"ident {ident} greater than new_ident {new_ident}")
+                    
+                    
 
 
         # TODO: Sort the three-char strings first by matrix index (2nd char), then list index (2nd char), then property (1st char)
