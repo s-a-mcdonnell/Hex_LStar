@@ -6,16 +6,15 @@ import pygame
 #                                                  AGENT CLASS                                                        #
 
 class Agent:
-    """
-    An agent must define a getAction method, but may also define the
-    following methods which will be called if they exist:
 
-    def registerInitialState(self, state): # inspects the starting state
-    """
+    ###################################################################################################################
+
     def __init__(self, index=0):
         self.index = index
 
-    def get_inf(self, state, keys):
+    ###################################################################################################################
+
+    def get_dir(self, state, keys):
         """
         The Agent will receive a GameState (from hex) and
         must return an action from Directions.{Clockwise, CounterClockwise, Forward}
@@ -38,7 +37,7 @@ class KeyboardAgent(Agent):
 
     ###################################################################################################################
 
-    def get_inf(self, state, keys):
+    def get_dir(self, state, keys, cur_dir):
 
         if keys != None:
             if keys[pygame.K_d]:
@@ -50,7 +49,11 @@ class KeyboardAgent(Agent):
         else:
             influence = 0
 
-        return influence
+        if cur_dir >= 0:
+            cur_dir += influence
+            cur_dir %= 6
+
+        return cur_dir
 
 
 

@@ -3,6 +3,8 @@ import copy
 import os
 import pygame
 
+from Hex_Agents import *
+
 # Debugger
 import pdb
 
@@ -24,7 +26,7 @@ class Ident:
 
     ##########################################################################################################
     
-    def __init__(self, matrix_index, list_index, world, color=(255, 255, 255), state: int = -1, serial_number = -1, hist = None, property = None, partner_serial_number = -1):
+    def __init__(self, matrix_index, list_index, world, color=(255, 255, 255), state: int = -1, serial_number = -1, hist = None, property = None, partner_serial_number = -1, agent=None):
         if hist is None:
             hist = []
         self.color = color
@@ -59,6 +61,8 @@ class Ident:
         self.property = property
 
         self.partner_serial_number = partner_serial_number
+
+        self.agent = agent
 
     ##########################################################################################################
 
@@ -699,7 +703,7 @@ class Ident:
 
     def __copy(self):
         # TODO: Should any of these components be done with .copy()?
-        new_copy = Ident(self.matrix_index, self.list_index, self.world, color = self.color, state = self.state, serial_number = self.serial_number, hist = self.hist.copy(), property = self.property, partner_serial_number=self.partner_serial_number)
+        new_copy = Ident(self.matrix_index, self.list_index, self.world, color = self.color, state = self.state, serial_number = self.serial_number, hist = self.hist.copy(), property = self.property, partner_serial_number=self.partner_serial_number, agent=self.agent)
         return new_copy
     
         # TODO: Relocate the re-assigning of World.agent here?
@@ -727,33 +731,37 @@ class Ident:
     ###############################################################################################################
 
     # Adjust's agent's state based on input from file, read into world.agent_choices
-    def get_next_move(self):
+    def get_next_move(self, keys):
 
-        assert self in self.world.agents
-        assert self in self.world.ident_list
+        #     assert self in self.world.agents
+        #     assert self in self.world.ident_list
 
-        w = self.world
-        my_index = w.agents.index(self)
+        #     w = self.world
+        #     my_index = w.agents.index(self)
 
-        if len(w.agent_choices[my_index]) == 0:
-            print("No instructions provided for agent " + str(my_index))
-            return
+        #     if len(w.agent_choices[my_index]) == 0:
+        #         print("No instructions provided for agent " + str(my_index))
+        #         return
 
 
-        # Get influence of the agent on its direction, wrapping around to the start of the file if necessary
-        w.agent_step_indices[my_index] %= len(w.agent_choices[my_index])
-        influence = w.agent_choices[my_index][w.agent_step_indices[my_index]]
+        #     # Get influence of the agent on its direction, wrapping around to the start of the file if necessary
+        #     w.agent_step_indices[my_index] %= len(w.agent_choices[my_index])
+        #     influence = w.agent_choices[my_index][w.agent_step_indices[my_index]]
 
-        print("Next move " + str(influence))
+        #     print("Next move " + str(influence))
 
-        # TODO: What if the agent is currently stationary? (Currently, does nothing)
-        if self.state >= 0:
-            self.state += influence
-            self.state %= 6
+        #     # TODO: What if the agent is currently stationary? (Currently, does nothing)
+        #     if self.state >= 0:
+        #         self.state += influence
+        #         self.state %= 6
 
-        # Iterate agent index
-        w.agent_step_indices[my_index] += 1
+        #     # Iterate agent index
+        #     w.agent_step_indices[my_index] += 1
 
+        dir = self.agent.get_dir(state=None, keys=keys, cur_dir = self.state)
+        print("Next move " + str(dir))
+
+        self.state = dir
     
 ###############################################################################################################
 
@@ -1310,7 +1318,7 @@ class World:
             color_text = line_parts[3]
             color = World.__get_color(color_text)
 
-            new_agent = Ident(matrix_index, list_index, self, color = color, state = direction, serial_number = -1, hist = None, property = "agent")
+            new_agent = Ident(matrix_index, list_index, self, color = color, state = direction, serial_number = -1, hist = None, property = "agent", agent=KeyboardAgent())
 
             # Add ident to ident list
             self.ident_list.append(new_agent)
@@ -1445,7 +1453,7 @@ class World:
 
     ##########################################################################################################
 
-    def __update(self):
+    def __update(self, keys):
 
         # Clear list of hexes to double-check for superimposed idents
         # TODO: We should be able to delete this, as the while loop that checks for superimposition pops until this list is empty
@@ -1468,7 +1476,7 @@ class World:
         # Agents act
         for agent in self.agents:
             print("agent state was " + str(agent.state))
-            agent.get_next_move()
+            agent.get_next_move(keys)
             print("agent state is now " + str(agent.state))
 
 
@@ -1639,7 +1647,7 @@ class World:
 
                     # when in pause, you can step forward or back
                     if state == "pause" and keys[pygame.K_s]:
-                        self.__update()
+                        self.__update(keys)
 
                         pygame.time.delay(100)
                         # Take one second pause
@@ -1658,10 +1666,10 @@ class World:
             if state == "go":
                 print("--------------------on go--------------------")
                 dt = clock.tick(2) / 1000
-                self.__update()
+                self.__update(keys)
             elif state == "hyper":
                 dt = clock.tick(20) / 1000
-                self.__update()
+                self.__update(keys)
         
         # Exit
         if(self.goalEnd):
