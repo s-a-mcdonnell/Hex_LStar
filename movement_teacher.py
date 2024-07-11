@@ -1,6 +1,7 @@
 # The first teacher (is the agent turning itself?)
 
 from teacher import Teacher
+from hex_v2 import World, Ident
 
 class Movement_Teacher(Teacher):
     def __init__(self):
