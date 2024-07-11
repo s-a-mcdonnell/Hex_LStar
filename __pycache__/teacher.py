@@ -1,5 +1,6 @@
 import random
 from hex_v2 import World, Ident
+import make_alphabet
 
 ##############################################################################################################
 
@@ -236,18 +237,50 @@ class Teacher:
     # NOTE: For now, we will only generate 17-char strings, with the first bit indicating whether or not there are walls around the edges, the next 8 bit specifying the coordinates of the agent, the last 8 indicating the coordinates of the goal
     # NOTE issue: How will the hex world respond when quieried like a DFA when the string is the wrong length? Could we work on how we define the alphabet to allow multiple-char letters so that things will be added/removed on the level of a unit of meaning?
     def generate_string(self):
+        strg = ""
 
-        # TODO: Generate a pseudo-randomly determined numnber of 3-char strings
+        # Generate a valid agent of random direction and location
+        my_agent = ""
+        while not make_alphabet.check_validity(my_agent):
+            my_agent = ""
+            agent_dir = random.randint(9, 14)
+            agent_mi = random.randint(0, 15)
+            agent_li = random.randint(0, 15)
+            # TODO: Check that this hex method correctly converts and returns a string
+            my_agent += hex(agent_dir) + hex(agent_mi) + hex(agent_li)
+
+        assert my_agent
+
+        # Save valid agent
+        strg += my_agent
+
+        # Generate a valid goal of random location
+        my_goal = ""
+        while not make_alphabet.check_validity(my_agent):
+            my_goal = ""
+            goal_mi = random.randint(0, 15)
+            goal_li = random.randint(0, 15)
+            # TODO: Check that this hex method correctly converts and returns a string
+            my_goal += "f" + hex(goal_mi) + hex(goal_li)
+
+        assert my_goal
+
+        # Save valid goal
+        strg += my_goal
+
+        # TODO: Generate a pseudo-randomly determined number of other 3-char strings (idents)
+        # num_idents = random.randint(0, 100)
+        num_idents = 0
         # TODO: Sort the three-char strings first by matrix index (2nd char), then list index (2nd char), then property (1st char)
         # TODO: Delete repeat idents
         # TODO: Concatenate these ident strings in the given order then return
 
-        strg = ""
+        
             
-        # NOTE: The choice of maximum length of a string is arbitrary
+        '''# NOTE: The choice of maximum length of a string is arbitrary
         # Create a string of (pseudo-)random length, with each character (pseudo-)randomly chosen from the alphabet
         for i in range(0, random.randint(0, 15)):
-            strg += self.alphabet[random.randint(0, len(self.alphabet) - 1)]
+            strg += self.alphabet[random.randint(0, len(self.alphabet) - 1)]'''
         
         return strg
 
