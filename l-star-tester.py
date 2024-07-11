@@ -25,8 +25,6 @@ def __read_alphabet(loc):
 
         # Add character to alphabet
         alpha.append(line[0:3])
-
-    print(str(alpha))
     
     return alpha
 
