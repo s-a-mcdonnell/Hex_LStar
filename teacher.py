@@ -17,11 +17,12 @@ class Teacher:
         # The teacher will use the provided alphabet
         self.alphabet = alphabet
 
+        # NOTE: I am commenting out this check for now. Hopefully L Star will still function with a multi-charcater alphabet :)))
         # Check the alphabet for validity (each symbol is just one character)
-        for symbol in alphabet:
-            if len(symbol) != 1:
-                print("Error: Invalid alphabet")
-                exit(1)
+        # for symbol in alphabet:
+        #     if len(symbol) != 1:
+        #         print("Error: Invalid alphabet")
+        #         exit(1)
 
         # Using this guide to PRN generation in Python: https://www.tutorialspoint.com/generate-pseudo-random-numbers-in-python
         random.seed(seed)
@@ -132,7 +133,8 @@ class Teacher:
         new_world = World(read_file=False)
             
         # Parse string into world
-        for i in range(len(s)/3):
+        # TODO: the forcibly converting it into an integer could cause problems later. Note to self, be careful.
+        for i in range(int((len(s))/3)):
             # splice the three character string into three one-character chunks
             property = int(s[i*3], 16)
             mi = int(input[i*3 + 1], 16)
