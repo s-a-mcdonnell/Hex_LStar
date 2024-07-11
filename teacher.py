@@ -243,7 +243,7 @@ class Teacher:
     
     ##########################################################################################################
 
-    @staticmethod
+    '''@staticmethod
     # Sorts and returns the passed ident_list using merge sort
     # Based off of code provided for merge sort here: https://www.geeksforgeeks.org/merge-sort/#
     def __merge_sort(ident_list, begin=-1, end=-1):
@@ -265,20 +265,22 @@ class Teacher:
         Teacher.__merge_sort(ident_list, mid + 1, end)
         Teacher.__merge(ident_list, begin, mid, end)  
 
-        return ident_list
+        return ident_list'''
 
     ##########################################################################################################
 
     @staticmethod
-    # Returns a boolean indicating if ident_1 is less than or equal to ident_2 according to the following rules:
+    # Returns a boolean indicating if ident_1 is less than ident_2 according to the following rules:
     # First, sort by the second hexadecimal character (matrix index)
     # Second, sort by the third hexadecimal character (list index)
     # Finally, sort by the first hexadecimal character (property)
     # TODO: Test this comparison method
-    def __less_equal(ident_1 : str, ident_2 : str):
+    def __less_than(ident_1 : str, ident_2 : str):
         print(f"comparing {ident_1} and {ident_2}")
         assert len(ident_1) == 3
         assert len(ident_2) == 3
+        
+        # Compare 2nd hexadecimal character (matrix index)
         if ident_1[1] < ident_2[1]:
             return True
         elif ident_1[1] > ident_2[1]:
@@ -286,6 +288,7 @@ class Teacher:
         
         # Deal with two idents with the same matrix index
         else:
+            # Compare 3rd hexadecimal character (list index)
             if ident_1[2] < ident_2[2]:
                 return True
             elif ident_1[2] > ident_2[2]:
@@ -293,6 +296,7 @@ class Teacher:
             
             # Deal with two idents with the same list index
             else:
+                # Compare 1st hexadecimal character (property)
                 if ident_1[0] < ident_2[0]:
                     return True
                 elif ident_1[0] > ident_2[0]:
@@ -305,7 +309,7 @@ class Teacher:
 
     ##########################################################################################################
 
-    @staticmethod
+    '''@staticmethod
     # Merges two sublists
     # First sublist is list[left..mid]
     # Second sublist is list[mid+1..right]
@@ -359,7 +363,7 @@ class Teacher:
         while index_of_sublist_1 < sublist_2:
             my_list[index_of_merged_list] = right_list[index_of_sublist_1]
             index_of_sublist_1 += 1
-            index_of_merged_list += 1      
+            index_of_merged_list += 1'''      
 
 
     ##########################################################################################################
@@ -369,6 +373,8 @@ class Teacher:
     # NOTE issue: How will the hex world respond when quieried like a DFA when the string is the wrong length? Could we work on how we define the alphabet to allow multiple-char letters so that things will be added/removed on the level of a unit of meaning?
     @staticmethod
     def generate_string():
+        print("-----")
+        print("generate_string() called")
         strg = ""
 
         # Generate a valid agent of random direction and location
@@ -400,12 +406,17 @@ class Teacher:
         # Save valid goal
         strg += my_goal
 
-        # TODO: Generate a pseudo-randomly determined number of other 3-char strings (idents)
-        # NOTE: The choice of maximum number of idents is arbitrary
+        print(f"string before adding extra idents: {strg}")
+
+        print("-----")
+
+        # Generate a pseudo-randomly determined number of other 3-char strings (idents)
+        # NOTE: The choice of maximum number of idents is arbitrary; We might want to set to 0 for testing
         # num_idents = random.randint(0, 50)
         num_idents = 3
         other_idents = []
         for i in range(num_idents):
+            print("generating ident")
             # breakpoint()
             new_ident = ""
             
@@ -422,15 +433,33 @@ class Teacher:
 
             assert new_ident
             assert new_ident not in other_idents
+            print(f"ident {new_ident} generated")
 
             # Save new ident in the correct order
-            # other_idents.append(new_ident)
-            i = 0
-            for ident in other_idents:
-                if Teacher.less_equal(ident, new_ident):
-                    other_idents.insert(i, new_ident)
-                    break
-                i += 1
+            # If other_idents is empty, add to it
+            if not len(other_idents):
+                other_idents.append(new_ident)
+                print(f"adding string {new_ident} to other_idents as first string")
+
+            # If the first item in other_idents in larger than new_ident, add at the front
+            elif Teacher.__less_than(new_ident, other_idents[0]):
+                other_idents.insert(0, new_ident)
+                print(f"adding string {new_ident} to other_idents at the front")
+
+            # Otherwise iterate through other_ident until the correct location is found
+            else:
+                for ident in other_idents:
+                    if Teacher.__less_than(ident, new_ident):
+                        if other_idents.index(ident) == len(other_idents) - 1:
+                            other_idents.append(new_ident)
+                            print(f"adding string {new_ident} to other_idents after {ident} (at end)")
+
+                        else:
+                            other_idents.insert(other_idents.index(ident) + 1, new_ident)
+                            print(f"adding string {new_ident} to other_idents after {ident}")
+                        break
+                    else:
+                        print(f"ident {ident} greater than new_ident {new_ident}")
 
 
         # TODO: Sort the three-char strings first by matrix index (2nd char), then list index (2nd char), then property (1st char)
@@ -441,6 +470,8 @@ class Teacher:
         # Concatenate these ident strings in the given order then return
         for ident_string in other_idents:
             strg += ident_string
+
+        print(f"final string: {strg}")
         
         return strg
 
