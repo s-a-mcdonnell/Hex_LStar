@@ -233,8 +233,8 @@ class Teacher:
             # TODO: Actually we want to just report the agent's action, not how it might have been affected by the physics rules
             if new_state == 0:
                 return False
-            # false on first DFA => we are 
-            # true on first DFA => we are changing the agent's direction via the agent
+            # false on first DFA => we are not manually changing the agent's direction (ie -> instruction 0)
+            # true on first DFA => we are changing the agent's direction via the agent (ie -> instruction -1 or 1)
             else:
                 return True
     

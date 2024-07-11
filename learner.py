@@ -73,10 +73,10 @@ class Learner:
         self.graphs = display_graphs
 
         # Note that the alphabet must contains characters (strings of length one), not longer strings or ints
+        # NOTE: now that we are using characters in our alphabet of length three, this does not apply
         for character in alphabet:
             assert type(character) is str
-            assert len(character) == 1
-        
+            # assert len(character) == 1
 
         # Initialize teacher
 
