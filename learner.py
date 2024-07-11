@@ -66,6 +66,7 @@ class Learner:
     ##########################################################################################################
 
     def __init__(self, alphabet = ['0','1'], teacher_type=-1, num_states = -1, seed = -1, premade_dfa = None, display_graphs = False):
+        print(f"init called on Learner type {teacher_type}")
 
         self.solved = False
         # Intialize alphabet
@@ -111,13 +112,15 @@ class Learner:
         
         # print("m_hat at end of initialization: " + str(self.m_hat))
 
-        print("Learner initialization complete")
+        print(f"Learner type {teacher_type} initialization complete")
 
     ##########################################################################################################
 
     # Initialize T and M_hat
     # Helper method for contructor
     def init_t_m_hat(self):
+        print("init_t_m_hat() called")
+
         # initialize T with just the empty string (lambda)
         self.t = Tree(Node("", None, 0))
 
@@ -156,11 +159,18 @@ class Learner:
             self.draw_graph()
     
         # equivalence query on initial M_hat
+        print("calling equivalence query from learner.init_t_m_hat()")
         gamma = self.my_teacher.equivalent(self.m_hat)
+        print(f"gamma returned is {gamma}")
 
         # If there is no counterexample, we have solved the DFA
         if not gamma:
             print("We are done. DFA is the trivial DFA.")
+            if self.my_teacher.member(""):
+                # empty string accepted
+                print("all accepted")
+            else:
+                print("all rejected")
             self.solved = True
         
         # Else put counterexample gamma into our tree T
@@ -168,10 +178,10 @@ class Learner:
 
             assert type(gamma) is str
 
-            assert(self.my_teacher.member(gamma) != self.my_teacher.member(gamma, self.m_hat, self.alphabet))
+            # assert(self.my_teacher.member(gamma) != self.my_teacher.member(gamma, self.m_hat, self.alphabet))
 
 
-            # print("Counterexample found, adding to tree.")
+            print("Counterexample found, adding to tree.")
             if self.my_teacher.member(gamma):
                 self.t.root.right_child = Node(gamma, self.t.root, 1)
                 self.t.root.left_child = Node("", self.t.root, 1)
@@ -504,7 +514,7 @@ class Learner:
     # output: access string in T for the state of M accessed by s
     def __sift(self, s):
         #print("---")
-        #print("sift called on " + (s if s else "the empty string"))
+        print("sift called on " + (s if s else "the empty string"))
         return self.__sift_return_node(s).value
     
     ##########################################################################################################

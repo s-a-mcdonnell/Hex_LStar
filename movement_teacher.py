@@ -43,7 +43,7 @@ class Movement_Teacher(Teacher):
     # takes a string s and returns a boolean indicating whether s is accepted or rejected by the given DFA
     # TODO: Adapt for hex world
     def member(self, s : str, dfa: list[list[int]] = None, alpha = None):
-        # print("membership query called")
+        print(f"membership query called on string {s}")
 
         if not alpha:
             alpha = self.alphabet
@@ -64,20 +64,14 @@ class Movement_Teacher(Teacher):
             self._create_world(s)
             assert self.world
             assert self.my_agent
-            
-            original_agent_state = self.my_agent.state
-
-            # TODO: Run one loop of updating the world and check was the agent's state is
-            # TODO: How to know what part of the agent instructions the world should be looking at? (potentially big issue, since we've created a world from scratch)
-            # self.world.update()
 
             # TODO: How to get the agent's next move when the agent is/isn't reading from a text file?
-            new_state = Ident.find_next_move(self.my_agent)
-            # TODO: the world updating effects the agent though????
+            agent_move = Ident.find_next_move(self.my_agent)
+            print(f"agent move: {agent_move}")
 
             # TODO: Return a boolean corresponding to the agent's state
             # TODO: Actually we want to just report the agent's action, not how it might have been affected by the physics rules
-            if new_state == 0:
+            if agent_move == 0:
                 return False
             # false on first DFA => we are not manually changing the agent's direction (ie -> instruction 0)
             # true on first DFA => we are changing the agent's direction via the agent (ie -> instruction -1 or 1)
@@ -101,11 +95,14 @@ class Movement_Teacher(Teacher):
         # TODO: Increase range
         for i in range(100):
             s = Teacher.generate_string()
+            print(f"string {s} returned from generate_string()")
+            print(f"self.member(s) = {self.member(s)}, self.member(s, m_hat) = {self.member(s, m_hat)}")
             if self.member(s) != self.member(s, m_hat):
-                assert(type(self.member(s)) is bool)
-                assert(type(self.member(s, m_hat)) is bool)
+                '''assert(type(self.member(s)) is bool)
+                assert(type(self.member(s, m_hat)) is bool)'''
                 # TODO: Delete debugging print statement
                 # print("Counterexample found: " + s)
+                print(f"returning string {s} from equivalency query")
                 return s            
 
         # else return false (so that the truthiness of a counterexample and a matching DFA result will be different)

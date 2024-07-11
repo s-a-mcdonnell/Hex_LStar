@@ -3,7 +3,7 @@ import sys
 from learner import Learner
 from movement_teacher import Movement_Teacher
 from direction_teacher import Direction_Teacher
-import pdb
+# import pdb; pdb.set_trace()
 
 def __read_line(line):
     global alphabet
@@ -21,31 +21,23 @@ def __read_line(line):
 
 alphabet = []
 
-# reading the intial state of the hex board from a file
+# reading the alphabet from a file
 __location__ = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__)))
 file = open(os.path.join(__location__, "alphabet.txt"), "r")
 for line in file:
     __read_line(line)
 
-# print(alphabet)
-
-'''mover = Movement_Teacher(alphabet)
-director = Direction_Teacher(alphabet)'''
-
-
 # Create learners:
 # 0 -> movement teacher, 1 -> direction teacher
+movement_learner = Learner(alphabet=alphabet, teacher_type=0)
+direction_learner = Learner(alphabet=alphabet, teacher_type=1)
 
 # TODO: Modify teachers to make algorithm work
 # TODO: Make learners return learner DFA so we can use it as desired
 # Learn movement teacher using L*
+movement_DFA = movement_learner.lstar_algorithm()
+print("FIRST DFA => MOVEMENT => IS DONE")
 
-# movement_learner = Learner(alphabet=alphabet, teacher_type=0)
-# movement_DFA = movement_learner.lstar_algorithm()
-# print("FIRST DFA => MOVEMENT => IS DONE")
-
-print("Initializating direction teacher DFA...")
-direction_learner = Learner(alphabet=alphabet, teacher_type=1)
 # Learn direction teacher using L*
 direction_DFA = direction_learner.lstar_algorithm()
 print("SECOND DFA => DIRECTION => IS DONE")
