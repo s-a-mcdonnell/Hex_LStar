@@ -425,6 +425,7 @@ class Teacher:
                 new_ident = ""
                 # breakpoint()
                 # NOTE: the new idents cannot be goals
+                # TODO: Only create valid idents (rather than creating potentially invalid idents and then fixing them)
                 ident_prop = random.randint(0, 14)
                 ident_mi = random.randint(0, 15)
                 ident_li = random.randint(0, 15)
