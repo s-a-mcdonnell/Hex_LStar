@@ -237,6 +237,11 @@ class Teacher:
     # NOTE issue: How will the hex world respond when quieried like a DFA when the string is the wrong length? Could we work on how we define the alphabet to allow multiple-char letters so that things will be added/removed on the level of a unit of meaning?
     def generate_string(self):
 
+        # TODO: Generate a pseudo-randomly determined numnber of 3-char strings
+        # TODO: Sort the three-char strings first by matrix index (2nd char), then list index (2nd char), then property (1st char)
+        # TODO: Delete repeat idents
+        # TODO: Concatenate these ident strings in the given order then return
+
         strg = ""
             
         # NOTE: The choice of maximum length of a string is arbitrary
