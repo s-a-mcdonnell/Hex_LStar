@@ -244,6 +244,7 @@ class Teacher:
     # Sorts and returns the passed ident_list using merge sort
     # Based off of code provided for merge sort here: https://www.geeksforgeeks.org/merge-sort/#
     def __merge_sort(ident_list, begin=-1, end=-1):
+        # breakpoint()
         if begin == -1 and end == -1:
             begin = 0
             end = len(ident_list)
@@ -252,7 +253,7 @@ class Teacher:
         assert end != -1
 
         # begin is for left index and end is right index
-        # of the sub-array of arr to be sorted
+        # of the sublist of my_list to be sorted
         if begin >= end:
             return
 
@@ -266,11 +267,52 @@ class Teacher:
     ##########################################################################################################
 
     @staticmethod
+    # Returns a boolean indicating if ident_1 is less than or equal to ident_2 according to the following rules:
+    # First, sort by the second hexadecimal character (matrix index)
+    # Second, sort by the third hexadecimal character (list index)
+    # Finally, sort by the first hexadecimal character (property)
+    # TODO: Test this comparison method
+    def __less_equal(ident_1 : str, ident_2 : str):
+        print(f"comparing {ident_1} and {ident_2}")
+        assert len(ident_1) == 3
+        assert len(ident_2) == 3
+        if ident_1[1] < ident_2[1]:
+            return True
+        elif ident_1[1] > ident_2[1]:
+            return False
+        
+        # Deal with two idents with the same matrix index
+        else:
+            if ident_1[2] < ident_2[2]:
+                return True
+            elif ident_1[2] > ident_2[2]:
+                return False
+            
+            # Deal with two idents with the same list index
+            else:
+                if ident_1[0] < ident_2[0]:
+                    return True
+                elif ident_1[0] > ident_2[0]:
+                    return False
+                else:
+                    # Two identical idents (should not happen)
+                    exit("Two equal idents found")
+                    return True
+
+
+    ##########################################################################################################
+
+    @staticmethod
     # Merges two sublists
     # First sublist is list[left..mid]
     # Second sublist is list[mid+1..right]
     # Code provided for merge sort here: https://www.geeksforgeeks.org/merge-sort/#
     def __merge(my_list, left, mid, right):
+        # TODO: Review this base case (my code)
+        if left >= right:
+            return
+        
+        # breakpoint()
         sublist_1 = mid - left + 1
         sublist_2 = right - mid
 
@@ -278,19 +320,25 @@ class Teacher:
         left_list = [0] * sublist_1
         right_list = [0] * sublist_2
 
-        # Copy data to temp arrays leftArray[] and rightArray[]
+        print(f"range(sublist_1) = {range(sublist_1)}")
+        print(f"range(sublist_2) = {range(sublist_2)}")
+
+        # Copy data to temp arrays left_list[] and right_list[]
         for i in range(sublist_1):
             left_list[i] = my_list[left + i]
         for j in range(sublist_2):
+            print(f"mid={mid}")
+            print(f"j={j}")
+            print("mid+1+j = " + str(mid+1+j))
             right_list[j] = my_list[mid + 1 + j]
 
-        index_of_sublist_1 = 0  # Initial index of first sub-array
-        index_of_sublist_1 = 0  # Initial index of second sub-array
-        index_of_merged_list = left  # Initial index of merged array
+        index_of_sublist_1 = 0  # Initial index of first sublist
+        index_of_sublist_1 = 0  # Initial index of second sublist
+        index_of_merged_list = left  # Initial index of merged list
 
-        # Merge the temp arrays back into array[left..right]
+        # Merge the temp lists back into my_list[left..right]
         while index_of_sublist_1 < sublist_1 and index_of_sublist_1 < sublist_2:
-            if left_list[index_of_sublist_1] <= right_list[index_of_sublist_1]:
+            if Teacher.__less_equal(left_list[index_of_sublist_1], right_list[index_of_sublist_1]):
                 my_list[index_of_merged_list] = left_list[index_of_sublist_1]
                 index_of_sublist_1 += 1
             else:
@@ -373,10 +421,18 @@ class Teacher:
             assert new_ident not in other_idents
 
             # Save new ident
-            other_idents.append(new_ident)
+            # other_idents.append(new_ident)
+            i = 0
+            for ident in other_idents:
+                if Teacher.less_equal(ident, new_ident):
+                    other_idents.insert(i, new_ident)
+                i += 1
+
 
         # TODO: Sort the three-char strings first by matrix index (2nd char), then list index (2nd char), then property (1st char)
-        Teacher.__merge_sort(other_idents)
+        # NOTE: I'm trying another way (not using merge sort) --> less efficient, but hopefully less buggy
+        #Teacher.__merge_sort(other_idents)
+        print(f"other_idents: {other_idents}")
 
         # Concatenate these ident strings in the given order then return
         for ident_string in other_idents:
