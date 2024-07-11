@@ -34,6 +34,7 @@ director = Direction_Teacher(alphabet)'''
 
 
 # Create learners:
+# 0 -> movement teacher, 1 -> direction teacher
 movement_learner = Learner(alphabet=alphabet, teacher_type=0)
 direction_learner = Learner(alphabet=alphabet, teacher_type=1)
 
