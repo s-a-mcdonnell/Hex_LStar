@@ -4,8 +4,10 @@ from teacher import Teacher
 from hex_v2 import World, Ident
 
 class Direction_Teacher(Teacher):
-    def __init__(self):
-        pass
+    def __init__(self, alphabet):
+        super().__init__(alphabet)
+        # TODO: Write constructor
+
 
 
     def __create_world(self, s):
