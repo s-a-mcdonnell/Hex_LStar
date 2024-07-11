@@ -253,6 +253,7 @@ class Learner:
         self.t.print_tree()
         
         print("End L-Star algorithm")
+        return self.m_hat
 
     ##########################################################################################################
 

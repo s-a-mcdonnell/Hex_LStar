@@ -41,9 +41,11 @@ direction_learner = Learner(alphabet=alphabet, teacher_type=1)
 # TODO: Modify teachers to make algorithm work
 # TODO: Make learners return learner DFA so we can use it as desired
 # Learn movement teacher using L*
-movement_learner.lstar_algorithm()
+movement_DFA = movement_learner.lstar_algorithm()
 
 breakpoint()
 
 # Learn direction teacher using L*
-direction_learner.lstar_algorithm()
+direction_DFA = direction_learner.lstar_algorithm()
+
+# TODO: methods to predict the agent's reaction to certain states based on the two DFA's we've created
