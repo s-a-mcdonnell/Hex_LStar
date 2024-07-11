@@ -1,5 +1,4 @@
 def check_validity(input):
-    print("checking validity of string " + input)
     # Empty strings are invalid
     if len(input) == 0:
         return False

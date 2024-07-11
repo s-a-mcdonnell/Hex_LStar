@@ -10,6 +10,8 @@ class Movement_Teacher(Teacher):
         if seed == -1:
             self.seed = 1821
         # TODO: Write constructor
+    
+    ##########################################################################################################
 
     # membership query
     # takes a string s and returns a boolean indicating whether s is accepted or rejected by the given DFA
@@ -41,7 +43,7 @@ class Movement_Teacher(Teacher):
 
             # TODO: Run one loop of updating the world and check was the agent's state is
             # TODO: How to know what part of the agent instructions the world should be looking at? (potentially big issue, since we've created a world from scratch)
-            self.world.update()
+            # self.world.update()
 
             new_state = Ident.find_next_move(self.my_agent)
             # TODO: the world updating effects the agent though????
@@ -54,3 +56,30 @@ class Movement_Teacher(Teacher):
             # true on first DFA => we are changing the agent's direction via the agent (ie -> instruction -1 or 1)
             else:
                 return True
+            
+    ##########################################################################################################
+
+    # equivalency query
+    # takes the DFA hypothesis m_hat
+    # returns either a counterexample or False (indicating that the DFAs match)
+    # TODO: Adapt for hex world
+    def equivalent(self, m_hat):
+        assert m_hat
+
+        print("equivalency query called in movement teacher")
+
+        # Generate and test an arbitrarily large number of strings
+        # for each of these strings, if self.member(s, self.m) is not self.member(s, m_hat), return s
+
+        for i in range(1000000):
+            s = Teacher.generate_string()
+            if self.member(s) != self.member(s, m_hat):
+                assert(type(self.member(s)) is bool)
+                assert(type(self.member(s, m_hat)) is bool)
+                # TODO: Delete debugging print statement
+                # print("Counterexample found: " + s)
+                return s            
+
+        # else return false (so that the truthiness of a counterexample and a matching DFA result will be different)
+        print("No counterexample found")
+        return False
