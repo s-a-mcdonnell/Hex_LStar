@@ -18,12 +18,15 @@ def __read_alphabet(loc):
     for line in alpha_file:
         # Check type and length of character in alphabet
         assert type(line) is str
-        assert (len(line) == 1) or (len(line) == 2)
-        if len(line) == 2:
-            assert line[1] == '\n'
+        assert (len(line) == 3) or (len(line) == 4)
+        # the above assertions map to length of strings in our hexworld hexadecimal alphabet
+        if len(line) == 4:
+            assert line[3] == '\n'
 
         # Add character to alphabet
-        alpha.append(line[0])
+        alpha.append(line[0:3])
+
+    print(str(alpha))
     
     return alpha
 
