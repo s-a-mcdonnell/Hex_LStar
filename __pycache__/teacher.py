@@ -256,7 +256,7 @@ class Teacher:
 
         # Generate a valid goal of random location
         my_goal = ""
-        while not make_alphabet.check_validity(my_agent):
+        while not make_alphabet.check_validity(my_goal):
             my_goal = ""
             goal_mi = random.randint(0, 15)
             goal_li = random.randint(0, 15)
@@ -269,18 +269,34 @@ class Teacher:
         strg += my_goal
 
         # TODO: Generate a pseudo-randomly determined number of other 3-char strings (idents)
-        # num_idents = random.randint(0, 100)
+        # NOTE: The choice of maximum number of idents is arbitrary
+        # num_idents = random.randint(0, 50)
         num_idents = 0
-        # TODO: Sort the three-char strings first by matrix index (2nd char), then list index (2nd char), then property (1st char)
-        # TODO: Delete repeat idents
-        # TODO: Concatenate these ident strings in the given order then return
-
-        
+        other_idents = []
+        for i in range(num_idents):
+            new_ident = ""
             
-        '''# NOTE: The choice of maximum length of a string is arbitrary
-        # Create a string of (pseudo-)random length, with each character (pseudo-)randomly chosen from the alphabet
-        for i in range(0, random.randint(0, 15)):
-            strg += self.alphabet[random.randint(0, len(self.alphabet) - 1)]'''
+            # Loop until we have made a novel valid ident
+            while not (make_alphabet.check_validity(new_ident) and new_ident not in other_idents):
+                # NOTE: the new idents cannot be goals
+                ident_prop = random.randint(0, 14)
+                ident_mi = random.randint(0, 15)
+                ident_li = random.randint(0, 15)
+                # TODO: Check that this hex method correctly converts and returns a string
+                new_ident += hex(ident_prop) + hex(ident_mi) + hex(ident_li)
+
+            assert new_ident
+            assert new_ident not in other_idents
+
+            # Save new ident
+            other_idents.append(new_ident)
+
+        # TODO: Sort the three-char strings first by matrix index (2nd char), then list index (2nd char), then property (1st char)
+
+
+        # Concatenate these ident strings in the given order then return
+        for ident_string in other_idents:
+            strg += ident_string
         
         return strg
 
