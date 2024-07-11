@@ -148,8 +148,8 @@ class Learner:
         # Append the first state to M_hat        
         self.m_hat.append(to_append)
 
-        print("m hat table: " + str(self.m_hat))
-        print("access dictionary: " + str(self.access_string_reference))
+        # print("m hat table: " + str(self.m_hat))
+        # print("access dictionary: " + str(self.access_string_reference))
 
         # draw m_hat graph here, as m_hat is not updated in initialization past this point
         if self.graphs:
