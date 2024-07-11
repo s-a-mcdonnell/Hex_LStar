@@ -413,10 +413,18 @@ class Teacher:
             assert new_ident not in other_idents
 
             # Save new ident
-            other_idents.append(new_ident)
+            # other_idents.append(new_ident)
+            i = 0
+            for ident in other_idents:
+                if Teacher.less_equal(ident, new_ident):
+                    other_idents.insert(i, new_ident)
+                i += 1
+
 
         # TODO: Sort the three-char strings first by matrix index (2nd char), then list index (2nd char), then property (1st char)
-        Teacher.__merge_sort(other_idents)
+        # NOTE: I'm trying another way (not using merge sort) --> less efficient, but hopefully less buggy
+        #Teacher.__merge_sort(other_idents)
+        print(f"other_idents: {other_idents}")
 
         # Concatenate these ident strings in the given order then return
         for ident_string in other_idents:
