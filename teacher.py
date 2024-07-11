@@ -245,7 +245,7 @@ class Teacher:
         assert end != -1
 
         # begin is for left index and end is right index
-        # of the sub-array of arr to be sorted
+        # of the sublist of my_list to be sorted
         if begin >= end:
             return
 
@@ -315,7 +315,7 @@ class Teacher:
         print(f"range(sublist_1) = {range(sublist_1)}")
         print(f"range(sublist_2) = {range(sublist_2)}")
 
-        # Copy data to temp arrays leftArray[] and rightArray[]
+        # Copy data to temp arrays left_list[] and right_list[]
         for i in range(sublist_1):
             left_list[i] = my_list[left + i]
         for j in range(sublist_2):
@@ -324,11 +324,11 @@ class Teacher:
             print("mid+1+j = " + str(mid+1+j))
             right_list[j] = my_list[mid + 1 + j]
 
-        index_of_sublist_1 = 0  # Initial index of first sub-array
-        index_of_sublist_1 = 0  # Initial index of second sub-array
-        index_of_merged_list = left  # Initial index of merged array
+        index_of_sublist_1 = 0  # Initial index of first sublist
+        index_of_sublist_1 = 0  # Initial index of second sublist
+        index_of_merged_list = left  # Initial index of merged list
 
-        # Merge the temp arrays back into array[left..right]
+        # Merge the temp lists back into my_list[left..right]
         while index_of_sublist_1 < sublist_1 and index_of_sublist_1 < sublist_2:
             if Teacher.__less_equal(left_list[index_of_sublist_1], right_list[index_of_sublist_1]):
                 my_list[index_of_merged_list] = left_list[index_of_sublist_1]
