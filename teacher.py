@@ -350,8 +350,7 @@ class Teacher:
     # NOTE issue: How will the hex world respond when quieried like a DFA when the string is the wrong length? Could we work on how we define the alphabet to allow multiple-char letters so that things will be added/removed on the level of a unit of meaning?
     @staticmethod
     def generate_string():
-        print("-----")
-        print("generate_string() called")
+
         strg = ""
 
         # Generate a valid agent of random direction and location
@@ -383,17 +382,12 @@ class Teacher:
         # Save valid goal
         strg += my_goal
 
-        print(f"string before adding extra idents: {strg}")
-
-        print("-----")
-
         # Generate a pseudo-randomly determined number of other 3-char strings (idents)
         # NOTE: The choice of maximum number of idents is arbitrary; We might want to set to 0 for testing
         # num_idents = random.randint(0, 50)
         num_idents = 3
         other_idents = []
         for i in range(num_idents):
-            print("generating ident")
             # breakpoint()
             new_ident = ""
             
@@ -411,13 +405,11 @@ class Teacher:
 
             assert new_ident
             assert new_ident not in other_idents
-            print(f"ident {new_ident} generated")
 
             # Save new ident in the correct order
             # If other_idents is empty, add to it
             if not len(other_idents):
                 other_idents.append(new_ident)
-                print(f"adding string {new_ident} to other_idents as first string")
             
             # Add the final ident in other_idents in smaller than the new_ident, add at the back
             elif Teacher.__less_than(other_idents[len(other_idents) - 1], new_ident):
@@ -428,7 +420,6 @@ class Teacher:
                 for ident in other_idents:
                     if not Teacher.__less_than(ident, new_ident):
                         other_idents.insert(other_idents.index(ident), new_ident)
-                        print(f"adding string {new_ident} to other_idents before {ident}")
                         break
                     
                     
@@ -437,13 +428,12 @@ class Teacher:
         # TODO: Sort the three-char strings first by matrix index (2nd char), then list index (2nd char), then property (1st char)
         # NOTE: I'm trying another way (not using merge sort) --> less efficient, but hopefully less buggy
         #Teacher.__merge_sort(other_idents)
-        print(f"other_idents: {other_idents}")
 
         # Concatenate these ident strings in the given order then return
         for ident_string in other_idents:
             strg += ident_string
 
-        print(f"final string: {strg}")
+        print(f"generated string: {strg}")
         
         return strg
 
