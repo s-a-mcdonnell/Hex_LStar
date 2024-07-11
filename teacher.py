@@ -420,12 +420,13 @@ class Teacher:
             assert new_ident
             assert new_ident not in other_idents
 
-            # Save new ident
+            # Save new ident in the correct order
             # other_idents.append(new_ident)
             i = 0
             for ident in other_idents:
                 if Teacher.less_equal(ident, new_ident):
                     other_idents.insert(i, new_ident)
+                    break
                 i += 1
 
 
