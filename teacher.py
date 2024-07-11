@@ -141,8 +141,8 @@ class Teacher:
         for i in range(int((len(s))/3)):
             # splice the three character string into three one-character chunks
             property = int(s[i*3], 16)
-            mi = int(input[i*3 + 1], 16)
-            li = int(input[i*3 + 2], 16)
+            mi = int(s[i*3 + 1], 16)
+            li = int(s[i*3 + 2], 16)
 
             new_ident = Ident(mi, li, new_world)
 
