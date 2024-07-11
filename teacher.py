@@ -1,4 +1,6 @@
 import random
+from hex_v2 import World, Ident
+import make_alphabet
 
 ##############################################################################################################
 
@@ -87,7 +89,7 @@ class Teacher:
         # for each of these strings, if self.member(s, self.m) is not self.member(s, m_hat), return s
 
         for i in range(1000000):
-            s = self.generate_string()
+            s = Teacher.generate_string()
             if self.member(s) != self.member(s, m_hat):
                 assert(type(self.member(s)) is bool)
                 assert(type(self.member(s, m_hat)) is bool)
@@ -124,6 +126,74 @@ class Teacher:
         return dfa[next_state_index]
         
     ##########################################################################################################
+    # TODO: Create option not to read agent file?
+    def __create_world(self, s):
+        new_world = World(read_file=False)
+            
+        # Parse string into world
+        for i in range(len(s)/3):
+            # splice the three character string into three one-character chunks
+            property = int(s[i*3], 16)
+            mi = int(input[i*3 + 1], 16)
+            li = int(input[i*3 + 2], 16)
+
+            new_ident = Ident(mi, li, new_world)
+
+            new_world.hex_matrix[mi][li].idents.append(new_ident)
+            
+            # The first char in ever "letter" (3-char string) form the property
+            # The properties are wall (0), stationary non-agent (1), moving agent (in directions 0 through 5, 1 through 7),
+            # stationary agent (8), moving agent (in directions 0 through 5, 9 through e), and goal (f)
+
+            # 0 => wall
+            if property == 0:
+                new_ident.state = -2
+                new_world.wall_list.append(new_ident)
+
+            # If not a wall, it goes on the ident list
+            else:
+                new_world.ident_list.append(new_ident)
+
+            # 1 => stationary (non-agent)
+            if property == 1:
+                new_ident.state = -1
+            
+            # 2 => direction 0 (non-agent)
+            # 3 => direction 1 (non-agent)
+            # 4 => direction 2 (non-agent)
+            # 5 => direction 3 (non-agent)
+            # 6 => direction 4 (non-agent)
+            # 7 => direction 5 (non-agent)
+            elif property >= 2 and property <= 7:
+                new_ident.state = property - 2
+            
+            # 8 => stationary (agent)
+            if property == 8:
+                new_ident.state = -1
+                new_world.agents.append(new_ident)
+            
+            # 9 => direction 0 (agent)
+            # 10 => direction 1 (agent)
+            # 11 => direction 2 (agent)
+            # 12 => direction 3 (agent)
+            # 13 => direction 4 (agent)
+            # 14 => direction 5 (agent)
+            elif property >= 9 and property <= 14:
+                new_ident.state = property - 9
+                new_world.agents.append(new_ident)
+
+            # 15 => goal (stationary)
+            elif property == 15:
+                new_ident.state = -1
+                # Mark as goal
+                new_ident.property = "goal"
+            
+            # Save the first ident described in the string as my_agent
+            if i == 0:
+                self.my_agent = new_ident
+        
+        self.world = new_world    
+
 
     # membership query
     # takes a string s and returns a boolean indicating whether s is accepted or rejected by the given DFA
@@ -142,25 +212,160 @@ class Teacher:
         
         # If not passed a matrix, return an answer as if the agent's decision-making process were a DFA
         else:
-            # Always reject the empty string
+            # Always reject the empty string (arbitrary decision)
             if s == "":
                 return False
             
-            # TODO: Translate string into a worls and query agent
+            self.__create_world(s)
+            assert self.world
+            assert self.my_agent
+            
+            original_agent_state = self.my_agent.state
+
+            # TODO: Run one loop of updating the world and check was the agent's state is
+            # TODO: How to know what part of the agent instructions the world should be looking at? (potentially big issue, since we've created a world from scratch)
+            self.world.update()
+
+            # TODO: Return a boolean corresponding to the agent's state
+            # TODO: Actually we want to just report the agent's action, not how it might have been affected by the physics rules
+    
+    ##########################################################################################################
+
+    @staticmethod
+    # Sorts and returns the passed ident_list using merge sort
+    # Based off of code provided for merge sort here: https://www.geeksforgeeks.org/merge-sort/#
+    def __merge_sort(ident_list, begin=-1, end=-1):
+        if begin == -1 and end == -1:
+            begin = 0
+            end = len(ident_list)
+
+        # begin is for left index and end is right index
+        # of the sub-array of arr to be sorted
+        if begin >= end:
+            return
+
+        mid = begin + (end - begin) // 2
+        Teacher.__merge_sort(ident_list, begin, mid)
+        Teacher.__merge_sort(ident_list, mid + 1, end)
+        Teacher.__merge(ident_list, begin, mid, end)  
+
+        return ident_list
 
     ##########################################################################################################
 
-    # TODO: Adopt for hex world
+    @staticmethod
+    # Merges two sublists
+    # First sublist is list[left..mid]
+    # Second sublist is list[mid+1..right]
+    # Code provided for merge sort here: https://www.geeksforgeeks.org/merge-sort/#
+    def __merge(my_list, left, mid, right):
+        sublist_1 = mid - left + 1
+        sublist_2 = right - mid
+
+        # Create temp lists
+        left_list = [0] * sublist_1
+        right_list = [0] * sublist_2
+
+        # Copy data to temp arrays leftArray[] and rightArray[]
+        for i in range(sublist_1):
+            left_list[i] = my_list[left + i]
+        for j in range(sublist_2):
+            right_list[j] = my_list[mid + 1 + j]
+
+        index_of_sublist_1 = 0  # Initial index of first sub-array
+        index_of_sublist_1 = 0  # Initial index of second sub-array
+        index_of_merged_list = left  # Initial index of merged array
+
+        # Merge the temp arrays back into array[left..right]
+        while index_of_sublist_1 < sublist_1 and index_of_sublist_1 < sublist_2:
+            if left_list[index_of_sublist_1] <= right_list[index_of_sublist_1]:
+                my_list[index_of_merged_list] = left_list[index_of_sublist_1]
+                index_of_sublist_1 += 1
+            else:
+                my_list[index_of_merged_list] = right_list[index_of_sublist_1]
+                index_of_sublist_1 += 1
+            index_of_merged_list += 1
+
+        # Copy the remaining elements of left[], if any
+        while index_of_sublist_1 < sublist_1:
+            my_list[index_of_merged_list] = left_list[index_of_sublist_1]
+            index_of_sublist_1 += 1
+            index_of_merged_list += 1
+
+        # Copy the remaining elements of right[], if any
+        while index_of_sublist_1 < sublist_2:
+            my_list[index_of_merged_list] = right_list[index_of_sublist_1]
+            index_of_sublist_1 += 1
+            index_of_merged_list += 1      
+
+
+    ##########################################################################################################
+
+    # TODO: Adapt for hex world
     # NOTE: For now, we will only generate 17-char strings, with the first bit indicating whether or not there are walls around the edges, the next 8 bit specifying the coordinates of the agent, the last 8 indicating the coordinates of the goal
     # NOTE issue: How will the hex world respond when quieried like a DFA when the string is the wrong length? Could we work on how we define the alphabet to allow multiple-char letters so that things will be added/removed on the level of a unit of meaning?
-    def generate_string(self):
-
+    @staticmethod
+    def generate_string():
         strg = ""
+
+        # Generate a valid agent of random direction and location
+        my_agent = ""
+        while not make_alphabet.check_validity(my_agent):
+            my_agent = ""
+            agent_dir = random.randint(9, 14)
+            agent_mi = random.randint(0, 15)
+            agent_li = random.randint(0, 15)
+            # TODO: Check that this hex method correctly converts and returns a string
+            my_agent += hex(agent_dir) + hex(agent_mi) + hex(agent_li)
+
+        assert my_agent
+
+        # Save valid agent
+        strg += my_agent
+
+        # Generate a valid goal of random location
+        my_goal = ""
+        while not make_alphabet.check_validity(my_goal):
+            my_goal = ""
+            goal_mi = random.randint(0, 15)
+            goal_li = random.randint(0, 15)
+            # TODO: Check that this hex method correctly converts and returns a string
+            my_goal += "f" + hex(goal_mi) + hex(goal_li)
+
+        assert my_goal
+
+        # Save valid goal
+        strg += my_goal
+
+        # TODO: Generate a pseudo-randomly determined number of other 3-char strings (idents)
+        # NOTE: The choice of maximum number of idents is arbitrary
+        # num_idents = random.randint(0, 50)
+        num_idents = 0
+        other_idents = []
+        for i in range(num_idents):
+            new_ident = ""
             
-        # NOTE: The choice of maximum length of a string is arbitrary
-        # Create a string of (pseudo-)random length, with each character (pseudo-)randomly chosen from the alphabet
-        for i in range(0, random.randint(0, 15)):
-            strg += self.alphabet[random.randint(0, len(self.alphabet) - 1)]
+            # Loop until we have made a novel valid ident
+            while not (make_alphabet.check_validity(new_ident) and new_ident not in other_idents):
+                # NOTE: the new idents cannot be goals
+                ident_prop = random.randint(0, 14)
+                ident_mi = random.randint(0, 15)
+                ident_li = random.randint(0, 15)
+                # TODO: Check that this hex method correctly converts and returns a string
+                new_ident += hex(ident_prop) + hex(ident_mi) + hex(ident_li)
+
+            assert new_ident
+            assert new_ident not in other_idents
+
+            # Save new ident
+            other_idents.append(new_ident)
+
+        # TODO: Sort the three-char strings first by matrix index (2nd char), then list index (2nd char), then property (1st char)
+        Teacher.__merge_sort(other_idents)
+
+        # Concatenate these ident strings in the given order then return
+        for ident_string in other_idents:
+            strg += ident_string
         
         return strg
 
