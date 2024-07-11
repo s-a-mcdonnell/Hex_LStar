@@ -726,6 +726,25 @@ class Ident:
 
     ###############################################################################################################
 
+    @staticmethod
+    def find_next_move(agent):
+
+        w = agent.world
+        my_index = w.agents.index(agent)
+
+        if len(w.agent_choices[my_index]) == 0:
+            print("No instructions provided for agent " + str(my_index))
+            return
+
+        # Get influence of the agent on its direction, wrapping around to the start of the file if necessary
+        w.agent_step_indices[my_index] %= len(w.agent_choices[my_index])
+        influence = w.agent_choices[my_index][w.agent_step_indices[my_index]]
+
+        print("Next move " + str(influence))
+
+        return influence
+    
+    
     # Adjust's agent's state based on input from file, read into world.agent_choices
     @staticmethod
     def get_next_move(agent):
@@ -736,16 +755,7 @@ class Ident:
         w = agent.world
         my_index = w.agents.index(agent)
 
-        if len(w.agent_choices[my_index]) == 0:
-            print("No instructions provided for agent " + str(my_index))
-            return
-
-
-        # Get influence of the agent on its direction, wrapping around to the start of the file if necessary
-        w.agent_step_indices[my_index] %= len(w.agent_choices[my_index])
-        influence = w.agent_choices[my_index][w.agent_step_indices[my_index]]
-
-        print("Next move " + str(influence))
+        influence = Ident.find_next_move(agent)
 
         # TODO: What if the agent is currently stationary? (Currently, does nothing)
         if agent.state >= 0:
@@ -754,6 +764,7 @@ class Ident:
 
         # Iterate agent index
         w.agent_step_indices[my_index] += 1
+
 
     
 ###############################################################################################################
