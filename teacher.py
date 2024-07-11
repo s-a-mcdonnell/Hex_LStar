@@ -131,7 +131,7 @@ class Teacher:
     # TODO: Create option not to read agent file?
     def _create_world(self, s):
         # Assert that the length of the world-string is valid
-        assert(len(s) >= 6)
+        # assert(len(s) >= 6)
         assert(len(s) % 3 == 0)
 
         new_world = World(read_file=False)
@@ -350,6 +350,9 @@ class Teacher:
     # NOTE issue: How will the hex world respond when quieried like a DFA when the string is the wrong length? Could we work on how we define the alphabet to allow multiple-char letters so that things will be added/removed on the level of a unit of meaning?
     @staticmethod
     def generate_string():
+
+        print("generate_string() called")
+        print(f"rand int {random.randint(0, 10)}")
 
         strg = ""
 

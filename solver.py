@@ -3,7 +3,7 @@ import sys
 from learner import Learner
 from movement_teacher import Movement_Teacher
 from direction_teacher import Direction_Teacher
-import pdb; pdb.set_trace()
+# import pdb; pdb.set_trace()
 
 def __read_line(line):
     global alphabet
@@ -21,31 +21,23 @@ def __read_line(line):
 
 alphabet = []
 
-# reading the intial state of the hex board from a file
+# reading the alphabet from a file
 __location__ = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__)))
 file = open(os.path.join(__location__, "alphabet.txt"), "r")
 for line in file:
     __read_line(line)
 
-# print(alphabet)
-
-'''mover = Movement_Teacher(alphabet)
-director = Direction_Teacher(alphabet)'''
-
-
 # Create learners:
 # 0 -> movement teacher, 1 -> direction teacher
 movement_learner = Learner(alphabet=alphabet, teacher_type=0)
-direction_learner = Learner(alphabet=alphabet, teacher_type=1)
-
 # TODO: Modify teachers to make algorithm work
-# TODO: Make learners return learner DFA so we can use it as desired
-# Learn movement teacher using L*
+# Learn movement teacher using L* (learners return learner DFA so we can use it as desired)
 movement_DFA = movement_learner.lstar_algorithm()
 
 breakpoint()
 
 # Learn direction teacher using L*
+direction_learner = Learner(alphabet=alphabet, teacher_type=1)
 direction_DFA = direction_learner.lstar_algorithm()
 
 # TODO: methods to predict the agent's reaction to certain states based on the two DFA's we've created

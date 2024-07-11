@@ -730,7 +730,7 @@ class Ident:
     def find_next_move(agent):
         # TODO: This is a temp measure for testing
         # TODO: Find and return actual next move according to agent type
-        return 0
+        return -1
 
         w = agent.world
         my_index = w.agents.index(agent)
