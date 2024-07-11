@@ -1,4 +1,6 @@
 import os
+import sys
+from learner import Learner
 from movement_teacher import Movement_Teacher
 from direction_teacher import Direction_Teacher
 
@@ -14,6 +16,8 @@ def __read_line(line):
         assert len(line) == 3
         alphabet.append(line)
 
+##########################################################################################################
+
 alphabet = []
 
 # reading the intial state of the hex board from a file
@@ -24,10 +28,18 @@ for line in file:
 
 print(alphabet)
 
-# TODO: Make Movement_Teacher and Direction_Teacher not auto-create DFAs
-mover = Movement_Teacher(alphabet)
-director = Direction_Teacher(alphabet)
+'''mover = Movement_Teacher(alphabet)
+director = Direction_Teacher(alphabet)'''
 
+
+# Create learners:
+movement_learner = Learner(alphabet=alphabet, teacher_type=0)
+direction_learner = Learner(alphabet=alphabet, teacher_type=1)
+
+# TODO: Modify teachers to make algorithm work
+# TODO: Make learners return learner DFA so we can use it as desired
 # Learn movement teacher using L*
+movement_learner.lstar_algorithm()
 
 # Learn direction teacher using L*
+direction_learner.lstar_algorithm()

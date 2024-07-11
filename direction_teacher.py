@@ -4,8 +4,11 @@ from teacher import Teacher
 from hex_v2 import World, Ident
 
 class Direction_Teacher(Teacher):
-    def __init__(self, alphabet):
-        super().__init__(alphabet)
+    def __init__(self, alphabet, seed=-1):
+        self.alphabet = alphabet
+        self.seed = seed
+        if seed == -1:
+            self.seed = 1821
         # TODO: Write constructor
 
 

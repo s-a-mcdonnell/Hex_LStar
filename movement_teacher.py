@@ -4,8 +4,11 @@ from teacher import Teacher
 from hex_v2 import World, Ident
 
 class Movement_Teacher(Teacher):
-    def __init__(self, alphabet):
-        super().__init__(alphabet)
+    def __init__(self, alphabet, seed=-1):
+        self.alphabet = alphabet
+        self.seed = seed
+        if seed == -1:
+            self.seed = 1821
         # TODO: Write constructor
 
     # membership query
@@ -29,7 +32,7 @@ class Movement_Teacher(Teacher):
             if s == "":
                 return False
             
-            # TODO: self or super here due to class inheritance????
+            # Parse passed string into a world
             self.__create_world(s)
             assert self.world
             assert self.my_agent

@@ -3,6 +3,8 @@ from teacher import Teacher
 import itertools as it
 import matplotlib.pyplot as plt
 import networkx as nx
+from movement_teacher import Movement_Teacher
+from direction_teacher import Direction_Teacher
 
 ##############################################################################################################
 
@@ -63,7 +65,7 @@ class Learner:
     
     ##########################################################################################################
 
-    def __init__(self, alphabet = ['0','1'], num_states = -1, seed = -1, premade_dfa = None, display_graphs = False):
+    def __init__(self, alphabet = ['0','1'], teacher_type=-1, num_states = -1, seed = -1, premade_dfa = None, display_graphs = False):
 
         self.solved = False
         # Intialize alphabet
@@ -89,7 +91,15 @@ class Learner:
         
         # Else the DFA to be learned will be constructed by the teacher
         else:
-            self.my_teacher = Teacher(self.alphabet, num_states = num_states, seed = seed)
+            if teacher_type == -1:
+                self.my_teacher = Teacher(self.alphabet, num_states = num_states, seed = seed)
+            elif teacher_type == 0:
+                self.my_teacher = Movement_Teacher(self.alphabet, seed = seed)
+            elif teacher_type == 1:
+                self.my_tacher = Direction_Teacher(self.alphabet, seed = seed)
+            else:
+                exit("Error: Invalid teacher type")
+
 
         # Initialize binary classifcation tree T and tentative hypothesis M_hat
         self.init_t_m_hat()
