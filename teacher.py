@@ -1,6 +1,7 @@
 import random
 from hex_v2 import World, Ident
 import make_alphabet
+import pdb
 
 ##############################################################################################################
 
@@ -238,6 +239,9 @@ class Teacher:
         if begin == -1 and end == -1:
             begin = 0
             end = len(ident_list)
+        
+        assert begin != -1
+        assert end != -1
 
         # begin is for left index and end is right index
         # of the sub-array of arr to be sorted
@@ -316,7 +320,7 @@ class Teacher:
             agent_mi = random.randint(0, 15)
             agent_li = random.randint(0, 15)
             # TODO: Check that this hex method correctly converts and returns a string
-            my_agent += hex(agent_dir) + hex(agent_mi) + hex(agent_li)
+            my_agent += hex(agent_dir)[2] + hex(agent_mi)[2] + hex(agent_li)[2]
 
         assert my_agent
 
@@ -330,7 +334,7 @@ class Teacher:
             goal_mi = random.randint(0, 15)
             goal_li = random.randint(0, 15)
             # TODO: Check that this hex method correctly converts and returns a string
-            my_goal += "f" + hex(goal_mi) + hex(goal_li)
+            my_goal += "f" + hex(goal_mi)[2] + hex(goal_li)[2]
 
         assert my_goal
 
@@ -340,19 +344,22 @@ class Teacher:
         # TODO: Generate a pseudo-randomly determined number of other 3-char strings (idents)
         # NOTE: The choice of maximum number of idents is arbitrary
         # num_idents = random.randint(0, 50)
-        num_idents = 0
+        num_idents = 3
         other_idents = []
         for i in range(num_idents):
+            # breakpoint()
             new_ident = ""
             
             # Loop until we have made a novel valid ident
             while not (make_alphabet.check_validity(new_ident) and new_ident not in other_idents):
+                new_ident = ""
+                # breakpoint()
                 # NOTE: the new idents cannot be goals
                 ident_prop = random.randint(0, 14)
                 ident_mi = random.randint(0, 15)
                 ident_li = random.randint(0, 15)
                 # TODO: Check that this hex method correctly converts and returns a string
-                new_ident += hex(ident_prop) + hex(ident_mi) + hex(ident_li)
+                new_ident += hex(ident_prop)[2] + hex(ident_mi)[2] + hex(ident_li)[2]
 
             assert new_ident
             assert new_ident not in other_idents
