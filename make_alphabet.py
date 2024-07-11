@@ -1,11 +1,11 @@
 def check_validity(input):
 
-    # splice the twelve character string into three four character chunks
-    info = input[0:4]
-    x = int(input[4:8], 2)
-    y = int(input[8:],2)
+    # splice the three character string into three one-character chunks
+    info = int(input[0], 16)
+    x = int(input[1], 16)
+    y = int(input[2], 16)
 
-    # all 16 forms of input are valid
+    # all 16 forms of info are valid
 
     # invalid if the second two coordinate 4-bit strings are outside of the walls
     # x needs to be... greater than zero, and less than 13
@@ -40,13 +40,13 @@ def write_alphabet():
 
     # Re-open file to append text
     f = open("alphabet.txt", "a")
-    four_bits = ["0000", "0001", "0010", "0011", "0100", "0101", "0110", "0111", "1000", "1001", "1010", "1011", "1100", "1101", "1110", "1111"]
+    sub_alpha = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "a", "b", "c", "d", "e", "f"]
 
     # Write all combinations of three four-bit strings to the file
     for i in range(16):
         for j in range(16):
             for k in range(16):
-                next_letter = four_bits[i] + four_bits[j] + four_bits[k]
+                next_letter = sub_alpha[i] + sub_alpha[j] + sub_alpha[k]
 
                 # check if a 12 bit character is valid (ie, inside the walls of hex world), and if not, don't add it
                 if check_validity(next_letter):
