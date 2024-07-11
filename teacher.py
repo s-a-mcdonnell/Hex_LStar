@@ -131,6 +131,7 @@ class Teacher:
     # TODO: Create option not to read agent file?
     def _create_world(self, s):
         # Assert that the length of the world-string is valid
+        # NOTE: The >= 6 assertion leads to crashing, as sometimes a three-char string (one letter of the alphabet) is passed
         # assert(len(s) >= 6)
         assert(len(s) % 3 == 0)
 
