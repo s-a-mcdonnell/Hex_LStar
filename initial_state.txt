@@ -1,4 +1,2 @@
-1 7 occupied BLUE
-12 8 occupied RED
-11 9 occupied GREEN
-2 7 occupied PURPLE
+6 5 agent BLUE 3
+6 7 goal
