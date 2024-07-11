@@ -8,15 +8,6 @@ class Movement_Teacher(Teacher):
         super().__init__(alphabet)
         # TODO: Write constructor
 
-
-    # TODO: Create option not to read agent file?
-    def __create_world(self, s):
-        # TODO: does super() work when you're returning something??? hopefully it still makes self.world...
-        # TODO: test to see if this works properly
-        self.world = World(read_file = False)
-        super().__create_world(s)   
-
-
     # membership query
     # takes a string s and returns a boolean indicating whether s is accepted or rejected by the given DFA
     # TODO: Adapt for hex world
@@ -38,6 +29,7 @@ class Movement_Teacher(Teacher):
             if s == "":
                 return False
             
+            # TODO: self or super here due to class inheritance????
             self.__create_world(s)
             assert self.world
             assert self.my_agent
