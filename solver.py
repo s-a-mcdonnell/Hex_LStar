@@ -27,7 +27,7 @@ file = open(os.path.join(__location__, "alphabet.txt"), "r")
 for line in file:
     __read_line(line)
 
-print(alphabet)
+# print(alphabet)
 
 '''mover = Movement_Teacher(alphabet)
 director = Direction_Teacher(alphabet)'''

@@ -253,7 +253,7 @@ class Teacher:
     # Finally, sort by the first hexadecimal character (property)
     # TODO: Test this comparison method
     def __less_than(ident_1 : str, ident_2 : str):
-        print(f"comparing {ident_1} and {ident_2}")
+        # print(f"comparing {ident_1} and {ident_2}")
         assert len(ident_1) == 3
         assert len(ident_2) == 3
         
@@ -384,8 +384,8 @@ class Teacher:
 
         # Generate a pseudo-randomly determined number of other 3-char strings (idents)
         # NOTE: The choice of maximum number of idents is arbitrary; We might want to set to 0 for testing
-        # num_idents = random.randint(0, 50)
-        num_idents = 3
+        num_idents = random.randint(0, 50)
+        # num_idents = 3
         other_idents = []
         for i in range(num_idents):
             # breakpoint()
