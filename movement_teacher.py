@@ -50,4 +50,5 @@ class Movement_Teacher(Teacher):
             # false on first DFA => we are not manually changing the agent's direction (ie -> instruction 0)
             # true on first DFA => we are changing the agent's direction via the agent (ie -> instruction -1 or 1)
             else:
+                # TODO: is this where we call the second DFA from?
                 return True
