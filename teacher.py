@@ -224,12 +224,13 @@ class Teacher:
             assert self.my_agent
             
             original_agent_state = self.my_agent.state
-            new_state = Ident.find_next_move(self.my_agent)
-            # NOTE: hopefully find_next_move will be updated 
 
             # TODO: Run one loop of updating the world and check was the agent's state is
             # TODO: How to know what part of the agent instructions the world should be looking at? (potentially big issue, since we've created a world from scratch)
-            # self.world.update()
+            self.world.update()
+
+            new_state = Ident.find_next_move(self.my_agent)
+            # TODO: the world updating effects the agent though????
 
             # TODO: Return a boolean corresponding to the agent's state
             # TODO: Actually we want to just report the agent's action, not how it might have been affected by the physics rules
