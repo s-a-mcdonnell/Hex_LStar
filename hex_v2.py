@@ -1117,7 +1117,7 @@ class Hex:
 # while loop for running game goes in World
 class World:
 
-    def __init__(self, automatic_walls=True):
+    def __init__(self, automatic_walls=True, read_file=True):
 
         self.goalEnd = False
 
@@ -1177,35 +1177,36 @@ class World:
 
         # reading the intial state of the hex board from a file
         __location__ = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__)))
-        file = open(os.path.join(__location__, "initial_state.txt"), "r")
-        for line in file:
-            self.__read_line(line)
+        if read_file:
+            file = open(os.path.join(__location__, "initial_state.txt"), "r")
+            for line in file:
+                self.__read_line(line)
 
-        # reading the decisions of the agent from the provided file
-        # NOTE: This would not be part of the final project, but is helpful for demonstration/testing
-        if len(self.agents) > 0:
-            agent_file = open(os.path.join(__location__, "agent_choices.txt"), "r")
-            
-            # Initialize arrays with information about agents
-            # agent_step_indices stores the index in the row of influences which is currently effecting the agent
-            self.agent_step_indices = []
-            # agent_choices stores the row of potential influences in list form for easy access
-            self.agent_choices = []
-            for agent in self.agents:
-                self.agent_step_indices.append(0)
+            # reading the decisions of the agent from the provided file
+            # NOTE: This would not be part of the final project, but is helpful for demonstration/testing
+            if len(self.agents) > 0:
+                agent_file = open(os.path.join(__location__, "agent_choices.txt"), "r")
+                
+                # Initialize arrays with information about agents
+                # agent_step_indices stores the index in the row of influences which is currently effecting the agent
+                self.agent_step_indices = []
+                # agent_choices stores the row of potential influences in list form for easy access
+                self.agent_choices = []
+                for agent in self.agents:
+                    self.agent_step_indices.append(0)
 
-                empty_list = []
-                self.agent_choices.append(empty_list)
-            
-            row_counter = 0
-            for agent_line in agent_file:
+                    empty_list = []
+                    self.agent_choices.append(empty_list)
+                
+                row_counter = 0
+                for agent_line in agent_file:
 
-                # Sanity checker that we haven't provided more instructions than we have agents for
-                if row_counter >= len(self.agents):
-                    break
+                    # Sanity checker that we haven't provided more instructions than we have agents for
+                    if row_counter >= len(self.agents):
+                        break
 
-                self.__read_agent_line(row_counter, agent_line)
-                row_counter += 1
+                    self.__read_agent_line(row_counter, agent_line)
+                    row_counter += 1
 
         
         # Create walls around the edges, if requested
@@ -1457,7 +1458,7 @@ class World:
 
     ##########################################################################################################
 
-    def __update(self):
+    def update(self):
 
         # Clear list of hexes to double-check for superimposed idents
         # TODO: We should be able to delete this, as the while loop that checks for superimposition pops until this list is empty
@@ -1651,7 +1652,7 @@ class World:
 
                     # when in pause, you can step forward or back
                     if state == "pause" and keys[pygame.K_s]:
-                        self.__update()
+                        self.update()
 
                         pygame.time.delay(100)
                         # Take one second pause
@@ -1670,10 +1671,10 @@ class World:
             if state == "go":
                 print("--------------------on go--------------------")
                 dt = clock.tick(2) / 1000
-                self.__update()
+                self.update()
             elif state == "hyper":
                 dt = clock.tick(20) / 1000
-                self.__update()
+                self.update()
         
         # Exit
         if(self.goalEnd):
