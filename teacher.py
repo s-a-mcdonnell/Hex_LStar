@@ -129,7 +129,7 @@ class Teacher:
         
     ##########################################################################################################
     # TODO: Create option not to read agent file?
-    def __create_world(self, s):
+    def _create_world(self, s):
         # Assert that the length of the world-string is valid
         assert(len(s) >= 6)
         assert(len(s) % 3 == 0)

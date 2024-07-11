@@ -9,6 +9,7 @@ class Movement_Teacher(Teacher):
         self.seed = seed
         if seed == -1:
             self.seed = 1821
+
         # TODO: Write constructor
     
     ##########################################################################################################
@@ -35,7 +36,7 @@ class Movement_Teacher(Teacher):
                 return False
             
             # Parse passed string into a world
-            self.__create_world(s)
+            self._create_world(s)
             assert self.world
             assert self.my_agent
             
