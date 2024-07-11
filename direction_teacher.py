@@ -57,8 +57,8 @@ class Direction_Teacher(Teacher):
             # TODO: Return a boolean corresponding to the agent's state
             # TODO: Actually we want to just report the agent's action, not how it might have been affected by the physics rules
 
-            # SECOND DFA ==> acceptance is clockwise (positive) turn and rejection is counterclockwise (negative) turn
+            # SECOND DFA ==> acceptance is clockwise (positive) turn (next move value of 1) and rejection is everything else
             if new_state == 1:
                 return True
-            elif new_state == -1:
+            else:
                 return False
