@@ -62,7 +62,10 @@ class Ident:
 
         self.partner_serial_number = partner_serial_number
 
-        self.agent = agent
+        if agent == 'keyboard':
+            self.agent = KeyboardAgent()
+        else:
+            self.agent = AstarAgent(self)
 
     ##########################################################################################################
 
@@ -1317,8 +1320,13 @@ class World:
             direction = int(line_parts[4])
             color_text = line_parts[3]
             color = World.__get_color(color_text)
+            
+            if len(line_parts) == 6:
+                if line_parts[5] == 'astar':
+                    new_agent = Ident(matrix_index, list_index, self, color = color, state = direction, serial_number = -1, hist = None, property = "agent", agent="astar")
 
-            new_agent = Ident(matrix_index, list_index, self, color = color, state = direction, serial_number = -1, hist = None, property = "agent", agent=KeyboardAgent())
+            else:
+                new_agent = Ident(matrix_index, list_index, self, color = color, state = direction, serial_number = -1, hist = None, property = "agent", agent="keyboard")
 
             # Add ident to ident list
             self.ident_list.append(new_agent)
