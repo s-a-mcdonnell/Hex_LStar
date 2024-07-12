@@ -261,7 +261,7 @@ class Teacher:
         # The difference in the list index of the idents (northwest to southeast)
         li_dist = id[2] - ag[2]
         
-        # NOTE: This overlaps with a method Allison wrote in World
+        # NOTE: This distance calculation overlaps with a method Allison wrote in World
         # The total distance is greater of the absolute values of the two partial distances
         total_dist = abs(mi_dist)
         if abs(li_dist) > total_dist:
@@ -319,27 +319,21 @@ class Teacher:
             # TODO: Get the distance from said reference hex to the desired ident. We can do this with a call to __get_distance_and_direction because it will be a straight line (not infinite recursion)
             match ref_angle:
                 case 0:
-                    # TODO: Check this
                     offset = Teacher.__get_distance_and_direction([ag[0], ag[1], ag[2] - total_dist], id)[0]
                 case 1:
-                    # TODO: Check this
                     offset = Teacher.__get_distance_and_direction([ag[0], ag[1] + total_dist, ag[2] - total_dist], id)[0]
                 case 2:
-                    # TODO: Check this
                     offset = Teacher.__get_distance_and_direction([ag[0], ag[1] + total_dist, ag[2]], id)[0]
                 case 3:
-                    # TODO: Check this
                     offset = Teacher.__get_distance_and_direction([ag[0], ag[1], ag[2] + total_dist], id)[0]
                 case 4:
-                    # TODO: Check this
                     offset = Teacher.__get_distance_and_direction([ag[0], ag[1] - total_dist, ag[2] + total_dist], id)[0]
                 case 5:
-                    # TODO: Check this
                     offset = Teacher.__get_distance_and_direction([ag[0], ag[1] - total_dist, ag[2]], id)[0]
                 case _:
                     exit(f"invalid ref angle {ref_angle}")
             
-            # TODO: The angle of the desired ident = the angle of the reference hex + (distance from reference hex to desired ident)/(side length of ring - 1)
+            # The angle of the desired ident = the angle of the reference hex + (distance from reference hex to desired ident)/(side length of ring - 1)
             # = angle of reference hex + (distance from ref hex to desired ident)/(# of ring)
             # = angle of reference hex + (distance from ref hex to desired ident)/(total_dist)
             angle = ref_angle + offset/total_dist
