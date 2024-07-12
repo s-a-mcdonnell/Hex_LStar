@@ -135,7 +135,7 @@ class Teacher:
         # assert(len(s) >= 6)
         assert(len(s) % 3 == 0)
 
-        new_world = World(read_file=False)
+        new_world = World(read_file=False, display_window=False)
             
         # Parse string into world
         # TODO: the forcibly converting it into an integer could cause problems later. Note to self, be careful.

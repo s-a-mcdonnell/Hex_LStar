@@ -1120,7 +1120,7 @@ class Hex:
 # while loop for running game goes in World
 class World:
 
-    def __init__(self, automatic_walls=True, read_file=True):
+    def __init__(self, automatic_walls=True, read_file=True, display_window=True):
 
         self.goalEnd = False
 
@@ -1132,8 +1132,10 @@ class World:
 
         SCREEN_HEIGHT = 600
 
-        self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-        pygame.display.set_caption("Hex Simulator")
+        # NOTE: If the user is poorly-behaved (says they don't want to display but later does), this will cause issues due to the lack of self.screen
+        if display_window:
+            self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+            pygame.display.set_caption("Hex Simulator")
 
         # Set up hex matrix
         self.hex_matrix = []
