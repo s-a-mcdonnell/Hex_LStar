@@ -99,8 +99,8 @@ class Direction_Teacher(Teacher):
         # TODO: Increase range
         for i in range(100):
             s = Teacher.generate_string()
-            print(f"string {s} returned from generate_string()")
-            print(f"self.member(s) = {self.member(s)}, self.member(s, m_hat) = {self.member(s, m_hat)}")
+            # print(f"string {s} returned from generate_string()")
+            # print(f"self.member(s) = {self.member(s)}, self.member(s, m_hat) = {self.member(s, m_hat)}")
             if self.member(s) != self.member(s, m_hat):
                 '''assert(type(self.member(s)) is bool)
                 assert(type(self.member(s, m_hat)) is bool)'''

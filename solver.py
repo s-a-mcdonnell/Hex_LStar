@@ -42,6 +42,8 @@ file = open(os.path.join(__location__, "alphabet.txt"), "r")
 for line in file:
     __read_line(line)
 
+print("ALPHABET PARSED")
+
 # Create learners:
 # 0 -> movement teacher, 1 -> direction teacher
 movement_learner = Learner(alphabet=alphabet, teacher_type=0)

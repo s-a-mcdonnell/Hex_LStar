@@ -352,8 +352,8 @@ class Teacher:
     @staticmethod
     def generate_string():
 
-        print("generate_string() called")
-        print(f"rand int {random.randint(0, 10)}")
+        # print("generate_string() called")
+        # print(f"rand int {random.randint(0, 10)}")
 
         strg = ""
 
@@ -437,7 +437,7 @@ class Teacher:
         for ident_string in other_idents:
             strg += ident_string
 
-        print(f"generated string: {strg}")
+        # print(f"generated string: {strg}")
         
         return strg
 
