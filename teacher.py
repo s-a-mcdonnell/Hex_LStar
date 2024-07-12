@@ -273,6 +273,9 @@ class Teacher:
         total_dist = abs(mi_dist)
         if abs(li_dist) > total_dist:
             total_dist = abs(li_dist)
+        # If the partial distances are both positive or both negative, the total distance is the sum of their absolute values
+        if (mi_dist > 0) == (li_dist > 0):
+            total_dist = abs(mi_dist) + abs(li_dist)
         
         # Deal with ident in the same location as the agent
         if mi_dist == 0 and li_dist == 0:
