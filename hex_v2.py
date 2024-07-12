@@ -726,11 +726,28 @@ class Ident:
 
     ###############################################################################################################
 
+    def find_closest_goal(self):
+
+        goals = self.world.goals
+        goal_distances = {}
+        for goal in goals:
+            # TODO: is self passed in here a hex or an ident???
+            dist = World.axial_distance(goal, self)
+            goal_distances[goal] = dist
+
+        # return goal corresponding to minimum distance in the dictionary
+        min_value = min(goal_distances.values())
+
+        return min_value
+
+
     @staticmethod
     def find_next_move(agent):
         # TODO: This is a temp measure for testing
         # TODO: Find and return actual next move according to agent type
         
+        assert type(agent) == Ident
+
         # return value depending on the distance to the nearest goal from the hexes in the current agent's direction
 
         w = agent.world
@@ -738,24 +755,34 @@ class Ident:
         dir = agent.state
         goals = w.goals
 
-        # TODO: see if we have a list of goals to find the closest goal
-        # TODO: find a way to get the forward, clockwise, and counterclockwise neighbor of our agent
+        assert dir is not None
 
-        ##################
-        # Normal method:
+        # find the forward, clockwise, and counterclockwise neighbor of our agent
+        # NOTE: get neighbor returns the hex, not the ident
+        n_forward = agent.get_neighbor(w, dir)
+        assert n_forward is not None
+        n_right = agent.get_neighbor(w, (dir + 1)%6)
+        n_left = agent.get_neighbor(w, (dir - 1)%6)
 
-        if len(w.agent_choices[my_index]) == 0:
-            print("No instructions provided for agent " + str(my_index))
-            return
+        # find the distance to the closest goal from each neighbor
+        distances = {}
+        distances[n_forward] = n_forward.find_closest_goal()
+        distances[n_right] = n_right.find_closest_goal()
+        distances[n_left] = n_left.find_closest_goal()
 
-        # Get influence of the agent on its direction, wrapping around to the start of the file if necessary
-        w.agent_step_indices[my_index] %= len(w.agent_choices[my_index])
-        influence = w.agent_choices[my_index][w.agent_step_indices[my_index]]
+        assert distances is not None
 
-        print("Next move " + str(influence))
+        min_distance = min(distances.values())
 
-        return influence
-    
+        to_go = next((Ident for Ident in distances.keys() if distances[Ident] == min_distance), None)
+
+        if to_go == n_forward:
+            return 0
+        elif to_go == n_right:
+            return 1
+        elif to_go == n_left:
+            return -1
+        
     
     # Adjust's agent's state based on input from file, read into world.agent_choices
     @staticmethod
