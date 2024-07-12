@@ -268,29 +268,34 @@ class Teacher:
 
         # The difference in the list index of the idents (northwest to southeast)
         li_dist = id[2] - ag[2]
+
+        # The total distance is greater of the absolute values of the two partial distances
+        total_dist = abs(mi_dist)
+        if abs(li_dist) > total_dist:
+            total_dist = abs(li_dist)
         
         # Deal with ident in the same location as the agent
         if mi_dist == 0 and li_dist == 0:
-            return [0, -1]
+            return [total_dist, -1]
         
         # Deal with ident on a straight northwest/southeast line
         elif mi_dist == 0:
             assert li_dist != 0
 
             # TODO: Check how direction is determined here
-            return[abs(li_dist), 2 if li_dist > 0 else 5]
+            return[total_dist, 2 if li_dist > 0 else 5]
         
         # Deal with ident on a straight vertical line
         elif li_dist == 0:
             assert mi_dist != 0
 
             # TODO: Check how direction is determined here
-            return[abs(mi_dist), 3 if mi_dist > 0 else 0]
+            return[total_dist, 3 if mi_dist > 0 else 0]
         
-        # Deal with ident on a staright northeast/southwest line
+        # Deal with ident on a straight northeast/southwest line
         elif mi_dist == -li_dist:
             # TODO: Check how direction is determined here
-            return[abs(mi_dist), 1 if mi_dist > li_dist else 4]
+            return[total_dist, 1 if mi_dist > li_dist else 4]
 
         # TODO: Deal with all other cases (not straight lines)
 
