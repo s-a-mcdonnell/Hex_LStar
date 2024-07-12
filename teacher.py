@@ -250,17 +250,95 @@ class Teacher:
     ##########################################################################################################
 
     @staticmethod
+    # Returns a list of two numbers, where the first is the distance (in terms of number of hexes) from the given ident to the agent
+    # And the second is the direction from the agent in which one would have to travel to reach the ident
+    # TODO: Write this method
+    def __get_distance_and_direction(ident:str, agent:str):
+        id = []
+        for char in ident:
+            # Append all chars in ident as ints in base 10
+            id.append(hex(char)[2])
+        
+        ag = []
+        for char in agent:
+            ag.append(hex(char)[2])
+        
+        # The difference in the matrix index of the idents (vertical)
+        mi_dist = id[1] - ag[1]
+
+        # The difference in the list index of the idents (northwest to southeast)
+        li_dist = id[2] - ag[2]
+        
+        # Deal with ident in the same location as the agent
+        if mi_dist == 0 and li_dist == 0:
+            return [0, -1]
+        
+        # Deal with ident on a straight northwest/southeast line
+        elif mi_dist == 0:
+            assert li_dist != 0
+
+            # TODO: Check how direction is determined here
+            return[abs(li_dist), 2 if li_dist > 0 else 5]
+        
+        # Deal with ident on a straight vertical line
+        elif li_dist == 0:
+            assert mi_dist != 0
+
+            # TODO: Check how direction is determined here
+            return[abs(mi_dist), 3 if mi_dist > 0 else 0]
+        
+        # Deal with ident on a staright northeast/southwest line
+        elif mi_dist == -li_dist:
+            # TODO: Check how direction is determined here
+            return[abs(mi_dist), 1 if mi_dist > li_dist else 4]
+
+        # TODO: Deal with all other cases (not straight lines)
+
+        pass
+
+
+    ##########################################################################################################
+
+    @staticmethod
     # Returns a boolean indicating if ident_1 is less than ident_2 according to the following rules:
     # First, sort by the second hexadecimal character (matrix index)
     # Second, sort by the third hexadecimal character (list index)
     # Finally, sort by the first hexadecimal character (property)
     # TODO: Test this comparison method
-    def __less_than(ident_1 : str, ident_2 : str):
+    def __less_than(ident_1 : str, ident_2 : str, agent : str = None):
         # print(f"comparing {ident_1} and {ident_2}")
+
+        # Ensure that we are comparing two idents of valid string length
         assert len(ident_1) == 3
         assert len(ident_2) == 3
-        
-        # Compare 2nd hexadecimal character (matrix index)
+
+        # Sort by distance from agent, then clockwise starting at direction 0 (12 o'clock)
+        assert agent
+        assert len(agent) == 3
+        distance_1 = Teacher.__get_distance_and_direction(ident_1, agent)
+        distance_2 = Teacher.__get_distance_and_direction(ident_2, agent)
+
+        if distance_1[0] != distance_2[0]:
+            return distance_1[0] < distance_2[0]
+        else:
+            
+            if distance_1[1] != distance_2[1]:
+                return distance_1[1] < distance_2[1]
+            
+            # Two idents are in the same location
+            else:
+                # Compare 1st hexadecimal character (property)
+                # TODO: Do I need to convert into decimal?
+                if ident_1[0] < ident_2[0]:
+                    return True
+                elif ident_1[0] > ident_2[0]:
+                    return False
+                else:
+                    # Two identical idents (should not happen)
+                    exit("Two equal idents found")
+
+        # Sort up to down, left to right
+        '''# Compare 2nd hexadecimal character (matrix index)
         if ident_1[1] < ident_2[1]:
             return True
         elif ident_1[1] > ident_2[1]:
@@ -284,7 +362,7 @@ class Teacher:
                 else:
                     # Two identical idents (should not happen)
                     exit("Two equal idents found")
-                    return True
+                    return True'''
 
 
     ##########################################################################################################
@@ -399,14 +477,14 @@ class Teacher:
             
             # TODO: Finish sorting in multiple goals then add them to string
             # Add the final ident in other_idents in smaller than the new_ident, add at the back
-            elif Teacher.__less_than(goals[len(goals) - 1], my_goal):
+            elif Teacher.__less_than(goals[len(goals) - 1], my_goal, agent=my_agent):
                 goals.append(my_goal)
 
             # Otherwise iterate through other_ident until the correct location is found
             else:
                 for goal in goals:
                     if not Teacher.__less_than(goal, my_goal):
-                        goals.insert(goals.index(goal), my_goal)
+                        goals.insert(goals.index(goal), my_goal, agent=my_agent)
                         break
 
         # Save valid goals to string
@@ -444,14 +522,14 @@ class Teacher:
                 other_idents.append(new_ident)
             
             # Add the final ident in other_idents in smaller than the new_ident, add at the back
-            elif Teacher.__less_than(other_idents[len(other_idents) - 1], new_ident):
+            elif Teacher.__less_than(other_idents[len(other_idents) - 1], new_ident, agent=my_agent):
                 other_idents.append(new_ident)
 
             # Otherwise iterate through other_ident until the correct location is found
             else:
                 for ident in other_idents:
                     if not Teacher.__less_than(ident, new_ident):
-                        other_idents.insert(other_idents.index(ident), new_ident)
+                        other_idents.insert(other_idents.index(ident), new_ident, agent=my_agent)
                         break
                     
                     
