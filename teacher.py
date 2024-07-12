@@ -343,6 +343,8 @@ class Teacher:
             # = angle of reference hex + (distance from ref hex to desired ident)/(# of ring)
             # = angle of reference hex + (distance from ref hex to desired ident)/(total_dist)
             angle = ref_angle + offset/total_dist
+            print(f"ref angle = {ref_angle}, offset = {offset}, total_dist = {total_dist}")
+            print(f"angle = {angle}")
 
             print(f"angle between agent {ag} and ident {id} is {angle}")
 
@@ -356,8 +358,8 @@ class Teacher:
     # Second, sort by the third hexadecimal character (list index)
     # Finally, sort by the first hexadecimal character (property)
     # TODO: Test this comparison method
-    def __less_than(ident_1 : str, ident_2 : str, agent : str = None):
-        # print(f"comparing {ident_1} and {ident_2}")
+    def __less_than(ident_1 : str, ident_2 : str, agent : str):
+        print(f"comparing {ident_1} and {ident_2} with agent {agent}")
 
         # Ensure that we are comparing two idents of valid string length
         assert len(ident_1) == 3
@@ -374,7 +376,7 @@ class Teacher:
             id_1.append(int(char, 16))
         
         id_2 = []
-        for char in ident_1:
+        for char in ident_2:
             # Append all chars in ident_2 as ints in base 10
             id_2.append(int(char, 16))
         
@@ -402,7 +404,10 @@ class Teacher:
                     return False
                 else:
                     # Two identical idents (should not happen)
+                    print(f"ident_1 = {ident_1}, ident_2 = {ident_2}, agent = {agent}")
+                    print(f"dist_1 = {distance_1}, dist_2 = {distance_2}")
                     exit("Two equal idents found")
+
 
         # Sort up to down, left to right
         '''# Compare 2nd hexadecimal character (matrix index)
@@ -544,14 +549,14 @@ class Teacher:
             
             # TODO: Finish sorting in multiple goals then add them to string
             # Add the final ident in other_idents in smaller than the new_ident, add at the back
-            elif Teacher.__less_than(goals[len(goals) - 1], my_goal, agent=my_agent):
+            elif Teacher.__less_than(goals[len(goals) - 1], my_goal, my_agent):
                 goals.append(my_goal)
 
             # Otherwise iterate through other_ident until the correct location is found
             else:
                 for goal in goals:
-                    if not Teacher.__less_than(goal, my_goal):
-                        goals.insert(goals.index(goal), my_goal, agent=my_agent)
+                    if not Teacher.__less_than(goal, my_goal, my_agent):
+                        goals.insert(goals.index(goal), my_goal)
                         break
 
         # Save valid goals to string
@@ -589,14 +594,14 @@ class Teacher:
                 other_idents.append(new_ident)
             
             # Add the final ident in other_idents in smaller than the new_ident, add at the back
-            elif Teacher.__less_than(other_idents[len(other_idents) - 1], new_ident, agent=my_agent):
+            elif Teacher.__less_than(other_idents[len(other_idents) - 1], new_ident, my_agent):
                 other_idents.append(new_ident)
 
             # Otherwise iterate through other_ident until the correct location is found
             else:
                 for ident in other_idents:
-                    if not Teacher.__less_than(ident, new_ident):
-                        other_idents.insert(other_idents.index(ident), new_ident, agent=my_agent)
+                    if not Teacher.__less_than(ident, new_ident, my_agent):
+                        other_idents.insert(other_idents.index(ident), new_ident)
                         break
                     
                     
