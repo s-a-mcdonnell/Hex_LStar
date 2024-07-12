@@ -5,7 +5,7 @@ import os
 ##########################################################################################################
 
 # Reads chars from the alphabet file and returns list storing alphabet
-def __read_alphabet(loc):
+def read_alphabet(loc):
 
     # Default alphabet is 0 and 1
     try:
@@ -31,12 +31,12 @@ def __read_alphabet(loc):
 ##########################################################################################################
 
 # Reads lines from the DFA file and returns matrix (2d list) storing DFA
-def __read_dfa(loc):
+def read_dfa(loc, file_name):
     # Return None if no file is provided
     try:
-        dfa_file = open(os.path.join(loc, "dfa.txt"), "r")
+        dfa_file = open(os.path.join(loc, file_name), "r")
     except:
-        print("Error: No file dfa.txt found. DFA to be learned will be randomly generated.")
+        print(f"Error: No file {file_name} found. DFA to be learned will be randomly generated.")
         return None
     
     dfa = []
@@ -68,6 +68,8 @@ def __read_dfa(loc):
         print("Error: No usable lines found in dfa.txt. DFA to be learned will be randomly generated.")
         return None
     
+    # TODO: Close file?
+
     # Return parsed DFA
     return dfa
 
@@ -104,12 +106,12 @@ if len(sys.argv) > 3:
 
 # Import alphabet from text file (if provided, else use binary alphabet)
 __location__ = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__)))
-alphabet = __read_alphabet(__location__)
+alphabet = read_alphabet(__location__)
 print(f"alphabet: {alphabet}")
 
 # Read DFA from text file (if provided and not overridden by command-line args)
 if len(sys.argv) <= 2:
-    dfa_for_testing = __read_dfa(__location__)
+    dfa_for_testing = read_dfa(__location__, "dfa.txt")
 else:
     dfa_for_testing = None
 
