@@ -258,7 +258,8 @@ class Learner:
         # if yes we are done
         print("DFA solved!")
         print(f"Learned DFA with {len(self.m_hat)} states:")
-        print(self.m_hat)
+        for i in range(len(self.m_hat)):
+            print(self.m_hat[i])
         print("with tree:")
         self.t.print_tree()
         
