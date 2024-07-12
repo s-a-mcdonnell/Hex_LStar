@@ -268,7 +268,8 @@ class Teacher:
 
         # The difference in the list index of the idents (northwest to southeast)
         li_dist = id[2] - ag[2]
-
+        
+        # NOTE: This overlaps with a method Allison wrote in World
         # The total distance is greater of the absolute values of the two partial distances
         total_dist = abs(mi_dist)
         if abs(li_dist) > total_dist:
@@ -287,23 +288,30 @@ class Teacher:
             assert li_dist != 0
 
             # TODO: Check how direction is determined here
-            return[total_dist, 2 if li_dist > 0 else 5]
+            return [total_dist, 2 if li_dist > 0 else 5]
         
         # Deal with ident on a straight vertical line
         elif li_dist == 0:
             assert mi_dist != 0
 
             # TODO: Check how direction is determined here
-            return[total_dist, 3 if mi_dist > 0 else 0]
+            return [total_dist, 3 if mi_dist > 0 else 0]
         
         # Deal with ident on a straight northeast/southwest line
         elif mi_dist == -li_dist:
             # TODO: Check how direction is determined here
-            return[total_dist, 1 if mi_dist > li_dist else 4]
+            return [total_dist, 1 if mi_dist > li_dist else 4]
 
         # TODO: Deal with all other cases (not straight lines)
+        # To find angle:
+        # Find the hex on the same concentric ring which is one of the the 6 straight lines and is the closest to the desired ident but counter-clockwise from it
+        # Get the distance from said reference hex to the desired ident
+        # The angle of the desired ident = the angle of the reference hex + (distance from reference hex to desired ident)/(side length of ring - 1)
+        # = angle of reference hex + (distance from ref hex to desired ident)/(# of ring)
+        # = angle of reference hex + (distance from ref hex to desired ident)/(total_dist)
 
         pass
+
 
 
     ##########################################################################################################
