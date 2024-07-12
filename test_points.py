@@ -42,5 +42,4 @@ print(f"Agent move from string ba6f48857: {__get_move("ba6f48857")}")
 for i in range(1, len(sys.argv)):
     assert len(sys.argv[i])%3 == 0
     assert len(sys.argv[i]) >= 6
-    print(f"Agent move from string {sys.argv[i]}: {__get_move(sys.argv[i])}")
-    
+    print(f"Agent move from string {sys.argv[i]}: {__get_move(sys.argv[i])}")    

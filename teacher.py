@@ -374,19 +374,45 @@ class Teacher:
         # Save valid agent
         strg += my_agent
 
+
         # Generate a valid goal of random location
-        my_goal = ""
-        while not make_alphabet.check_validity(my_goal):
+        # TODO: Enable the creation of multiple goals
+        # NOTE: The maximum number of goals is arbitrary
+        num_goals = random.randint(1, 5)
+        print(f"creating {num_goals} goals")
+        goals = []
+        for i in range(num_goals):
             my_goal = ""
-            goal_mi = random.randint(0, 15)
-            goal_li = random.randint(0, 15)
-            # TODO: Check that this hex method correctly converts and returns a string
-            my_goal += "f" + hex(goal_mi)[2] + hex(goal_li)[2]
+            while not (make_alphabet.check_validity(my_goal) and my_goal not in goals):
+                my_goal = ""
+                goal_mi = random.randint(0, 15)
+                goal_li = random.randint(0, 15)
+                # TODO: Check that this hex method correctly converts and returns a string
+                my_goal += "f" + hex(goal_mi)[2] + hex(goal_li)[2]
 
-        assert my_goal
+            assert my_goal
 
-        # Save valid goal
-        strg += my_goal
+            # Save new ident in the correct order
+            # If other_idents is empty, add to it
+            if not len(goals):
+                goals.append(my_goal)
+            
+            # TODO: Finish sorting in multiple goals then add them to string
+            # Add the final ident in other_idents in smaller than the new_ident, add at the back
+            elif Teacher.__less_than(goals[len(goals) - 1], my_goal):
+                goals.append(my_goal)
+
+            # Otherwise iterate through other_ident until the correct location is found
+            else:
+                for goal in goals:
+                    if not Teacher.__less_than(goal, my_goal):
+                        goals.insert(goals.index(goal), my_goal)
+                        break
+
+        # Save valid goals to string
+        for goal in goals:
+            strg += goal
+
 
         # Generate a pseudo-randomly determined number of other 3-char strings (idents)
         # NOTE: The choice of maximum number of idents is arbitrary; We might want to set to 0 for testing
@@ -438,6 +464,7 @@ class Teacher:
         # Concatenate these ident strings in the given order then return
         for ident_string in other_idents:
             strg += ident_string
+
 
         # print(f"generated string: {strg}")
         
