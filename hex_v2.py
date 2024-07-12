@@ -65,6 +65,7 @@ class Ident:
     # Public version of __get_neighbor
     # TODO: Check access control terminology for python
     def get_neighbor(self, matrix, dir):
+        print("Get neighbor public method called.")
         return self.__get_neighbor(matrix, dir)
 
     ##########################################################################################################
@@ -72,41 +73,46 @@ class Ident:
     # Returns the neighboring hex in the given direction in the given matrix
     # If that hex does not exist, returns None
     def __get_neighbor(self, matrix, dir):
+
+        print("Get neighbor private method called.")
         
         if dir == 0:
+            print("neighbor 0")
             try:
                 return matrix[self.matrix_index][self.list_index - 1]
             except:
                 return None
             
         elif dir == 1:
+            print("neighbor 1")
             try:
                 return matrix[self.matrix_index + 1][self.list_index - 1]  
             except:
                 return None
 
         elif dir == 2:
+            print("neighbor 2")
             try:
                 return matrix[self.matrix_index + 1][self.list_index]
             except:
                 return None
 
         elif dir == 3:
-
+            print("neighbor 3")
             try:
                 return matrix[self.matrix_index][self.list_index + 1]
             except:
                 return None
 
         elif dir == 4:
-
+            print("neighbor 4")
             try:
                 return matrix[self.matrix_index - 1][self.list_index + 1]
             except:
                 return None
             
         elif dir == 5:
-
+            print("neighbor 5")
             try:
                 return matrix[self.matrix_index - 1][self.list_index]
             except:
@@ -755,22 +761,32 @@ class Ident:
         dir = agent.state
         goals = w.goals
 
+        if len(goals) == 0:
+            return 0
+
         assert dir is not None
+        print(dir)
 
         # find the forward, clockwise, and counterclockwise neighbor of our agent
         # NOTE: get neighbor returns the hex, not the ident
         n_forward = agent.get_neighbor(w, dir)
-        assert n_forward is not None
         n_right = agent.get_neighbor(w, (dir + 1)%6)
         n_left = agent.get_neighbor(w, (dir - 1)%6)
 
         # find the distance to the closest goal from each neighbor
         distances = {}
-        distances[n_forward] = n_forward.find_closest_goal()
-        distances[n_right] = n_right.find_closest_goal()
-        distances[n_left] = n_left.find_closest_goal()
+        if n_forward is not None:
+            distances[n_forward] = n_forward.find_closest_goal()
+        if n_right is not None:
+            distances[n_right] = n_right.find_closest_goal()
+        if n_left is not None:
+            distances[n_left] = n_left.find_closest_goal()
+
+        # TODO: special case if none of the neighbors we are looking for exist/are valid/are not walls???
+        # MAKE SURE NOT TO SEND THE AGENT INTO A WALL PLS
 
         assert distances is not None
+        assert distances.values() is not None
 
         min_distance = min(distances.values())
 
