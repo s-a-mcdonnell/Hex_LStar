@@ -253,15 +253,7 @@ class Teacher:
     # Returns a list of two numbers, where the first is the distance (in terms of number of hexes) from the given ident to the agent
     # And the second is the direction from the agent in which one would have to travel to reach the ident
     # TODO: Write this method
-    def __get_distance_and_direction(ident:str, agent:str):
-        id = []
-        for char in ident:
-            # Append all chars in ident as ints in base 10
-            id.append(hex(char)[2])
-        
-        ag = []
-        for char in agent:
-            ag.append(hex(char)[2])
+    def __get_distance_and_direction(id:[], ag:[]):
         
         # The difference in the matrix index of the idents (vertical)
         mi_dist = id[1] - ag[1]
@@ -303,16 +295,58 @@ class Teacher:
             return [total_dist, 1 if mi_dist > li_dist else 4]
 
         # TODO: Deal with all other cases (not straight lines)
-        # To find angle:
-        # Find the hex on the same concentric ring which is one of the the 6 straight lines and is the closest to the desired ident but counter-clockwise from it
-        # Get the distance from said reference hex to the desired ident
-        # The angle of the desired ident = the angle of the reference hex + (distance from reference hex to desired ident)/(side length of ring - 1)
-        # = angle of reference hex + (distance from ref hex to desired ident)/(# of ring)
-        # = angle of reference hex + (distance from ref hex to desired ident)/(total_dist)
+        else:
+            # To find angle:
+            # TODO: Find the hex on the same concentric ring which is one of the the 6 straight lines and is the closest to the desired ident but counter-clockwise from it
+            if mi_dist > 0 and li_dist < 0:
+                if abs(li_dist) > abs(mi_dist):
+                    ref_angle = 0
+                else:
+                    assert abs(mi_dist) > abs(li_dist)
+                    ref_angle = 1
+            elif mi_dist > 0 and li_dist > 0:
+                ref_angle = 2
+            elif mi_dist < 0 and li_dist > 0:
+                if abs(li_dist) > abs(mi_dist):
+                    ref_angle = 3
+                else:
+                    assert abs(mi_dist) > abs(li_dist)
+                    ref_angle = 4
+            else:
+                assert mi_dist < 0 and li_dist < 0
+                ref_angle = 5
 
-        pass
+            # TODO: Get the distance from said reference hex to the desired ident. We can do this with a call to __get_distance_and_direction because it will be a straight line (not infinite recursion)
+            match ref_angle:
+                case 0:
+                    # TODO: Check this
+                    offset = Teacher.__get_distance_and_direction([id[0], id[1], id[2] - total_dist], id)[0]
+                case 1:
+                    # TODO: Check this
+                    offset = Teacher.__get_distance_and_direction([id[0], id[1] + total_dist, id[2] - total_dist], id)[0]
+                case 2:
+                    # TODO: Check this
+                    offset = Teacher.__get_distance_and_direction([id[0], id[1] + total_dist, id[2]], id)[0]
+                case 3:
+                    # TODO: Check this
+                    offset = Teacher.__get_distance_and_direction([id[0], id[1], id[2] + total_dist], id)[0]
+                case 4:
+                    # TODO: Check this
+                    offset = Teacher.__get_distance_and_direction([id[0], id[1] - total_dist, id[2] + total_dist], id)[0]
+                case 5:
+                    # TODO: Check this
+                    offset = Teacher.__get_distance_and_direction([id[0], id[1] - total_dist, id[2]], id)[0]
+                case _:
+                    exit(f"invalid ref angle {ref_angle}")
+            
+            # TODO: The angle of the desired ident = the angle of the reference hex + (distance from reference hex to desired ident)/(side length of ring - 1)
+            # = angle of reference hex + (distance from ref hex to desired ident)/(# of ring)
+            # = angle of reference hex + (distance from ref hex to desired ident)/(total_dist)
+            angle = ref_angle + offset/total_dist
 
+            print(f"angle between agent {ag} and ident {id} is {angle}")
 
+            return [total_dist, angle]
 
     ##########################################################################################################
 
@@ -332,8 +366,24 @@ class Teacher:
         # Sort by distance from agent, then clockwise starting at direction 0 (12 o'clock)
         assert agent
         assert len(agent) == 3
-        distance_1 = Teacher.__get_distance_and_direction(ident_1, agent)
-        distance_2 = Teacher.__get_distance_and_direction(ident_2, agent)
+        
+        
+        id_1 = []
+        for char in ident_1:
+            # Append all chars in ident_2 as ints in base 10
+            id_1.append(int(char, 16))
+        
+        id_2 = []
+        for char in ident_1:
+            # Append all chars in ident_2 as ints in base 10
+            id_2.append(int(char, 16))
+        
+        ag = []
+        for char in agent:
+            ag.append(int(char, 16))
+
+        distance_1 = Teacher.__get_distance_and_direction(id_1, ag)
+        distance_2 = Teacher.__get_distance_and_direction(id_2, ag)
 
         if distance_1[0] != distance_2[0]:
             return distance_1[0] < distance_2[0]
