@@ -320,22 +320,22 @@ class Teacher:
             match ref_angle:
                 case 0:
                     # TODO: Check this
-                    offset = Teacher.__get_distance_and_direction([id[0], id[1], id[2] - total_dist], id)[0]
+                    offset = Teacher.__get_distance_and_direction([ag[0], ag[1], ag[2] - total_dist], id)[0]
                 case 1:
                     # TODO: Check this
-                    offset = Teacher.__get_distance_and_direction([id[0], id[1] + total_dist, id[2] - total_dist], id)[0]
+                    offset = Teacher.__get_distance_and_direction([ag[0], ag[1] + total_dist, ag[2] - total_dist], id)[0]
                 case 2:
                     # TODO: Check this
-                    offset = Teacher.__get_distance_and_direction([id[0], id[1] + total_dist, id[2]], id)[0]
+                    offset = Teacher.__get_distance_and_direction([ag[0], ag[1] + total_dist, ag[2]], id)[0]
                 case 3:
                     # TODO: Check this
-                    offset = Teacher.__get_distance_and_direction([id[0], id[1], id[2] + total_dist], id)[0]
+                    offset = Teacher.__get_distance_and_direction([ag[0], ag[1], ag[2] + total_dist], id)[0]
                 case 4:
                     # TODO: Check this
-                    offset = Teacher.__get_distance_and_direction([id[0], id[1] - total_dist, id[2] + total_dist], id)[0]
+                    offset = Teacher.__get_distance_and_direction([ag[0], ag[1] - total_dist, ag[2] + total_dist], id)[0]
                 case 5:
                     # TODO: Check this
-                    offset = Teacher.__get_distance_and_direction([id[0], id[1] - total_dist, id[2]], id)[0]
+                    offset = Teacher.__get_distance_and_direction([ag[0], ag[1] - total_dist, ag[2]], id)[0]
                 case _:
                     exit(f"invalid ref angle {ref_angle}")
             
