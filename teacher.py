@@ -343,8 +343,8 @@ class Teacher:
             # = angle of reference hex + (distance from ref hex to desired ident)/(# of ring)
             # = angle of reference hex + (distance from ref hex to desired ident)/(total_dist)
             angle = ref_angle + offset/total_dist
-            print(f"ref angle = {ref_angle}, offset = {offset}, total_dist = {total_dist}")
-            print(f"angle = {angle}")
+            '''print(f"ref angle = {ref_angle}, offset = {offset}, total_dist = {total_dist}")
+            print(f"angle = {angle}")'''
 
             print(f"angle between agent {ag} and ident {id} is {angle}")
 
@@ -359,7 +359,7 @@ class Teacher:
     # Finally, sort by the first hexadecimal character (property)
     # TODO: Test this comparison method
     def __less_than(ident_1 : str, ident_2 : str, agent : str):
-        print(f"comparing {ident_1} and {ident_2} with agent {agent}")
+        # print(f"comparing {ident_1} and {ident_2} with agent {agent}")
 
         # Ensure that we are comparing two idents of valid string length
         assert len(ident_1) == 3
