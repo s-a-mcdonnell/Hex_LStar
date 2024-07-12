@@ -51,7 +51,7 @@ class Direction_Teacher(Teacher):
         # If passed a matrix, use it as the dfa and return boolen indicating final state action
         if dfa:        
             # Return the int boolean indicating if the final state is an accept or reject state
-            final_state : list[int] = Teacher.final_state(s, dfa, alpha)
+            final_state : list[int] = Direction_Teacher.final_state(s, dfa, alpha)
             return bool(final_state[0])
         
         # If not passed a matrix, return an answer as if the agent's decision-making process were a DFA
