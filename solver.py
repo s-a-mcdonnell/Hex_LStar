@@ -22,7 +22,7 @@ def __read_line(line):
 # Returns the agent's move in reaction to the passed world-string
 def __get_move(s : str):
     movement = movement_learner.my_teacher.member(s, movement_DFA, alphabet)
-    direction = direction_learner.my_teacher.member(s, movement_DFA, alphabet)
+    direction = direction_learner.my_teacher.member(s, direction_DFA, alphabet)
     print(f"movement {movement}, direction {direction}")
 
     if not movement:
