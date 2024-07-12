@@ -318,8 +318,8 @@ class Learner:
         for i in range(len(gamma)):
             j = i
 
-            # Get the first i characters of gamma
-            strng = gamma[0 : i + 1]
+            # Get the first i letters of gamma
+            strng = gamma[0 : 3*(i + 1)]
             # sift gamma[i] in T
             node_sift = self.__sift_return_node(strng)
             access_string_sift = node_sift.value
@@ -347,9 +347,11 @@ class Learner:
 
         # Find the last common ancestor (lca) of access_string_sift and access_string_m_hat in T
         lca = self.__get_lca(access_string_sift, access_string_m_hat)
+        print(f"lca = {lca}")
+
 
         # let j be the least i such that s[i] does not equal s_hat[i]
-        gamma_j_minus_1 = gamma[0 : j]
+        gamma_j_minus_1 = gamma[0 : 3*j]
         # TODO: Delete debugging print statement
         #print(f"gamma[j-1]: {gamma_j_minus_1}, j = {j}")
 
@@ -359,12 +361,13 @@ class Learner:
         
         # Get node in tree T to edit
         node_to_edit = self.__sift_return_node(gamma_j_minus_1)
+        print(f"node_to_edit.value = {node_to_edit.value}")
         s_j_minus_1 = node_to_edit.value
     
         # The new distinguishing string is the character gamma[j] concatonated with
         # the last common ancestor distinguishing string between access_string_sift and access_string_m_hat in T
-        new_d = gamma[j] + lca
-
+        new_d = gamma[3*j : 3*j + 3] + lca
+        print(f"new_d: {new_d}")
 
         assert new_d
         assert self.my_teacher.member(s_j_minus_1 + new_d) != self.my_teacher.member(gamma_j_minus_1 + new_d)

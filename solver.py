@@ -21,12 +21,13 @@ def __read_line(line):
 
 # Returns the agent's move in reaction to the passed world-string
 def __get_move(s : str):
-    movement = Movement_Teacher.final_state(s, movement_DFA, alphabet)
-    direction = Direction_Teacher.final_state(s, movement_DFA, alphabet)
+    movement = movement_learner.my_teacher.member(s, movement_DFA, alphabet)
+    direction = direction_learner.my_teacher.member(s, movement_DFA, alphabet)
+    print(f"movement {movement}, direction {direction}")
 
     if not movement:
         return 0
-    elif direction == 1:
+    elif direction:
         return 1
     else:
         return -1
@@ -61,7 +62,8 @@ print("SECOND DFA => DIRECTION => IS DONE")
 
 # breakpoint()
 
-print(f"Agent move: {__get_move("957f68")}")
+print(f"Agent move: {__get_move("947f68")}")
 print(f"Agent move: {__get_move("c67f48357")}")
+print(f"Agent move: {__get_move("ba6f48857")}")
 
 # TODO: methods to predict the agent's reaction to certain states based on the two DFA's we've created

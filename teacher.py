@@ -113,8 +113,8 @@ class Teacher:
         assert (type(s) is str)
 
         # Convert passed string into an array of ints, where each int is the index in the alphabet array corresponding to that character
-        for char in s:
-            input.append(alpha.index(char))
+        for i in range(int(len(s)/3)):
+            input.append(alpha.index(s[i*3 : i*3 + 3]))
         
         # Enter the DFA (M) at state 0
         next_state_index = 0
@@ -132,6 +132,8 @@ class Teacher:
     def _create_world(self, s):
         # Assert that the length of the world-string is valid
         # NOTE: The >= 6 assertion leads to crashing, as sometimes a three-char string (one letter of the alphabet) is passed
+        if len(s) < 6 or len(s)%3 != 0:
+            print(f"Odd length world-string: {s}")
         # assert(len(s) >= 6)
         assert(len(s) % 3 == 0)
 
