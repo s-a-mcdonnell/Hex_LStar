@@ -1263,6 +1263,21 @@ class World:
                 self.hex_matrix[2+2*i][14-i].make_wall(self, self.wall_list)
 
     ##########################################################################################################
+
+    # methods for determining the axial hex distance between two hexes in a hex world
+
+    @staticmethod
+    def axial_subtract(a : Hex, b : Hex):
+        return Hex(a.matrix_index - b.matrix_index, a.list_index - b.list_index)
+
+    @staticmethod
+    def axial_distance(a : Hex, b : Hex):
+        vec = World.axial_subtract(a, b)
+        return (abs(vec.matrix_index)
+            + abs(vec.matrix_index + vec.list_index)
+            + abs(vec.list_index)) / 2
+    
+    ##########################################################################################################
     
     # Swaps out one agent for another in the agent list
     def swap_agents(self, agent_to_remove, agent_to_append):
