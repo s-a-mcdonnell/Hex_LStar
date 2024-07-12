@@ -50,11 +50,11 @@ def __write_dfa_to_file(dfa, loc, file_name):
 
             # Space between entries in a row
             if row.index(entry) < len(row) - 1:
-                dfa_file.write(" ")
+                dfa_file.write(' ')
         
         # New line between rows     
         if dfa.index(row) < len(dfa) - 1:
-            dfa_file.write("\n")
+            dfa_file.write('\n')
     
     # TODO: Close file?
 
