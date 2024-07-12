@@ -1,7 +1,7 @@
 from l_star_tester import read_alphabet
 from l_star_tester import read_dfa
-
 import os
+import sys
 from teacher import Teacher
 # import pdb; pdb.set_trace()
 
@@ -35,6 +35,12 @@ print("dfas parsed")
 
 my_teacher = Teacher(alphabet, num_states = 1)
 
-print(f"Agent move: {__get_move("947f68")}")
-print(f"Agent move: {__get_move("c67f48357")}")
-print(f"Agent move: {__get_move("ba6f48857")}")
+print(f"Agent move from string 947f68: {__get_move("947f68")}")
+print(f"Agent move from string c67f48357: {__get_move("c67f48357")}")
+print(f"Agent move from string ba6f48857: {__get_move("ba6f48857")}")
+
+for i in range(1, len(sys.argv)):
+    assert len(sys.argv[i])%3 == 0
+    assert len(sys.argv[i]) >= 6
+    print(f"Agent move from string {sys.argv[i]}: {__get_move(sys.argv[i])}")
+    
