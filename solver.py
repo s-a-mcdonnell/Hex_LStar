@@ -19,6 +19,22 @@ def __read_line(line):
 
 ##########################################################################################################
 
+# Returns the agent's move in reaction to the passed world-string
+def __get_move(s : str):
+    movement = movement_learner.my_teacher.member(s, movement_DFA, alphabet)
+    direction = direction_learner.my_teacher.member(s, movement_DFA, alphabet)
+    print(f"movement {movement}, direction {direction}")
+
+    if not movement:
+        return 0
+    elif direction:
+        return 1
+    else:
+        return -1
+
+
+##########################################################################################################
+
 alphabet = []
 
 # reading the alphabet from a file
@@ -26,6 +42,8 @@ __location__ = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file
 file = open(os.path.join(__location__, "alphabet.txt"), "r")
 for line in file:
     __read_line(line)
+
+print("ALPHABET PARSED")
 
 # Create learners:
 # 0 -> movement teacher, 1 -> direction teacher
@@ -42,6 +60,10 @@ print("FIRST DFA => MOVEMENT => IS DONE")
 direction_DFA = direction_learner.lstar_algorithm()
 print("SECOND DFA => DIRECTION => IS DONE")
 
-breakpoint()
+# breakpoint()
+
+print(f"Agent move: {__get_move("947f68")}")
+print(f"Agent move: {__get_move("c67f48357")}")
+print(f"Agent move: {__get_move("ba6f48857")}")
 
 # TODO: methods to predict the agent's reaction to certain states based on the two DFA's we've created

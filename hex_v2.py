@@ -730,6 +730,38 @@ class Ident:
     def find_next_move(agent):
         # TODO: This is a temp measure for testing
         # TODO: Find and return actual next move according to agent type
+        # return -1
+
+        # Return value depending on which section of the grid is occupied by the agent
+        if agent.matrix_index >= 1 and agent.matrix_index <= 4:
+            return 0
+        elif agent.matrix_index >= 5 and agent.matrix_index <= 8:
+            return -1
+        elif agent.matrix_index >= 9 and agent.matrix_index <= 12:
+            return 1
+        else:
+            exit(f"agent matrix index {agent.matrix_index} invalid")
+
+        # Create walls around the edges, if requested
+        if automatic_walls:
+            # Left edge
+            for hex in self.hex_matrix[0]:
+                hex.make_wall(self, self.wall_list)
+            # Right edge
+            for hex in self.hex_matrix[13]:
+                hex.make_wall(self, self.wall_list)
+            for i in range(6):
+                # Top edge
+                self.hex_matrix[1+2*i][6-i].make_wall(self, self.wall_list)
+                self.hex_matrix[2+2*i][6-i].make_wall(self, self.wall_list)
+
+                # Bottom edge
+                self.hex_matrix[1+2*i][15-i].make_wall(self, self.wall_list)
+                self.hex_matrix[2+2*i][14-i].make_wall(self, self.wall_list)
+
+
+        ##################
+        # Normal method:
 
         w = agent.world
         my_index = w.agents.index(agent)
@@ -1119,7 +1151,7 @@ class Hex:
 # while loop for running game goes in World
 class World:
 
-    def __init__(self, automatic_walls=True, read_file=True):
+    def __init__(self, automatic_walls=True, read_file=True, display_window=True):
 
         self.goalEnd = False
 
@@ -1131,8 +1163,10 @@ class World:
 
         SCREEN_HEIGHT = 600
 
-        self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-        pygame.display.set_caption("Hex Simulator")
+        # NOTE: If the user is poorly-behaved (says they don't want to display but later does), this will cause issues due to the lack of self.screen
+        if display_window:
+            self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+            pygame.display.set_caption("Hex Simulator")
 
         # Set up hex matrix
         self.hex_matrix = []
