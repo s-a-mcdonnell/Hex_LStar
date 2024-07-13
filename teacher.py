@@ -250,18 +250,16 @@ class Teacher:
     ##########################################################################################################
 
     @staticmethod
-    # Returns a list of two numbers, where the first is the distance (in terms of number of hexes) from the given ident to the agent
-    # And the second is the direction from the agent in which one would have to travel to reach the ident
-    # TODO: Write this method
-    def __get_distance_and_direction(id:[], ag:[]):
+    # Returns the distance between two passed idents
+    # NOTE: This distance calculation overlaps with a method Allison wrote in World
+    def __get_distance(id_1:list[int], id_2:list[int]):
         
         # The difference in the matrix index of the idents (vertical)
-        mi_dist = id[1] - ag[1]
+        mi_dist = id_1[1] - id_2[1]
 
         # The difference in the list index of the idents (northwest to southeast)
-        li_dist = id[2] - ag[2]
-        
-        # NOTE: This distance calculation overlaps with a method Allison wrote in World
+        li_dist = id_1[2] - id_2[2]
+
         # The total distance is greater of the absolute values of the two partial distances
         total_dist = abs(mi_dist)
         if abs(li_dist) > total_dist:
@@ -271,29 +269,59 @@ class Teacher:
         if ((mi_dist > 0) == (li_dist > 0)) and ((mi_dist < 0) == (li_dist < 0)):
             total_dist = abs(mi_dist) + abs(li_dist)
         
+        return total_dist
+
+    @staticmethod
+    # Returns a list of two numbers, where the first is the distance (in terms of number of hexes) from the given ident to the agent
+    # And the second is the relative direction from the agent in which one would have to travel to reach the ident
+    # TODO: Write this method
+    def __get_distance_and_direction(id:list[int], ag:list[int]):
+        
+        # The difference in the matrix index of the idents (vertical)
+        mi_dist = id[1] - ag[1]
+
+        # The difference in the list index of the idents (northwest to southeast)
+        li_dist = id[2] - ag[2]
+        
+        # The direction in which the agent is currently pointing
+        agent_dir = ag[0] - 9
+        print(f"ag {ag}, agent_dir {agent_dir}")
+        assert agent_dir >= 0
+        assert agent_dir <= 5
+        
+        # The total distance is greater of the absolute values of the two partial distances
+        total_dist = Teacher.__get_distance(id, ag)
+        
         # Deal with ident in the same location as the agent
         if mi_dist == 0 and li_dist == 0:
-            return [total_dist, -1]
+            
+            # TODO: Return a direction other than 0? (0 also has another meaning --> straight ahead)
+            return [total_dist, 0]
         
         # Deal with ident on a straight northwest/southeast line
         elif mi_dist == 0:
             assert li_dist != 0
 
+            abs_angle = 2 if li_dist > 0 else 5
+
             # TODO: Check how direction is determined here
-            return [total_dist, 2 if li_dist > 0 else 5]
+            # return [total_dist, ]
         
         # Deal with ident on a straight vertical line
         elif li_dist == 0:
             assert mi_dist != 0
 
+            abs_angle = 3 if mi_dist > 0 else 0
+
             # TODO: Check how direction is determined here
-            return [total_dist, 3 if mi_dist > 0 else 0]
+            # return [total_dist, 3 if mi_dist > 0 else 0]
         
         # Deal with ident on a straight northeast/southwest line
         elif mi_dist == -li_dist:
             # TODO: Check how direction is determined here
-            return [total_dist, 1 if mi_dist > li_dist else 4]
-
+            abs_angle = 1 if mi_dist > li_dist else 4
+            # return [total_dist, 1 if mi_dist > li_dist else 4]
+        
         # TODO: Deal with all other cases (not straight lines)
         else:
             # To find angle:
@@ -319,30 +347,58 @@ class Teacher:
             # TODO: Get the distance from said reference hex to the desired ident. We can do this with a call to __get_distance_and_direction because it will be a straight line (not infinite recursion)
             match ref_angle:
                 case 0:
-                    offset = Teacher.__get_distance_and_direction([ag[0], ag[1], ag[2] - total_dist], id)[0]
+                    offset = Teacher.__get_distance([ag[0], ag[1], ag[2] - total_dist], id)
                 case 1:
-                    offset = Teacher.__get_distance_and_direction([ag[0], ag[1] + total_dist, ag[2] - total_dist], id)[0]
+                    offset = Teacher.__get_distance([ag[0], ag[1] + total_dist, ag[2] - total_dist], id)
                 case 2:
-                    offset = Teacher.__get_distance_and_direction([ag[0], ag[1] + total_dist, ag[2]], id)[0]
+                    offset = Teacher.__get_distance([ag[0], ag[1] + total_dist, ag[2]], id)
                 case 3:
-                    offset = Teacher.__get_distance_and_direction([ag[0], ag[1], ag[2] + total_dist], id)[0]
+                    offset = Teacher.__get_distance([ag[0], ag[1], ag[2] + total_dist], id)
                 case 4:
-                    offset = Teacher.__get_distance_and_direction([ag[0], ag[1] - total_dist, ag[2] + total_dist], id)[0]
+                    offset = Teacher.__get_distance([ag[0], ag[1] - total_dist, ag[2] + total_dist], id)
                 case 5:
-                    offset = Teacher.__get_distance_and_direction([ag[0], ag[1] - total_dist, ag[2]], id)[0]
+                    offset = Teacher.__get_distance([ag[0], ag[1] - total_dist, ag[2]], id)
                 case _:
                     exit(f"invalid ref angle {ref_angle}")
             
             # The angle of the desired ident = the angle of the reference hex + (distance from reference hex to desired ident)/(side length of ring - 1)
             # = angle of reference hex + (distance from ref hex to desired ident)/(# of ring)
             # = angle of reference hex + (distance from ref hex to desired ident)/(total_dist)
-            angle = ref_angle + offset/total_dist
+            abs_angle = ref_angle + offset/total_dist
             '''print(f"ref angle = {ref_angle}, offset = {offset}, total_dist = {total_dist}")
             print(f"angle = {angle}")'''
 
-            print(f"angle between agent {ag} and ident {id} is {angle}")
+            print(f"abs angle between agent {ag} and ident {id} is {abs_angle}")
 
-            return [total_dist, angle]
+        print(f"agent direction {agent_dir}, ident abs angle {abs_angle}")
+
+        # TODO: Check how relative angle is calculated
+        if abs(abs_angle - agent_dir) <= 3:
+            relative_angle = abs_angle - agent_dir
+        elif (abs_angle - agent_dir <= 0) and (abs_angle - agent_dir < -3):
+            relative_angle =  (abs_angle - agent_dir)%6
+
+        else:
+            assert abs_angle - agent_dir > 3
+
+            relative_angle = (agent_dir - abs_angle)%6
+        
+        assert abs(relative_angle) <= 3
+
+
+        
+        
+        '''for i in range(4):
+            if (agent_dir + i)%6 == abs_angle:
+                relative_angle = i
+                break
+            elif (agent_dir - i)%6 == abs_angle:
+                relative_angle = -i
+                break'''
+
+        print(f"relative angle {relative_angle} found between agent direction {agent_dir} and ident absolute angle {abs_angle}")
+
+        return[total_dist, relative_angle]
 
     ##########################################################################################################
 
@@ -385,7 +441,12 @@ class Teacher:
             return distance_1[0] < distance_2[0]
         else:
             
-            if distance_1[1] != distance_2[1]:
+            # Idents at the same distance from the agent where one is more directly on its current path
+            if abs(distance_1[1]) != abs(distance_2[1]):
+                return abs(distance_1[1]) < abs(distance_2[1])
+            
+            # Idents at the same distance from the agent where both are symmetrically at angles to the agent's direction of motion
+            elif distance_1[1] == -distance_2[1]:
                 return distance_1[1] < distance_2[1]
             
             # Two idents are in the same location
