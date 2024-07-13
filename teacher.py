@@ -296,8 +296,17 @@ class Teacher:
         if mi_dist == 0 and li_dist == 0:
             
             # TODO: Return a direction other than 0? (0 also has another meaning --> straight ahead)
-            return [total_dist, 0]
-        
+            # return [total_dist, 0]
+            if id[0] >= 2 and id[0] <= 7:
+                abs_angle = id[0] - 2
+            elif id[0] >= 9 and id[0] <= 14:
+                abs_angle = id[0] - 9
+            else:
+                assert (id[0] == 0 or id[0] == 1 or id[0] == 8 or id[0] == 15)
+                print("stationary idents overlapping")
+                # TODO: Return a direction other than 0? (0 also has another meaning --> straight ahead)
+                return [total_dist, 0] 
+
         # Deal with ident on a straight northwest/southeast line
         elif mi_dist == 0:
             assert li_dist != 0
