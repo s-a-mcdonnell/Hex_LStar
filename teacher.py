@@ -274,7 +274,6 @@ class Teacher:
     @staticmethod
     # Returns a list of two numbers, where the first is the distance (in terms of number of hexes) from the given ident to the agent
     # And the second is the relative direction from the agent in which one would have to travel to reach the ident
-    # TODO: Write this method
     def __get_distance_and_direction(id:list[int], ag:list[int]):
         
         # The difference in the matrix index of the idents (vertical)
@@ -285,6 +284,9 @@ class Teacher:
         
         # The direction in which the agent is currently pointing
         agent_dir = ag[0] - 9
+        # If the agent is stationary, default to direction 0
+        if agent_dir == -1:
+            agent_dir = 0
         print(f"ag {ag}, agent_dir {agent_dir}")
         assert agent_dir >= 0
         assert agent_dir <= 5
@@ -417,7 +419,7 @@ class Teacher:
     # Second, sort by the third hexadecimal character (list index)
     # Finally, sort by the first hexadecimal character (property)
     # TODO: Test this comparison method
-    def __less_than(ident_1 : str, ident_2 : str, agent : str):
+    def less_than(ident_1 : str, ident_2 : str, agent : str):
         # print(f"comparing {ident_1} and {ident_2} with agent {agent}")
 
         # Ensure that we are comparing two idents of valid string length
@@ -613,13 +615,13 @@ class Teacher:
             
             # TODO: Finish sorting in multiple goals then add them to string
             # Add the final ident in other_idents in smaller than the new_ident, add at the back
-            elif Teacher.__less_than(goals[len(goals) - 1], my_goal, my_agent):
+            elif Teacher.less_than(goals[len(goals) - 1], my_goal, my_agent):
                 goals.append(my_goal)
 
             # Otherwise iterate through other_ident until the correct location is found
             else:
                 for goal in goals:
-                    if not Teacher.__less_than(goal, my_goal, my_agent):
+                    if not Teacher.less_than(goal, my_goal, my_agent):
                         goals.insert(goals.index(goal), my_goal)
                         break
 
@@ -658,13 +660,13 @@ class Teacher:
                 other_idents.append(new_ident)
             
             # Add the final ident in other_idents in smaller than the new_ident, add at the back
-            elif Teacher.__less_than(other_idents[len(other_idents) - 1], new_ident, my_agent):
+            elif Teacher.less_than(other_idents[len(other_idents) - 1], new_ident, my_agent):
                 other_idents.append(new_ident)
 
             # Otherwise iterate through other_ident until the correct location is found
             else:
                 for ident in other_idents:
-                    if not Teacher.__less_than(ident, new_ident, my_agent):
+                    if not Teacher.less_than(ident, new_ident, my_agent):
                         other_idents.insert(other_idents.index(ident), new_ident)
                         break
                     
