@@ -732,17 +732,23 @@ class Ident:
 
     ###############################################################################################################
 
-    def find_closest_goal(self):
+    def find_closest_goal(self, hex_test):
+
+        print("find closest goal called")
+
+        assert type(hex_test) is Hex
 
         goals = self.world.goals
         goal_distances = {}
         for goal in goals:
             # TODO: is self passed in here a hex or an ident???
-            dist = World.axial_distance(goal, self)
+            dist = World.axial_distance(goal, hex_test)
             goal_distances[goal] = dist
 
         # return goal corresponding to minimum distance in the dictionary
         min_value = min(goal_distances.values())
+
+        print("value for goal to neighbor " + str(hex_test) + " is " + str(min_value))
 
         return min_value
 
@@ -757,7 +763,6 @@ class Ident:
         # return value depending on the distance to the nearest goal from the hexes in the current agent's direction
 
         w = agent.world
-        my_index = w.agents.index(agent)
         dir = agent.state
         goals = w.goals
 
@@ -769,24 +774,24 @@ class Ident:
 
         # find the forward, clockwise, and counterclockwise neighbor of our agent
         # NOTE: get neighbor returns the hex, not the ident
-        n_forward = agent.get_neighbor(w, dir)
-        n_right = agent.get_neighbor(w, (dir + 1)%6)
-        n_left = agent.get_neighbor(w, (dir - 1)%6)
+        n_forward = agent.get_neighbor(w.hex_matrix, dir)
+        n_right = agent.get_neighbor(w.hex_matrix, (dir + 1)%6)
+        n_left = agent.get_neighbor(w.hex_matrix, (dir - 1)%6)
 
         # find the distance to the closest goal from each neighbor
         distances = {}
         if n_forward is not None:
-            distances[n_forward] = n_forward.find_closest_goal()
+            distances[n_forward] = agent.find_closest_goal(n_forward)
         if n_right is not None:
-            distances[n_right] = n_right.find_closest_goal()
+            distances[n_right] = agent.find_closest_goal(n_right)
         if n_left is not None:
-            distances[n_left] = n_left.find_closest_goal()
+            distances[n_left] = agent.find_closest_goal(n_left)
 
         # TODO: special case if none of the neighbors we are looking for exist/are valid/are not walls???
         # MAKE SURE NOT TO SEND THE AGENT INTO A WALL PLS
 
         assert distances is not None
-        assert distances.values() is not None
+        assert len(distances.values()) != 0
 
         min_distance = min(distances.values())
 
@@ -796,7 +801,7 @@ class Ident:
             return 0
         elif to_go == n_right:
             return 1
-        elif to_go == n_left:
+        else:
             return -1
         
     
@@ -1286,7 +1291,8 @@ class World:
     ##########################################################################################################
 
     # methods for determining the axial hex distance between two hexes in a hex world
-
+    # from https://www.redblobgames.com/grids/hexagons/
+    
     @staticmethod
     def axial_subtract(a : Hex, b : Hex):
         return Hex(a.matrix_index - b.matrix_index, a.list_index - b.list_index)

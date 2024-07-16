@@ -97,7 +97,7 @@ class Direction_Teacher(Teacher):
         # for each of these strings, if self.member(s, self.m) is not self.member(s, m_hat), return s
 
         # TODO: Increase range
-        for i in range(100):
+        for i in range(20):
             s = Teacher.generate_string()
             # print(f"string {s} returned from generate_string()")
             # print(f"self.member(s) = {self.member(s)}, self.member(s, m_hat) = {self.member(s, m_hat)}")
