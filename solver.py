@@ -50,6 +50,9 @@ print("ALPHABET PARSED")
 movement_learner = Learner(alphabet=alphabet, teacher_type=0)
 direction_learner = Learner(alphabet=alphabet, teacher_type=1)
 
+print("DFAs INITIALIZED")
+print()
+
 # TODO: Modify teachers to make algorithm work
 # TODO: Make learners return learner DFA so we can use it as desired
 # Learn movement teacher using L*

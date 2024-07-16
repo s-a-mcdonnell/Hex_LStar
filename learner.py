@@ -252,7 +252,11 @@ class Learner:
                 self.solved = True
 
             # TODO: Delete debugging print statement
-            # print("LOOP COMPLETE IN L STAR")
+            print()
+            print("LOOP COMPLETE IN L STAR")
+            print("Tree size is... " + str(self.t.size(self.t.root)))
+            print("M hat size is..." + str(len(self.m_hat)))
+            print()
 
         # If we have exited the loop, we have solved the DFA
         # if yes we are done
@@ -553,6 +557,16 @@ class Tree:
         self.root = root
 
     ##########################################################################################################
+
+    def size(self, root):
+        if root == None:
+            return 0
+        
+        l = self.size(root.left_child)
+        r = self.size(root.right_child)
+
+        return 1 + l + r
+
 
     # other methods go here ie sorting stuff
     def print_tree(self):

@@ -138,10 +138,33 @@ class Teacher:
         assert(len(s) % 3 == 0)
 
         new_world = World(read_file=False, display_window=False)
+
+        ''' walls just for the test case where things are a 3x3 square'''
+        for i in range(6, 11):
+            new_ident = Ident(6, i, new_world)
+            new_ident.state = -2
+            new_world.hex_matrix[6][i].idents.append(new_ident)
+            new_world.wall_list.append(new_ident)
+
+            new_ident2 = Ident(10, i, new_world)
+            new_ident2.state = -2
+            new_world.hex_matrix[10][i].idents.append(new_ident2)
+            new_world.wall_list.append(new_ident2)
+
+            new_ident3 = Ident(i, 6, new_world)
+            new_ident.state3 = -2
+            new_world.hex_matrix[i][6].idents.append(new_ident3)
+            new_world.wall_list.append(new_ident3)
+
+            new_ident4 = Ident(i, 10, new_world)
+            new_ident4.state = -2
+            new_world.hex_matrix[i][10].idents.append(new_ident4)
+            new_world.wall_list.append(new_ident4)
             
         # Parse string into world
         # TODO: the forcibly converting it into an integer could cause problems later. Note to self, be careful.
         for i in range(int((len(s))/3)):
+
             # splice the three character string into three one-character chunks
             property = int(s[i*3], 16)
             mi = int(s[i*3 + 1], 16)
@@ -387,7 +410,6 @@ class Teacher:
         # If the agent is stationary, default to direction 0
         if agent_dir == -1:
             agent_dir = 0
-        print(f"ag {ag}, agent_dir {agent_dir}")
         assert agent_dir >= 0
         assert agent_dir <= 5
         
@@ -396,7 +418,6 @@ class Teacher:
         
         # Deal with ident in the same location as the agent
         if mi_dist == 0 and li_dist == 0:
-            print("angle case -1 (overlapping)")
             
             # TODO: Return a direction other than 0? (0 also has another meaning --> straight ahead)
             # return [total_dist, 0]
@@ -406,13 +427,11 @@ class Teacher:
                 abs_angle = id[0] - 9
             else:
                 assert (id[0] == 0 or id[0] == 1 or id[0] == 8 or id[0] == 15)
-                print("stationary idents overlapping")
                 # TODO: Return a direction other than 0? (0 also has another meaning --> straight ahead)
                 return [total_dist, 0] 
 
         # Deal with ident on a straight northwest/southeast line
         elif li_dist == 0:
-            print(f"angle case 0 for id {id}, mi_dist {mi_dist}, li_dist {li_dist}")
             assert mi_dist != 0
 
             abs_angle = 2 if mi_dist > 0 else 5
@@ -422,7 +441,6 @@ class Teacher:
         
         # Deal with ident on a straight vertical line
         elif mi_dist == 0:
-            print("angle case 1")
             assert li_dist != 0
 
             abs_angle = 3 if li_dist > 0 else 0
@@ -432,14 +450,12 @@ class Teacher:
         
         # Deal with ident on a straight northeast/southwest line
         elif mi_dist == -li_dist:
-            print("angle case 2")
             # TODO: Check how direction is determined here
             abs_angle = 1 if mi_dist > li_dist else 4
             # return [total_dist, 1 if mi_dist > li_dist else 4]
         
         # TODO: Deal with all other cases (not straight lines)
         else:
-            print("angle case 3 (complex)")
             # To find angle:
             # TODO: Find the hex on the same concentric ring which is one of the the 6 straight lines and is the closest to the desired ident but counter-clockwise from it
             if mi_dist > 0 and li_dist < 0:
@@ -477,7 +493,6 @@ class Teacher:
                 case _:
                     exit(f"invalid ref angle {ref_angle}")
             
-            print(f"red_angle {ref_angle} for id {id}")
 
             # The angle of the desired ident = the angle of the reference hex + (distance from reference hex to desired ident)/(side length of ring - 1)
             # = angle of reference hex + (distance from ref hex to desired ident)/(# of ring)
@@ -486,22 +501,14 @@ class Teacher:
             '''print(f"ref angle = {ref_angle}, offset = {offset}, total_dist = {total_dist}")
             print(f"angle = {angle}")'''
 
-            print(f"abs angle between agent {ag} and ident {id} is {abs_angle}")
-
-        print(f"agent direction {agent_dir}, ident abs angle {abs_angle}")
-
         # TODO: Check how relative angle is calculated
         if abs(abs_angle - agent_dir) <= 3:
-            print(f"relative angle case 1 for id {id}")
             relative_angle = abs_angle - agent_dir
         elif (abs_angle - agent_dir <= 0) and (abs_angle - agent_dir < -3):
-            print(f"relative angle case 2 for id {id}")
             relative_angle =  (abs_angle - agent_dir)%6
 
         elif abs_angle - agent_dir > 0:
             # TODO: Check this relative angle case specifically
-            print(f"relative angle case 3 for id {id}")
-            print(f"abs_angle {abs_angle}, agent_dir {agent_dir}")
 
             assert abs_angle - agent_dir > 3
 
@@ -510,7 +517,6 @@ class Teacher:
         else:
             # TODO: Check this relative angle case specifically
 
-            print(f"relative angle case 4 for id {id}")
             relative_angle = (agent_dir - abs_angle)%6
         
         assert abs(relative_angle) <= 3
@@ -630,7 +636,6 @@ class Teacher:
         # TODO: Enable the creation of multiple goals
         # NOTE: The maximum number of goals is arbitrary
         num_goals = random.randint(1, 5)
-        print(f"creating {num_goals} goals")
         goals = []
         for i in range(num_goals):
             my_goal = ""
