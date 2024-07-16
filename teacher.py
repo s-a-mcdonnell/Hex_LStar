@@ -465,6 +465,9 @@ class Teacher:
         ag = []
         for char in agent:
             ag.append(int(char, 16))
+        
+        # Assert that agent is an agent (first char between 9 and e, inclusive)
+        assert ag[0] >= 9 and ag[0] <= 14
 
         distance_1 = Teacher.__get_distance_and_direction(id_1, ag)
         distance_2 = Teacher.__get_distance_and_direction(id_2, ag)

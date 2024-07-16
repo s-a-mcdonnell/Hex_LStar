@@ -50,7 +50,7 @@ print(f"Agent move from string ba6f48857: {__get_move("ba6f48857")}")
 
 goals = ["fc0", "fe0", "fe1", "fd3", "fb4", "fa2", "fa4", "fb2", "fc1", "fd1", "fd2", "fc3", "fb3"]
 
-strng = "dc2"
+strng = "cc2"
 
 goals2 = []
 # Save new ident in the correct order
