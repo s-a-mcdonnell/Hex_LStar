@@ -296,6 +296,7 @@ class Teacher:
         
         # Deal with ident in the same location as the agent
         if mi_dist == 0 and li_dist == 0:
+            print("angle case -1 (overlapping)")
             
             # TODO: Return a direction other than 0? (0 also has another meaning --> straight ahead)
             # return [total_dist, 0]
@@ -310,31 +311,35 @@ class Teacher:
                 return [total_dist, 0] 
 
         # Deal with ident on a straight northwest/southeast line
-        elif mi_dist == 0:
-            assert li_dist != 0
+        elif li_dist == 0:
+            print(f"angle case 0 for id {id}, mi_dist {mi_dist}, li_dist {li_dist}")
+            assert mi_dist != 0
 
-            abs_angle = 2 if li_dist > 0 else 5
+            abs_angle = 2 if mi_dist > 0 else 5
 
             # TODO: Check how direction is determined here
             # return [total_dist, ]
         
         # Deal with ident on a straight vertical line
-        elif li_dist == 0:
-            assert mi_dist != 0
+        elif mi_dist == 0:
+            print("angle case 1")
+            assert li_dist != 0
 
-            abs_angle = 3 if mi_dist > 0 else 0
+            abs_angle = 3 if li_dist > 0 else 0
 
             # TODO: Check how direction is determined here
             # return [total_dist, 3 if mi_dist > 0 else 0]
         
         # Deal with ident on a straight northeast/southwest line
         elif mi_dist == -li_dist:
+            print("angle case 2")
             # TODO: Check how direction is determined here
             abs_angle = 1 if mi_dist > li_dist else 4
             # return [total_dist, 1 if mi_dist > li_dist else 4]
         
         # TODO: Deal with all other cases (not straight lines)
         else:
+            print("angle case 3 (complex)")
             # To find angle:
             # TODO: Find the hex on the same concentric ring which is one of the the 6 straight lines and is the closest to the desired ident but counter-clockwise from it
             if mi_dist > 0 and li_dist < 0:
@@ -372,6 +377,8 @@ class Teacher:
                 case _:
                     exit(f"invalid ref angle {ref_angle}")
             
+            print(f"red_angle {ref_angle} for id {id}")
+
             # The angle of the desired ident = the angle of the reference hex + (distance from reference hex to desired ident)/(side length of ring - 1)
             # = angle of reference hex + (distance from ref hex to desired ident)/(# of ring)
             # = angle of reference hex + (distance from ref hex to desired ident)/(total_dist)
@@ -385,13 +392,25 @@ class Teacher:
 
         # TODO: Check how relative angle is calculated
         if abs(abs_angle - agent_dir) <= 3:
+            print(f"relative angle case 1 for id {id}")
             relative_angle = abs_angle - agent_dir
         elif (abs_angle - agent_dir <= 0) and (abs_angle - agent_dir < -3):
+            print(f"relative angle case 2 for id {id}")
             relative_angle =  (abs_angle - agent_dir)%6
 
-        else:
+        elif abs_angle - agent_dir > 0:
+            # TODO: Check this relative angle case specifically
+            print(f"relative angle case 3 for id {id}")
+            print(f"abs_angle {abs_angle}, agent_dir {agent_dir}")
+
             assert abs_angle - agent_dir > 3
 
+            relative_angle = abs_angle - agent_dir - 6
+        
+        else:
+            # TODO: Check this relative angle case specifically
+
+            print(f"relative angle case 4 for id {id}")
             relative_angle = (agent_dir - abs_angle)%6
         
         assert abs(relative_angle) <= 3
@@ -406,7 +425,7 @@ class Teacher:
             elif (agent_dir - i)%6 == abs_angle:
                 relative_angle = -i
                 break'''
-
+        print(f"id {id}, ag {ag}")
         print(f"relative angle {relative_angle} found between agent direction {agent_dir} and ident absolute angle {abs_angle}")
 
         return[total_dist, relative_angle]
