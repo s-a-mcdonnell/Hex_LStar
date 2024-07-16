@@ -48,7 +48,7 @@ print(f"Agent move from string ba6f48857: {__get_move("ba6f48857")}")
     new_string = Teacher.generate_string()
     print(f"Agent move from string {new_string}: {__get_move(new_string)}")'''
 
-goals = ["fb2", "fc1", "fd1", "fd2", "fc3", "fb3"]
+goals = ["fc0", "fe0", "fe1", "fd3", "fb4", "fa2", "fa4", "fb2", "fc1", "fd1", "fd2", "fc3", "fb3"]
 
 strng = "dc2"
 

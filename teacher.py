@@ -398,7 +398,9 @@ class Teacher:
             print(f"relative angle case 2 for id {id}")
             relative_angle =  (abs_angle - agent_dir)%6
 
-        elif abs_angle - agent_dir > 0:
+        else:
+            
+            assert abs_angle - agent_dir > 0
             # TODO: Check this relative angle case specifically
             print(f"relative angle case 3 for id {id}")
             print(f"abs_angle {abs_angle}, agent_dir {agent_dir}")
@@ -407,11 +409,11 @@ class Teacher:
 
             relative_angle = abs_angle - agent_dir - 6
         
-        else:
-            # TODO: Check this relative angle case specifically
+        '''else:
+            # TODO: Check this relative angle case specifically (is it ever used?)
 
             print(f"relative angle case 4 for id {id}")
-            relative_angle = (agent_dir - abs_angle)%6
+            relative_angle = (agent_dir - abs_angle)%6'''
         
         assert abs(relative_angle) <= 3
 
