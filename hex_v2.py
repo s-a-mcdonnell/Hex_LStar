@@ -65,6 +65,7 @@ class Ident:
     # Public version of __get_neighbor
     # TODO: Check access control terminology for python
     def get_neighbor(self, matrix, dir):
+        print("Get neighbor public method called.")
         return self.__get_neighbor(matrix, dir)
 
     ##########################################################################################################
@@ -72,41 +73,46 @@ class Ident:
     # Returns the neighboring hex in the given direction in the given matrix
     # If that hex does not exist, returns None
     def __get_neighbor(self, matrix, dir):
+
+        print("Get neighbor private method called.")
         
         if dir == 0:
+            print("neighbor 0")
             try:
                 return matrix[self.matrix_index][self.list_index - 1]
             except:
                 return None
             
         elif dir == 1:
+            print("neighbor 1")
             try:
                 return matrix[self.matrix_index + 1][self.list_index - 1]  
             except:
                 return None
 
         elif dir == 2:
+            print("neighbor 2")
             try:
                 return matrix[self.matrix_index + 1][self.list_index]
             except:
                 return None
 
         elif dir == 3:
-
+            print("neighbor 3")
             try:
                 return matrix[self.matrix_index][self.list_index + 1]
             except:
                 return None
 
         elif dir == 4:
-
+            print("neighbor 4")
             try:
                 return matrix[self.matrix_index - 1][self.list_index + 1]
             except:
                 return None
             
         elif dir == 5:
-
+            print("neighbor 5")
             try:
                 return matrix[self.matrix_index - 1][self.list_index]
             except:
@@ -726,58 +732,73 @@ class Ident:
 
     ###############################################################################################################
 
+    def find_closest_goal(self):
+
+        goals = self.world.goals
+        goal_distances = {}
+        for goal in goals:
+            # TODO: is self passed in here a hex or an ident???
+            dist = World.axial_distance(goal, self)
+            goal_distances[goal] = dist
+
+        # return goal corresponding to minimum distance in the dictionary
+        min_value = min(goal_distances.values())
+
+        return min_value
+
+
     @staticmethod
     def find_next_move(agent):
         # TODO: This is a temp measure for testing
         # TODO: Find and return actual next move according to agent type
-        # return -1
+        
+        assert type(agent) == Ident
 
-        # Return value depending on which section of the grid is occupied by the agent
-        if agent.matrix_index >= 1 and agent.matrix_index <= 4:
-            return 0
-        elif agent.matrix_index >= 5 and agent.matrix_index <= 8:
-            return -1
-        elif agent.matrix_index >= 9 and agent.matrix_index <= 12:
-            return 1
-        else:
-            exit(f"agent matrix index {agent.matrix_index} invalid")
-
-        # Create walls around the edges, if requested
-        if automatic_walls:
-            # Left edge
-            for hex in self.hex_matrix[0]:
-                hex.make_wall(self, self.wall_list)
-            # Right edge
-            for hex in self.hex_matrix[13]:
-                hex.make_wall(self, self.wall_list)
-            for i in range(6):
-                # Top edge
-                self.hex_matrix[1+2*i][6-i].make_wall(self, self.wall_list)
-                self.hex_matrix[2+2*i][6-i].make_wall(self, self.wall_list)
-
-                # Bottom edge
-                self.hex_matrix[1+2*i][15-i].make_wall(self, self.wall_list)
-                self.hex_matrix[2+2*i][14-i].make_wall(self, self.wall_list)
-
-
-        ##################
-        # Normal method:
+        # return value depending on the distance to the nearest goal from the hexes in the current agent's direction
 
         w = agent.world
         my_index = w.agents.index(agent)
+        dir = agent.state
+        goals = w.goals
 
-        if len(w.agent_choices[my_index]) == 0:
-            print("No instructions provided for agent " + str(my_index))
-            return
+        if len(goals) == 0:
+            return 0
 
-        # Get influence of the agent on its direction, wrapping around to the start of the file if necessary
-        w.agent_step_indices[my_index] %= len(w.agent_choices[my_index])
-        influence = w.agent_choices[my_index][w.agent_step_indices[my_index]]
+        assert dir is not None
+        print(dir)
 
-        print("Next move " + str(influence))
+        # find the forward, clockwise, and counterclockwise neighbor of our agent
+        # NOTE: get neighbor returns the hex, not the ident
+        n_forward = agent.get_neighbor(w, dir)
+        n_right = agent.get_neighbor(w, (dir + 1)%6)
+        n_left = agent.get_neighbor(w, (dir - 1)%6)
 
-        return influence
-    
+        # find the distance to the closest goal from each neighbor
+        distances = {}
+        if n_forward is not None:
+            distances[n_forward] = n_forward.find_closest_goal()
+        if n_right is not None:
+            distances[n_right] = n_right.find_closest_goal()
+        if n_left is not None:
+            distances[n_left] = n_left.find_closest_goal()
+
+        # TODO: special case if none of the neighbors we are looking for exist/are valid/are not walls???
+        # MAKE SURE NOT TO SEND THE AGENT INTO A WALL PLS
+
+        assert distances is not None
+        assert distances.values() is not None
+
+        min_distance = min(distances.values())
+
+        to_go = next((Ident for Ident in distances.keys() if distances[Ident] == min_distance), None)
+
+        if to_go == n_forward:
+            return 0
+        elif to_go == n_right:
+            return 1
+        elif to_go == n_left:
+            return -1
+        
     
     # Adjust's agent's state based on input from file, read into world.agent_choices
     @staticmethod
@@ -790,6 +811,7 @@ class Ident:
         my_index = w.agents.index(agent)
 
         influence = Ident.find_next_move(agent)
+
 
         # TODO: What if the agent is currently stationary? (Currently, does nothing)
         if agent.state >= 0:
@@ -895,7 +917,6 @@ class Hex:
     ##########################################################################################################
 
     # Gives the designated hex a goalpost identity
-    # TODO: properly implement this method and ensure that copying it from above actually works
     def make_goal(self, world, list_to_append):
         goal_ident = Ident(self.matrix_index, self.list_index, world, color = (247, 173, 45), state = -1, serial_number = -1, hist = None, property = "goal")
         self.idents.append(goal_ident)
@@ -1663,10 +1684,6 @@ class World:
         # If there are no previous states to step back to, print an error message
         else:
             print("Maximum steps back have been taken.")
-
-
-
-
 
     ##########################################################################################################
 
