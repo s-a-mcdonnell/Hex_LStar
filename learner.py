@@ -6,6 +6,8 @@ import networkx as nx
 from movement_teacher import Movement_Teacher
 from direction_teacher import Direction_Teacher
 
+import time
+
 ##############################################################################################################
 
 class Learner:
@@ -217,7 +219,12 @@ class Learner:
     def lstar_algorithm(self):
         print("running l-star")
 
+        runs = 0
+
         while not self.solved:
+
+            start = time.time()
+
             # create new M_hat from current T => call construct_hypothesis
             self.m_hat = self.construct_hypothesis()
             # TODO: delete debugging print statements
@@ -251,11 +258,16 @@ class Learner:
                 # If no counterexample is provided, the DFA has been solved
                 self.solved = True
 
+            end = time.time()
+
             # TODO: Delete debugging print statement
             print()
-            print("LOOP COMPLETE IN L STAR")
+            runs += 1
+            print("LOOP COMPLETE IN L STAR ==> " + str(runs))
             print("Tree size is... " + str(self.t.size(self.t.root)))
             print("M hat size is..." + str(len(self.m_hat)))
+            print("Time for this loop..." + str(end - start))
+            # TODO: have the DFA write to a file
             print()
 
         # If we have exited the loop, we have solved the DFA
@@ -351,7 +363,7 @@ class Learner:
 
         # Find the last common ancestor (lca) of access_string_sift and access_string_m_hat in T
         lca = self.__get_lca(access_string_sift, access_string_m_hat)
-        print(f"lca = {lca}")
+        # print(f"lca = {lca}")
 
 
         # let j be the least i such that s[i] does not equal s_hat[i]
@@ -365,13 +377,13 @@ class Learner:
         
         # Get node in tree T to edit
         node_to_edit = self.__sift_return_node(gamma_j_minus_1)
-        print(f"node_to_edit.value = {node_to_edit.value}")
+        # print(f"node_to_edit.value = {node_to_edit.value}")
         s_j_minus_1 = node_to_edit.value
     
         # The new distinguishing string is the character gamma[j] concatonated with
         # the last common ancestor distinguishing string between access_string_sift and access_string_m_hat in T
         new_d = gamma[3*j : 3*j + 3] + lca
-        print(f"new_d: {new_d}")
+        # print(f"new_d: {new_d}")
 
         assert new_d
         assert self.my_teacher.member(s_j_minus_1 + new_d) != self.my_teacher.member(gamma_j_minus_1 + new_d)
@@ -522,7 +534,7 @@ class Learner:
     # output: access string in T for the state of M accessed by s
     def __sift(self, s):
         #print("---")
-        print("sift called on " + (s if s else "the empty string"))
+        # print("sift called on " + (s if s else "the empty string"))
         return self.__sift_return_node(s).value
     
     ##########################################################################################################

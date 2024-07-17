@@ -91,7 +91,7 @@ class Direction_Teacher(Teacher):
     def equivalent(self, m_hat):
         assert m_hat
 
-        print("equivalency query called in movement teacher")
+        print("equivalency query called in direction teacher")
 
         # Generate and test an arbitrarily large number of strings
         # for each of these strings, if self.member(s, self.m) is not self.member(s, m_hat), return s

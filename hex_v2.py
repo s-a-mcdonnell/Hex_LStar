@@ -65,7 +65,6 @@ class Ident:
     # Public version of __get_neighbor
     # TODO: Check access control terminology for python
     def get_neighbor(self, matrix, dir):
-        print("Get neighbor public method called.")
         return self.__get_neighbor(matrix, dir)
 
     ##########################################################################################################
@@ -73,46 +72,44 @@ class Ident:
     # Returns the neighboring hex in the given direction in the given matrix
     # If that hex does not exist, returns None
     def __get_neighbor(self, matrix, dir):
-
-        print("Get neighbor private method called.")
         
         if dir == 0:
-            print("neighbor 0")
+            # print("neighbor 0")
             try:
                 return matrix[self.matrix_index][self.list_index - 1]
             except:
                 return None
             
         elif dir == 1:
-            print("neighbor 1")
+            # print("neighbor 1")
             try:
                 return matrix[self.matrix_index + 1][self.list_index - 1]  
             except:
                 return None
 
         elif dir == 2:
-            print("neighbor 2")
+            # print("neighbor 2")
             try:
                 return matrix[self.matrix_index + 1][self.list_index]
             except:
                 return None
 
         elif dir == 3:
-            print("neighbor 3")
+            # print("neighbor 3")
             try:
                 return matrix[self.matrix_index][self.list_index + 1]
             except:
                 return None
 
         elif dir == 4:
-            print("neighbor 4")
+            # print("neighbor 4")
             try:
                 return matrix[self.matrix_index - 1][self.list_index + 1]
             except:
                 return None
             
         elif dir == 5:
-            print("neighbor 5")
+            # print("neighbor 5")
             try:
                 return matrix[self.matrix_index - 1][self.list_index]
             except:
@@ -734,8 +731,6 @@ class Ident:
 
     def find_closest_goal(self, hex_test):
 
-        print("find closest goal called")
-
         assert type(hex_test) is Hex
 
         goals = self.world.goals
@@ -748,7 +743,7 @@ class Ident:
         # return goal corresponding to minimum distance in the dictionary
         min_value = min(goal_distances.values())
 
-        print("value for goal to neighbor " + str(hex_test) + " is " + str(min_value))
+        # print("value for goal to neighbor " + str(hex_test) + " is " + str(min_value))
 
         return min_value
 
@@ -770,11 +765,11 @@ class Ident:
             return 0
 
         assert dir is not None
-        print(dir)
+        # print(dir)
 
         # find the forward, clockwise, and counterclockwise neighbor of our agent
         # NOTE: get neighbor returns the hex, not the ident
-        n_forward = agent.get_neighbor(w.hex_matrix, dir)
+        n_forward = agent.get_neighbor(w.hex_matrix, dir % 6)
         n_right = agent.get_neighbor(w.hex_matrix, (dir + 1)%6)
         n_left = agent.get_neighbor(w.hex_matrix, (dir - 1)%6)
 
@@ -797,12 +792,12 @@ class Ident:
 
         to_go = next((Ident for Ident in distances.keys() if distances[Ident] == min_distance), None)
 
-        if to_go == n_forward:
-            return 0
+        if to_go == n_left:
+            return -1
         elif to_go == n_right:
             return 1
         else:
-            return -1
+            return 0
         
     
     # Adjust's agent's state based on input from file, read into world.agent_choices

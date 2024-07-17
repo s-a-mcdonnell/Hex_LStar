@@ -132,8 +132,8 @@ class Teacher:
     def _create_world(self, s):
         # Assert that the length of the world-string is valid
         # NOTE: The >= 6 assertion leads to crashing, as sometimes a three-char string (one letter of the alphabet) is passed
-        if len(s) < 6 or len(s)%3 != 0:
-            print(f"Odd length world-string: {s}")
+        # if len(s) < 6 or len(s)%3 != 0:
+        #     print(f"Odd length world-string: {s}")
         # assert(len(s) >= 6)
         assert(len(s) % 3 == 0)
 
@@ -531,8 +531,8 @@ class Teacher:
             elif (agent_dir - i)%6 == abs_angle:
                 relative_angle = -i
                 break'''
-        print(f"id {id}, ag {ag}")
-        print(f"relative angle {relative_angle} found between agent direction {agent_dir} and ident absolute angle {abs_angle}")
+        # print(f"id {id}, ag {ag}")
+        # print(f"relative angle {relative_angle} found between agent direction {agent_dir} and ident absolute angle {abs_angle}")
 
         return[total_dist, relative_angle]
 
@@ -635,7 +635,7 @@ class Teacher:
         # Generate a valid goal of random location
         # TODO: Enable the creation of multiple goals
         # NOTE: The maximum number of goals is arbitrary
-        num_goals = random.randint(1, 5)
+        num_goals = random.randint(1, 3)
         goals = []
         for i in range(num_goals):
             my_goal = ""
