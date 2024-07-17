@@ -196,14 +196,18 @@ def Solution(node):
 
 class Run:
     
-    def start(self):
+    def start(self, info):
         # reading the intial state of the hex board from a file
-        __location__ = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__)))
-        file = open(os.path.join(__location__, "initial_state.txt"), "r")
+        """
+        if not file:
+            __location__ = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__)))
+            file = open(os.path.join(__location__, "initial_state.txt"), "r")
         info = self.__read_file(file)        #[goal, start, wall]
+        """
         problem = SearchProblem(info[3], info[0], info[1], info[2])
         directions = aStarSearch(problem)
         print(directions)
+        return directions
 
     def __read_file(self, file):
         goal = None
