@@ -5,7 +5,7 @@ import os
 ##########################################################################################################
 
 # Reads chars from the alphabet file and returns list storing alphabet
-def __read_alphabet(loc):
+def read_alphabet(loc):
 
     # Default alphabet is 0 and 1
     try:
@@ -31,10 +31,10 @@ def __read_alphabet(loc):
 ##########################################################################################################
 
 # Reads lines from the DFA file and returns matrix (2d list) storing DFA
-def __read_dfa(loc):
+def read_dfa(loc, file_name, alphabet):
     # Return None if no file is provided
     try:
-        dfa_file = open(os.path.join(loc, "dfa.txt"), "r")
+        dfa_file = open(os.path.join(loc, file_name), "r")
     except:
         print("Error: No file dfa.txt found. DFA to be learned will be randomly generated.")
         return None
@@ -73,59 +73,61 @@ def __read_dfa(loc):
 
 ##########################################################################################################
 
-# Print usage information
-print("Welcome to the L* Tester")
-print("This program accepts up to three command-line arguments and up to two file inputs")
-print("Command-line arguments: Boolean (True or False, 1 or 0) indicating whether or not graphs are to be drawn, int specifying the number of states in the DFA to be learned, int specifying the seed for a pseudo-randomized DFA")
-print("File inputs: The alphabet to use (alphabet.txt) and a pre-made DFA for testing (dfa.txt)")
-print("----------")
+if __name__ == "__main__":
 
-# Parse inputs:
-# Use first command-line argument (if present) to determine whether or not to show graphs (default is not)
-show_graphs = False
-if len(sys.argv) > 1:
-    if sys.argv[1].lower() == "true" or sys.argv[1] == '1':
-        show_graphs = True
-    elif sys.argv[1].lower() == "false" or sys.argv[1] == '0':
-        pass
+    # Print usage information
+    print("Welcome to the L* Tester")
+    print("This program accepts up to three command-line arguments and up to two file inputs")
+    print("Command-line arguments: Boolean (True or False, 1 or 0) indicating whether or not graphs are to be drawn, int specifying the number of states in the DFA to be learned, int specifying the seed for a pseudo-randomized DFA")
+    print("File inputs: The alphabet to use (alphabet.txt) and a pre-made DFA for testing (dfa.txt)")
+    print("----------")
+
+    # Parse inputs:
+    # Use first command-line argument (if present) to determine whether or not to show graphs (default is not)
+    show_graphs = False
+    if len(sys.argv) > 1:
+        if sys.argv[1].lower() == "true" or sys.argv[1] == '1':
+            show_graphs = True
+        elif sys.argv[1].lower() == "false" or sys.argv[1] == '0':
+            pass
+        else:
+            print(f"Error: Invalid boolean specifying if graphs are to be shown: {sys.argv[1]}")
+            print("Graphs will not be shown")
+
+    # Set number of states in DFA (if provided)
+    num_states = -1
+    if len(sys.argv) > 2:
+        num_states = int(sys.argv[2])
+
+    # Set seed for pseudo-random number generation (if provided)
+    seed = 1821
+    if len(sys.argv) > 3:
+        seed = int(sys.argv[3])
+
+    # Import alphabet from text file (if provided, else use binary alphabet)
+    __location__ = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__)))
+    alphabet = read_alphabet(__location__)
+    print(f"alphabet: {alphabet}")
+
+    # Read DFA from text file (if provided and not overridden by command-line args)
+    if len(sys.argv) <= 2:
+        dfa_for_testing = read_dfa(__location__)
     else:
-        print(f"Error: Invalid boolean specifying if graphs are to be shown: {sys.argv[1]}")
-        print("Graphs will not be shown")
+        dfa_for_testing = None
 
-# Set number of states in DFA (if provided)
-num_states = -1
-if len(sys.argv) > 2:
-    num_states = int(sys.argv[2])
+    # Create learner:
+    # If command-line arguments are provided, pass them to the learner
+    if len(sys.argv) > 2:
+        my_learner = Learner(alphabet, num_states = num_states, seed = seed, display_graphs=show_graphs)
 
-# Set seed for pseudo-random number generation (if provided)
-seed = 1821
-if len(sys.argv) > 3:
-    seed = int(sys.argv[3])
+    # Else if a DFA was provided, use it
+    elif dfa_for_testing:
+        my_learner = Learner(alphabet, premade_dfa = dfa_for_testing, display_graphs=show_graphs)
 
-# Import alphabet from text file (if provided, else use binary alphabet)
-__location__ = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__)))
-alphabet = __read_alphabet(__location__)
-print(f"alphabet: {alphabet}")
-
-# Read DFA from text file (if provided and not overridden by command-line args)
-if len(sys.argv) <= 2:
-    dfa_for_testing = __read_dfa(__location__)
-else:
-    dfa_for_testing = None
-
-# Create learner:
-# If command-line arguments are provided, pass them to the learner
-if len(sys.argv) > 2:
-    my_learner = Learner(alphabet, num_states = num_states, seed = seed, display_graphs=show_graphs)
-
-# Else if a DFA was provided, use it
-elif dfa_for_testing:
-    my_learner = Learner(alphabet, premade_dfa = dfa_for_testing, display_graphs=show_graphs)
-
-# Else allow the DFA to be randomly generated
-else:
-    my_learner = Learner(alphabet=alphabet, display_graphs=show_graphs)
+    # Else allow the DFA to be randomly generated
+    else:
+        my_learner = Learner(alphabet=alphabet, display_graphs=show_graphs)
 
 
-# Let algorithm run in learner
-my_learner.lstar_algorithm()
+    # Let algorithm run in learner
+    my_learner.lstar_algorithm()

@@ -100,7 +100,7 @@ __write_dfa_to_file(direction_DFA, __location__, "direction_dfa.txt")
 
 # NOTE: agent is any character 9 - e, and goal is f
 print(f"Agent move: {__get_move("979f88")}")
-# print(f"Agent move: {__get_move("f88")}")
+# print(f"Agent move: {__get_move("b88")}")
 # print(f"Agent move: {__get_move("c67f48357")}")
 # print(f"Agent move: {__get_move("ba6f48857")}")
 
