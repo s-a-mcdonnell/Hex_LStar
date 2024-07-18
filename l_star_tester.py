@@ -51,7 +51,8 @@ def read_dfa(loc, file_name, alphabet):
 
         # Save each int in the text file to the to_append list for that row
         for num in line_parts:
-            to_append.append(int(num))
+            if num != '\n' and num != '' and num != ' ':
+                to_append.append(int(num))
 
 
         # Check that the row of the DFA is the length of the alphabet plus 1
