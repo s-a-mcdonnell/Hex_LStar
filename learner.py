@@ -7,6 +7,51 @@ from movement_teacher import Movement_Teacher
 from direction_teacher import Direction_Teacher
 
 import time
+import collections
+import functools
+
+##############################################################################################################
+
+# memoized class and information from https://wiki.python.org/moin/PythonDecoratorLibrary#Memoize
+class memoized(object):
+    '''Decorator. Caches a function's return value each time it is called.
+    If called later with the same arguments, the cached value is returned
+    (not reevaluated).
+    '''
+    def __init__(self, func):
+        self.func = func
+        self.cache = {}
+
+    def __call__(self, *args):
+        if not isinstance(args, collections.Hashable):
+            # uncacheable. a list, for instance.
+            # better to not cache than blow up.
+            return self.func(*args)
+        if args in self.cache:
+            return self.cache[args]
+        else:
+            value = self.func(*args)
+            self.cache[args] = value
+            return value
+        
+    def __repr__(self):
+        '''Return the function's docstring.'''
+        return self.func.__doc__
+    
+    def __get__(self, obj, objtype):
+        '''Support instance methods.'''
+        return functools.partial(self.__call__, obj)
+    
+def memoize(obj):
+    cache = obj.cache = {}
+
+    @functools.wraps(obj)
+    def memoizer(*args, **kwargs):
+        key = str(args) + str(kwargs)
+        if key not in cache:
+            cache[key] = obj(*args, **kwargs)
+        return cache[key]
+    return memoizer
 
 ##############################################################################################################
 
@@ -395,11 +440,7 @@ class Learner:
         # print(f"s[j-1] = {s_j_minus_1}")
         # print(f"gamma[j-1] = {gamma_j_minus_1}")
 
-        # self.t.print_tree()
-        # print(self.m_hat)
 
-
-    
         # Create child leaves for node_to_edit, making it an internal node
         assert (not node_to_edit.left_child) and (not node_to_edit.right_child)
         node_to_edit.left_child = Node(None, node_to_edit, node_to_edit.level + 1)
@@ -486,6 +527,7 @@ class Learner:
 
     # input: s is the string being sifted and T is our tree
     # output: leaf NODE (not access string) in T for the state of M accessed by s
+    @memoize
     def __sift_return_node(self, s):
         # TODO: Delete debugging print statement
         # print("sift_return_node called on " + (s if s else "the empty string"))
@@ -501,7 +543,7 @@ class Learner:
             # d is distinguishing string at current node
             d = current.value
 
-            #print("current.value: " + d)
+            #print("current.val  ue: " + d)
             #print(s + " + " + d + " is " + ("accepted" if self.my_teacher.member(s+d) else "rejected") + " by M")
 
             # membership query on sd (concatenated) 
@@ -532,6 +574,7 @@ class Learner:
 
     # input: s is the string being sifted and T is our tree
     # output: access string in T for the state of M accessed by s
+    # TODO: MEMOIZE SIFTING!!!!
     def __sift(self, s):
         #print("---")
         # print("sift called on " + (s if s else "the empty string"))
@@ -603,5 +646,3 @@ class Tree:
             print(f"{"d" if to_print.left_child else "s"}: {("empty" if to_print.value == "" else to_print.value) if (to_print.value != None) else "not initialized"}, level {to_print.level}")
 
     ##########################################################################################################
-
-##############################################################################################################
