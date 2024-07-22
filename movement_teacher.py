@@ -3,6 +3,20 @@
 from teacher import Teacher
 from hex_v2 import World, Ident
 
+import functools
+
+def memoize(obj):
+    cache = obj.cache = {}
+
+    @functools.wraps(obj)
+    def memoizer(*args, **kwargs):
+        key = str(args) + str(kwargs)
+        if key not in cache:
+            cache[key] = obj(*args, **kwargs)
+        return cache[key]
+    return memoizer
+
+
 class Movement_Teacher(Teacher):
     def __init__(self, alphabet, seed=-1):
         self.alphabet = alphabet
@@ -42,6 +56,7 @@ class Movement_Teacher(Teacher):
     # membership query
     # takes a string s and returns a boolean indicating whether s is accepted or rejected by the given DFA
     # TODO: Adapt for hex world
+    @memoize
     def member(self, s : str, dfa: list[list[int]] = None, alpha = None):
         # print(f"membership query called on string {s}")
 
@@ -93,7 +108,7 @@ class Movement_Teacher(Teacher):
         # for each of these strings, if self.member(s, self.m) is not self.member(s, m_hat), return s
 
         # TODO: Increase range
-        for i in range(20):
+        for i in range(100):
             s = Teacher.generate_string()
             # print(f"string {s} returned from generate_string()")
             # print(f"self.member(s) = {self.member(s)}, self.member(s, m_hat) = {self.member(s, m_hat)}")
