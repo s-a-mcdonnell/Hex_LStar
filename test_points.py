@@ -65,7 +65,10 @@ print()
 
 goals = ["f77", "f78", "f79", "f87", "f88", "f89", "f97", "f98", "f99"]
 
-for i in range(0, 100):
+tally = 0
+true_tally = 0
+
+for i in range(0, 10000):
     strg = ""
 
     my_agent = ""
@@ -91,5 +94,14 @@ for i in range(0, 100):
     agent_dir = Ident.find_next_move(dir_teach.my_agent)
 
     print(f"World says result is agent move: {agent_dir}")
-    print(f"DFA says agent move from string {strg}: {__get_move(strg)}")
+    test = __get_move(strg)
+    print(f"DFA says agent move from string {strg}: {test}")
+    if(agent_dir != test):
+        tally += 1
+    if(agent_dir == test):
+        true_tally += 1
+
     print()
+
+print(f"Incorrect DFA outcomes: {tally} / 10,000")
+print(f"Correct DFA outcomes: {true_tally} / 10,000")
