@@ -63,7 +63,7 @@ class Ident:
         self.partner_serial_number = partner_serial_number
 
         if agent == 'keyboard':
-            self.agent = KeyboardAgent()
+            self.agent = KeyboardAgent(self)
         else:
             self.agent = AstarAgent(self)
 
@@ -1322,13 +1322,14 @@ class World:
             color = World.__get_color(color_text)
             
             if len(line_parts) == 6:
-                if line_parts[5] == 'astar':
+                if line_parts[5] == 'astar' or line_parts[5] == 'astar\n':
                     new_agent = Ident(matrix_index, list_index, self, color = color, state = direction, serial_number = -1, hist = None, property = "agent", agent="astar")
 
             else:
                 new_agent = Ident(matrix_index, list_index, self, color = color, state = direction, serial_number = -1, hist = None, property = "agent", agent="keyboard")
 
             # Add ident to ident list
+            print(f"appending agent {new_agent}")
             self.ident_list.append(new_agent)
             
             # Add ident to hex

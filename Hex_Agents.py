@@ -76,7 +76,7 @@ class AstarAgent(Agent):
 
     def get_dir(self, state, keys, cur_dir):
         if self.direction_list == []:
-            initializeAstar()
+            self.initializeAstar()
         if self.dir_index >= len(self.direction_list):
             return None
         self.dir_index += 1

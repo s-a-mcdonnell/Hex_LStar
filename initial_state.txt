@@ -1,2 +1,2 @@
-9 6 agent MAROON 5 astar
+9 6 agent MAROON 5
 3 10 goal
