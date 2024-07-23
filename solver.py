@@ -68,8 +68,6 @@ with cProfile.Profile() as profile:
     print("DFAs INITIALIZED")
     print()
 
-    # TODO: Modify teachers to make algorithm work
-    # TODO: Make learners return learner DFA so we can use it as desired
     # Learn movement teacher using L*
     movement_DFA = movement_learner.lstar_algorithm()
     print("FIRST DFA => MOVEMENT => IS DONE")
@@ -79,6 +77,7 @@ with cProfile.Profile() as profile:
 
     __write_dfa_to_file(movement_DFA, __location__, "movement_dfa.txt")
 
+
     # Learn direction teacher using L*
     direction_DFA = direction_learner.lstar_algorithm()
     print("SECOND DFA => DIRECTION => IS DONE")
@@ -86,7 +85,7 @@ with cProfile.Profile() as profile:
     # write direction teacher to a file
     __write_dfa_to_file(direction_DFA, __location__, "direction_dfa.txt")
 
-    # NOTE: look to test_points.py to test the results of the DFAs generated in this solver.py file
+    # NOTE: use test_points.py to test the results of the DFAs generated in this solver.py file
 
     print("end")
 

@@ -28,7 +28,7 @@ class Movement_Teacher(Teacher):
     
     ##########################################################################################################
 
-    @staticmethod
+    '''@staticmethod
     def final_state(s : str, dfa: list[list[int]], alpha):
 
         input = []
@@ -49,7 +49,7 @@ class Movement_Teacher(Teacher):
             next_state_index = current_state[char_index + 1]
         
         # Return final state
-        return dfa[next_state_index]
+        return dfa[next_state_index]'''
     
     ##########################################################################################################
 
