@@ -94,6 +94,7 @@ results = pstats.Stats(profile)
 results.sort_stats(pstats.SortKey.TIME)
 
 # results.print_stats() 
-# NOTE: uncomment thr above if you want to have the stats printed into the terminal as well
+# NOTE: uncomment thr above if you want to have the stats printed into the terminal
 
 results.dump_stats("results.prof")
+# NOTE: the above allows the tuna package "pip install tuna" to provide a visual representation of function time using "tuna results.prof"
