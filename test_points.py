@@ -28,6 +28,14 @@ def __get_move(s : str):
 
 ##########################################################################################################
 
+'''
+This program takes the generated text files movement_dfa.txt and direction_dfa.txt
+It determines how accurately the learned DFAs predict the behavior of the agent in HexWorld's hex_v2 find_next_move(agent) function
+It will print out a tally of the number of incorrectly and correctly determined decisions based on the 10,000 strings generated
+'''
+
+# read alphabet from the saved alphabet.txt file
+# (NOTE: the alphabet will have been previously created for learning the DFA with the make_alphabet.py)
 __location__ = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__)))
 alphabet = read_alphabet(__location__)
 print("alphabet parsed")
@@ -37,14 +45,11 @@ movement_dfa = read_dfa(__location__, "movement_dfa.txt", alphabet=alphabet)
 direction_dfa = read_dfa(__location__, "direction_dfa.txt", alphabet=alphabet)
 print("dfas parsed")
 
+# initialize Teachers using our generated DFAs as the premade_dfa to put into the Teacher
 mov_teach = Teacher(alphabet, num_states = 1, premade_dfa = movement_dfa)
 dir_teach = Teacher(alphabet, num_states = 1, premade_dfa = direction_dfa)
 
-print(f"Agent move from string 979f88: {__get_move("979f88")}")
-print(f"Agent move from string b77f98f78: {__get_move("b77f98f78")}")
-print()
-
-# TODO: more direction test cases for the one DFA that we have :P
+# TODO: adapt test_points.py for various alphabet inputs based on changes made to the types of strings inputted into solver.py ?
 
 '''for i in range(1, len(sys.argv)):
     assert len(sys.argv[i])%3 == 0
@@ -59,6 +64,7 @@ goals = ["f77", "f78", "f79", "f87", "f88", "f89", "f97", "f98", "f99"]
 
 tally = 0
 true_tally = 0
+# tally is the number of incorrect results, true_tally is the number of correct results
 
 for i in range(0, 10000):
     strg = ""
@@ -77,6 +83,8 @@ for i in range(0, 10000):
     # Save valid agent
     strg += my_agent
 
+    # select one random goal for the string
+    # TODO: make it so more than one goal goes into some of the text strings please???
     goal = goals[random.randint(0, 8)]
 
     strg += goal
