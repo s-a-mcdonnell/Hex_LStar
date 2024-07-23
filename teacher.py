@@ -904,11 +904,14 @@ class Teacher:
                         goals.insert(goals.index(goal), my_goal)
                         break
 
+
         # Save valid goals to string
         for goal in goals:
             strg += goal
 
+        # TODO: what is going on in the num idnts one, where is the variable ident coming from in the last else statement??
 
+        '''
         # Generate a pseudo-randomly determined number of other 3-char strings (idents)
         # NOTE: The choice of maximum number of idents is arbitrary; We might want to set to 0 for testing
         num_idents = random.randint(0, 50)
@@ -935,8 +938,8 @@ class Teacher:
 
             # Save new ident in the correct order
             # If other_idents is empty, add to it
-            if not len(goals):
-                goals.append(my_goal)
+            if not len(other_idents):
+                goals.append(new_ident)
             
             # TODO: Finish sorting in multiple goals then add them to string
             # Add the final ident in other_idents in smaller than the new_ident, add at the back
@@ -945,15 +948,11 @@ class Teacher:
 
             # Otherwise iterate through other_ident until the correct location is found
             else:
-                for ident in other_idents:
+                for goal in other_idents:
                     if not Teacher.less_than(ident, new_ident, my_agent):
                         other_idents.insert(other_idents.index(ident), new_ident)
                         break
-
-        # Save valid goals to string
-        for goal in goals:
-            strg += goal
-
+        '''
 
         # # Generate a pseudo-randomly determined number of other 3-char strings (idents)
         # # NOTE: The choice of maximum number of idents is arbitrary; We might want to set to 0 for testing
