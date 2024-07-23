@@ -25,14 +25,6 @@ def __get_move(s : str):
     else:
         return -1
     
-def __get_direction(s : str):
-    direction = dir_teach.member(s, direction_dfa, alphabet)
-    print(f"direction {direction}")
-
-    if direction:
-        return 1
-    else:
-        return -1
 
 ##########################################################################################################
 
