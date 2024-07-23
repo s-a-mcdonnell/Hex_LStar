@@ -243,20 +243,16 @@ class Learner:
 
             # create new M_hat from current T => call construct_hypothesis
             self.m_hat = self.construct_hypothesis()
-            # TODO: delete debugging print statements
             
-            print(f"m_hat updated {self.m_hat}")
+            # print(f"m_hat updated {self.m_hat}")
 
             if self.graphs:
                 self.draw_graph()
                 print("graph displayed.")
             
-            # print("m_hat updated " + str(self.m_hat))
             # equivalence query => does our current M_hat equal the real M from teacher?
             gamma = self.my_teacher.equivalent(self.m_hat)
 
-            # TODO: Delete debugging print statement
-            # print("Counterexample is ===> " + str(gamma))
             if gamma:
                 # if a counterexample is provided, update T by determining the new access string and distinguishing string (sift down)
                 assert(self.my_teacher.member(gamma) != self.my_teacher.member(gamma, self.m_hat, self.alphabet))
@@ -265,10 +261,6 @@ class Learner:
 
                 # call update_tree (includes updating dictionary)
                 self.update_tree(gamma)
-
-                # TODO: Delete debugging print statements
-                # print("number of entries in dictionary: " + str(len(self.access_string_reference)))
-                # print("number of rows in M_hat: " + str(len(self.m_hat)))
 
             else:
                 # If no counterexample is provided, the DFA has been solved
@@ -338,9 +330,6 @@ class Learner:
     # output: Edits T to update it (returns nothing)
     # NOTE: remember to SET THE PARENT of a new node when you declare it
     def update_tree(self, gamma):
-        # TODO: Delete debugging print statements
-        # print("Update tree called")
-        # print(f"Updating the tree with {gamma}")
 
         # Assert that gamma really is a counterexample
         assert bool(self.my_teacher.member(gamma)) != bool(self.my_teacher.member(gamma, self.m_hat, self.alphabet))
@@ -371,11 +360,6 @@ class Learner:
             # Repeat loop until sifting and running the truncated string through M_hat lead to distinct states (different access strings/row indices in M_hat)
             #if self.access_string_reference[access_string] != self.m_hat.index(Teacher.final_state(strng, self.m_hat, self.alphabet)):
             if access_string_sift != access_string_m_hat:
-                # TODO: Delete debugging print statements
-                # print(f"strng {strng}")
-                # print(f"Access string from sifting: {access_string_sift if access_string_sift else "empty string"}")
-                # print(f"Access string from M_hat: {access_string_m_hat if access_string_m_hat else "empty string"}")
-                # print("breaking loop")
                 mismatch_found = True
                 break
         
@@ -384,12 +368,9 @@ class Learner:
 
         # Find the last common ancestor (lca) of access_string_sift and access_string_m_hat in T
         lca = self.__get_lca(access_string_sift, access_string_m_hat)
-        # print(f"lca = {lca}")
 
         # let j be the least i such that s[i] does not equal s_hat[i]
         gamma_j_minus_1 = gamma[0 : 3*j]
-        # TODO: Delete debugging print statement
-        #print(f"gamma[j-1]: {gamma_j_minus_1}, j = {j}")
 
         # Update dictionary with access string
         assert(gamma_j_minus_1 != "")
@@ -400,25 +381,16 @@ class Learner:
             node_to_edit = memoize(self.__sift_return_node(gamma_j_minus_1))
         else:
             node_to_edit = self.__sift_return_node(gamma_j_minus_1)
-        # print(f"node_to_edit.value = {node_to_edit.value}")
         s_j_minus_1 = node_to_edit.value
     
         # The new distinguishing string is the character gamma[j] concatonated with
         # the last common ancestor distinguishing string between access_string_sift and access_string_m_hat in T
         new_d = gamma[3*j : 3*j + 3] + lca
-        # print(f"new_d: {new_d}")
 
         # new node is the distinguishing string
 
         assert new_d
         assert self.my_teacher.member(s_j_minus_1 + new_d) != self.my_teacher.member(gamma_j_minus_1 + new_d)
-
-        # TODO: Delete debugging print statements
-        # print(f"node to edit value: {node_to_edit.value}")
-        # print(f"node to edit parent value: {(node_to_edit.parent.value if node_to_edit.parent.value else "empty") if node_to_edit.parent else "no parent"}")
-        # print(f"new distinguishing string: {new_d}")
-        # print(f"s[j-1] = {s_j_minus_1}")
-        # print(f"gamma[j-1] = {gamma_j_minus_1}")
 
         # create a parent for our new node
         temp = node_to_edit.parent
@@ -447,34 +419,6 @@ class Learner:
         else:
             print(f"Both {s_j_minus_1 + new_d} and {gamma_j_minus_1 + new_d} are {"accepted" if self.my_teacher.member(s_j_minus_1 + new_d) else "rejected"}")
             exit(f"Error: Unable to sort access string {gamma_j_minus_1} into T")
-
-        return
-
-
-        # Create child leaves for node_to_edit, making it an internal node
-        assert (not node_to_edit.left_child) and (not node_to_edit.right_child)
-        node_to_edit.left_child = Node(None, node_to_edit, node_to_edit.level + 1)
-        node_to_edit.right_child = Node(None, node_to_edit, node_to_edit.level + 1)
-    
-        # Set values of node_to_edit's children
-        # leaf nodes are the previous access string and the new access string gamma[j-1]
-        # Determine which leaf node goes on each side by checking membership when concatenated with the new distinguishing string        
-        if self.my_teacher.member(s_j_minus_1 + new_d) and not self.my_teacher.member(gamma_j_minus_1 + new_d):
-            node_to_edit.right_child.value =  s_j_minus_1
-            node_to_edit.left_child.value = gamma_j_minus_1
-        elif self.my_teacher.member(gamma_j_minus_1 + new_d) and not self.my_teacher.member(s_j_minus_1 + new_d):
-            node_to_edit.right_child.value = gamma_j_minus_1
-            node_to_edit.left_child.value =  s_j_minus_1
-        else:
-            print(f"Both {s_j_minus_1 + new_d} and {gamma_j_minus_1 + new_d} are {"accepted" if self.my_teacher.member(s_j_minus_1 + new_d) else "rejected"}")
-            exit(f"Error: Unable to sort access string {gamma_j_minus_1} into T")
-
-        # Set node_to_edit's value to be the new distinguishing string
-        assert node_to_edit.parent
-        node_to_edit.value = new_d
-
-        # TODO: Delete debugging print statement
-        # print("update tree done.")
 
     ##########################################################################################################
 
@@ -590,8 +534,6 @@ class Learner:
         if s in self.access_string_reference.keys():
             return memoize(self.__sift_return_node(s)).value
         return self.__sift_return_node(s).value
-    
-    ##########################################################################################################
 
 ##############################################################################################################
 
