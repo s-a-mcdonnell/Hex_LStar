@@ -576,61 +576,17 @@ class Teacher:
             if not len(other_idents):
                 goals.append(new_ident)
             
-            # TODO: Finish sorting in multiple goals then add them to string
             # Add the final ident in other_idents in smaller than the new_ident, add at the back
             elif Teacher.less_than(other_idents[len(other_idents) - 1], new_ident, my_agent):
                 other_idents.append(new_ident)
 
             # Otherwise iterate through other_ident until the correct location is found
             else:
-                for goal in other_idents:
+                for ident in other_idents:
                     if not Teacher.less_than(ident, new_ident, my_agent):
                         other_idents.insert(other_idents.index(ident), new_ident)
                         break
         '''
-
-        # # Generate a pseudo-randomly determined number of other 3-char strings (idents)
-        # # NOTE: The choice of maximum number of idents is arbitrary; We might want to set to 0 for testing
-        # num_idents = random.randint(0, 50)
-        # # num_idents = 3
-        # other_idents = []
-        # for i in range(num_idents):
-        #     # breakpoint()
-        #     new_ident = ""
-            
-        #     # Loop until we have made a novel valid ident
-        #     while not (make_alphabet.check_validity(new_ident) and new_ident not in other_idents):
-        #         new_ident = ""
-        #         # breakpoint()
-        #         # NOTE: the new idents cannot be goals
-        #         # TODO: Only create valid idents (rather than creating potentially invalid idents and then fixing them)
-        #         ident_prop = random.randint(0, 14)
-        #         ident_mi = random.randint(0, 15)
-        #         ident_li = random.randint(0, 15)
-        #         # TODO: Check that this hex method correctly converts and returns a string
-        #         new_ident += hex(ident_prop)[2] + hex(ident_mi)[2] + hex(ident_li)[2]
-
-        #     assert new_ident
-        #     assert new_ident not in other_idents
-
-        #     # Save new ident in the correct order
-        #     # If other_idents is empty, add to it
-        #     if not len(other_idents):
-        #         other_idents.append(new_ident)
-            
-        #     # Add the final ident in other_idents in smaller than the new_ident, add at the back
-        #     elif Teacher.less_than(other_idents[len(other_idents) - 1], new_ident, my_agent):
-        #         other_idents.append(new_ident)
-
-        #     # Otherwise iterate through other_ident until the correct location is found
-        #     else:
-        #         for ident in other_idents:
-        #             if not Teacher.less_than(ident, new_ident, my_agent):
-        #                 other_idents.insert(other_idents.index(ident), new_ident)
-        #                 break
-                    
-                    
-
 
         # # TODO: Sort the three-char strings first by matrix index (2nd char), then list index (2nd char), then property (1st char)
         # # NOTE: I'm trying another way (not using merge sort) --> less efficient, but hopefully less buggy
