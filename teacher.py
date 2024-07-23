@@ -245,31 +245,6 @@ class Teacher:
         final_state : list[int] = Teacher.final_state(s, dfa, alpha)
         return bool(final_state[0])
     
-    ##########################################################################################################
-
-    '''@staticmethod
-    # Sorts and returns the passed ident_list using merge sort
-    # Based off of code provided for merge sort here: https://www.geeksforgeeks.org/merge-sort/#
-    def __merge_sort(ident_list, begin=-1, end=-1):
-        # breakpoint()
-        if begin == -1 and end == -1:
-            begin = 0
-            end = len(ident_list)
-        
-        assert begin != -1
-        assert end != -1
-
-        # begin is for left index and end is right index
-        # of the sublist of my_list to be sorted
-        if begin >= end:
-            return
-
-        mid = begin + (end - begin) // 2
-        Teacher.__merge_sort(ident_list, begin, mid)
-        Teacher.__merge_sort(ident_list, mid + 1, end)
-        Teacher.__merge(ident_list, begin, mid, end)  
-
-        return ident_list'''
 
     ##########################################################################################################
 
@@ -311,7 +286,7 @@ class Teacher:
         # If the agent is stationary, default to direction 0
         if agent_dir == -1:
             agent_dir = 0
-        print(f"ag {ag}, agent_dir {agent_dir}")
+
         assert agent_dir >= 0
         assert agent_dir <= 5
         
@@ -407,8 +382,6 @@ class Teacher:
             # = angle of reference hex + (distance from ref hex to desired ident)/(# of ring)
             # = angle of reference hex + (distance from ref hex to desired ident)/(total_dist)
             abs_angle = ref_angle + offset/total_dist
-            '''print(f"ref angle = {ref_angle}, offset = {offset}, total_dist = {total_dist}")
-            print(f"angle = {angle}")'''
 
             print(f"abs angle between agent {ag} and ident {id} is {abs_angle}")
 
@@ -433,24 +406,8 @@ class Teacher:
 
             relative_angle = abs_angle - agent_dir - 6
         
-        '''else:
-            # TODO: Check this relative angle case specifically (is it ever used?)
-
-            print(f"relative angle case 4 for id {id}")
-            relative_angle = (agent_dir - abs_angle)%6'''
-        
         assert abs(relative_angle) <= 3
 
-
-        
-        
-        '''for i in range(4):
-            if (agent_dir + i)%6 == abs_angle:
-                relative_angle = i
-                break
-            elif (agent_dir - i)%6 == abs_angle:
-                relative_angle = -i
-                break'''
         print(f"id {id}, ag {ag}")
         print(f"relative angle {relative_angle} found between agent direction {agent_dir} and ident absolute angle {abs_angle}")
 
@@ -465,7 +422,6 @@ class Teacher:
     # Finally, sort by the first hexadecimal character (property)
     # TODO: Test this comparison method
     def less_than(ident_1 : str, ident_2 : str, agent : str):
-        # print(f"comparing {ident_1} and {ident_2} with agent {agent}")
 
         # Ensure that we are comparing two idents of valid string length
         assert len(ident_1) == 3
@@ -521,327 +477,6 @@ class Teacher:
                     print(f"ident_1 = {ident_1}, ident_2 = {ident_2}, agent = {agent}")
                     print(f"dist_1 = {distance_1}, dist_2 = {distance_2}")
                     exit("Two equal idents found")
-
-
-        # Sort up to down, left to right
-        '''# Compare 2nd hexadecimal character (matrix index)
-        if ident_1[1] < ident_2[1]:
-            return True
-        elif ident_1[1] > ident_2[1]:
-            return False
-        
-        # Deal with two idents with the same matrix index
-        else:
-            # Compare 3rd hexadecimal character (list index)
-            if ident_1[2] < ident_2[2]:
-                return True
-            elif ident_1[2] > ident_2[2]:
-                return False
-            
-            # Deal with two idents with the same list index
-            else:
-                # Compare 1st hexadecimal character (property)
-                if ident_1[0] < ident_2[0]:
-                    return True
-                elif ident_1[0] > ident_2[0]:
-                    return False
-                else:
-                    # Two identical idents (should not happen)
-                    exit("Two equal idents found")
-                    return True'''
-
-
-    ##########################################################################################################
-
-    '''@staticmethod
-    # Merges two sublists
-    # First sublist is list[left..mid]
-    # Second sublist is list[mid+1..right]
-    # Code provided for merge sort here: https://www.geeksforgeeks.org/merge-sort/#
-    def __merge(my_list, left, mid, right):
-        # TODO: Review this base case (my code)
-        if left >= right:
-            return
-        
-        # breakpoint()
-        sublist_1 = mid - left + 1
-        sublist_2 = right - mid
-
-        # Create temp lists
-        left_list = [0] * sublist_1
-        right_list = [0] * sublist_2
-
-        print(f"range(sublist_1) = {range(sublist_1)}")
-        print(f"range(sublist_2) = {range(sublist_2)}")
-
-        # Copy data to temp arrays left_list[] and right_list[]
-        for i in range(sublist_1):
-            left_list[i] = my_list[left + i]
-        for j in range(sublist_2):
-            print(f"mid={mid}")
-            print(f"j={j}")
-            print("mid+1+j = " + str(mid+1+j))
-            right_list[j] = my_list[mid + 1 + j]
-
-        index_of_sublist_1 = 0  # Initial index of first sublist
-        index_of_sublist_1 = 0  # Initial index of second sublist
-        index_of_merged_list = left  # Initial index of merged list
-
-        # Merge the temp lists back into my_list[left..right]
-        while index_of_sublist_1 < sublist_1 and index_of_sublist_1 < sublist_2:
-            if Teacher.__less_equal(left_list[index_of_sublist_1], right_list[index_of_sublist_1]):
-                my_list[index_of_merged_list] = left_list[index_of_sublist_1]
-                index_of_sublist_1 += 1
-            else:
-                my_list[index_of_merged_list] = right_list[index_of_sublist_1]
-                index_of_sublist_1 += 1
-            index_of_merged_list += 1
-
-        # Copy the remaining elements of left[], if any
-        while index_of_sublist_1 < sublist_1:
-            my_list[index_of_merged_list] = left_list[index_of_sublist_1]
-            index_of_sublist_1 += 1
-            index_of_merged_list += 1
-
-        # Copy the remaining elements of right[], if any
-        while index_of_sublist_1 < sublist_2:
-            my_list[index_of_merged_list] = right_list[index_of_sublist_1]
-            index_of_sublist_1 += 1
-            index_of_merged_list += 1'''
-
-
-    ##########################################################################################################
-
-    @staticmethod
-    # Returns the distance between two passed idents
-    # NOTE: This distance calculation overlaps with a method Allison wrote in World
-    def __get_distance(id_1:list[int], id_2:list[int]):
-        
-        # The difference in the matrix index of the idents (vertical)
-        mi_dist = id_1[1] - id_2[1]
-
-        # The difference in the list index of the idents (northwest to southeast)
-        li_dist = id_1[2] - id_2[2]
-
-        # The total distance is greater of the absolute values of the two partial distances
-        total_dist = abs(mi_dist)
-        if abs(li_dist) > total_dist:
-            total_dist = abs(li_dist)
-        # If the partial distances are both positive or both negative, the total distance is the sum of their absolute values
-        # TODO: Will there be any issues here if mi_dist and/or li_dist == 0?
-        if ((mi_dist > 0) == (li_dist > 0)) and ((mi_dist < 0) == (li_dist < 0)):
-            total_dist = abs(mi_dist) + abs(li_dist)
-        
-        return total_dist
-
-    @staticmethod
-    # Returns a list of two numbers, where the first is the distance (in terms of number of hexes) from the given ident to the agent
-    # And the second is the relative direction from the agent in which one would have to travel to reach the ident
-    def __get_distance_and_direction(id:list[int], ag:list[int]):
-        
-        # The difference in the matrix index of the idents (vertical)
-        mi_dist = id[1] - ag[1]
-
-        # The difference in the list index of the idents (northwest to southeast)
-        li_dist = id[2] - ag[2]
-        
-        # The direction in which the agent is currently pointing
-        agent_dir = ag[0] - 9
-        # If the agent is stationary, default to direction 0
-        if agent_dir == -1:
-            agent_dir = 0
-        assert agent_dir >= 0
-        assert agent_dir <= 5
-        
-        # The total distance is greater of the absolute values of the two partial distances
-        total_dist = Teacher.__get_distance(id, ag)
-        
-        # Deal with ident in the same location as the agent
-        if mi_dist == 0 and li_dist == 0:
-            
-            # TODO: Return a direction other than 0? (0 also has another meaning --> straight ahead)
-            # return [total_dist, 0]
-            if id[0] >= 2 and id[0] <= 7:
-                abs_angle = id[0] - 2
-            elif id[0] >= 9 and id[0] <= 14:
-                abs_angle = id[0] - 9
-            else:
-                assert (id[0] == 0 or id[0] == 1 or id[0] == 8 or id[0] == 15)
-                # TODO: Return a direction other than 0? (0 also has another meaning --> straight ahead)
-                return [total_dist, 0] 
-
-        # Deal with ident on a straight northwest/southeast line
-        elif li_dist == 0:
-            assert mi_dist != 0
-
-            abs_angle = 2 if mi_dist > 0 else 5
-
-            # TODO: Check how direction is determined here
-            # return [total_dist, ]
-        
-        # Deal with ident on a straight vertical line
-        elif mi_dist == 0:
-            assert li_dist != 0
-
-            abs_angle = 3 if li_dist > 0 else 0
-
-            # TODO: Check how direction is determined here
-            # return [total_dist, 3 if mi_dist > 0 else 0]
-        
-        # Deal with ident on a straight northeast/southwest line
-        elif mi_dist == -li_dist:
-            # TODO: Check how direction is determined here
-            abs_angle = 1 if mi_dist > li_dist else 4
-            # return [total_dist, 1 if mi_dist > li_dist else 4]
-        
-        # TODO: Deal with all other cases (not straight lines)
-        else:
-            # To find angle:
-            # TODO: Find the hex on the same concentric ring which is one of the the 6 straight lines and is the closest to the desired ident but counter-clockwise from it
-            if mi_dist > 0 and li_dist < 0:
-                if abs(li_dist) > abs(mi_dist):
-                    ref_angle = 0
-                else:
-                    assert abs(mi_dist) > abs(li_dist)
-                    ref_angle = 1
-            elif mi_dist > 0 and li_dist > 0:
-                ref_angle = 2
-            elif mi_dist < 0 and li_dist > 0:
-                if abs(li_dist) > abs(mi_dist):
-                    ref_angle = 3
-                else:
-                    assert abs(mi_dist) > abs(li_dist)
-                    ref_angle = 4
-            else:
-                assert mi_dist < 0 and li_dist < 0
-                ref_angle = 5
-
-            # TODO: Get the distance from said reference hex to the desired ident. We can do this with a call to __get_distance_and_direction because it will be a straight line (not infinite recursion)
-            match ref_angle:
-                case 0:
-                    offset = Teacher.__get_distance([ag[0], ag[1], ag[2] - total_dist], id)
-                case 1:
-                    offset = Teacher.__get_distance([ag[0], ag[1] + total_dist, ag[2] - total_dist], id)
-                case 2:
-                    offset = Teacher.__get_distance([ag[0], ag[1] + total_dist, ag[2]], id)
-                case 3:
-                    offset = Teacher.__get_distance([ag[0], ag[1], ag[2] + total_dist], id)
-                case 4:
-                    offset = Teacher.__get_distance([ag[0], ag[1] - total_dist, ag[2] + total_dist], id)
-                case 5:
-                    offset = Teacher.__get_distance([ag[0], ag[1] - total_dist, ag[2]], id)
-                case _:
-                    exit(f"invalid ref angle {ref_angle}")
-            
-
-            # The angle of the desired ident = the angle of the reference hex + (distance from reference hex to desired ident)/(side length of ring - 1)
-            # = angle of reference hex + (distance from ref hex to desired ident)/(# of ring)
-            # = angle of reference hex + (distance from ref hex to desired ident)/(total_dist)
-            abs_angle = ref_angle + offset/total_dist
-            '''print(f"ref angle = {ref_angle}, offset = {offset}, total_dist = {total_dist}")
-            print(f"angle = {angle}")'''
-
-        # TODO: Check how relative angle is calculated
-        if abs(abs_angle - agent_dir) <= 3:
-            relative_angle = abs_angle - agent_dir
-        elif (abs_angle - agent_dir <= 0) and (abs_angle - agent_dir < -3):
-            relative_angle =  (abs_angle - agent_dir)%6
-
-        elif abs_angle - agent_dir > 0:
-            # TODO: Check this relative angle case specifically
-
-            assert abs_angle - agent_dir > 3
-
-            relative_angle = abs_angle - agent_dir - 6
-        
-        else:
-            # TODO: Check this relative angle case specifically
-
-            relative_angle = (agent_dir - abs_angle)%6
-        
-        assert abs(relative_angle) <= 3
-
-
-        
-        
-        '''for i in range(4):
-            if (agent_dir + i)%6 == abs_angle:
-                relative_angle = i
-                break
-            elif (agent_dir - i)%6 == abs_angle:
-                relative_angle = -i
-                break'''
-        # print(f"id {id}, ag {ag}")
-        # print(f"relative angle {relative_angle} found between agent direction {agent_dir} and ident absolute angle {abs_angle}")
-
-        return[total_dist, relative_angle]
-
-    ##########################################################################################################
-
-    @staticmethod
-    # Returns a boolean indicating if ident_1 is less than ident_2 according to the following rules:
-    # First, sort by the second hexadecimal character (matrix index)
-    # Second, sort by the third hexadecimal character (list index)
-    # Finally, sort by the first hexadecimal character (property)
-    # TODO: Test this comparison method
-    def less_than(ident_1 : str, ident_2 : str, agent : str):
-        # print(f"comparing {ident_1} and {ident_2} with agent {agent}")
-
-        # Ensure that we are comparing two idents of valid string length
-        assert len(ident_1) == 3
-        assert len(ident_2) == 3
-
-        # Sort by distance from agent, then clockwise starting at direction 0 (12 o'clock)
-        assert agent
-        assert len(agent) == 3
-        
-        
-        id_1 = []
-        for char in ident_1:
-            # Append all chars in ident_2 as ints in base 10
-            id_1.append(int(char, 16))
-        
-        id_2 = []
-        for char in ident_2:
-            # Append all chars in ident_2 as ints in base 10
-            id_2.append(int(char, 16))
-        
-        ag = []
-        for char in agent:
-            ag.append(int(char, 16))
-
-        distance_1 = Teacher.__get_distance_and_direction(id_1, ag)
-        distance_2 = Teacher.__get_distance_and_direction(id_2, ag)
-
-        if distance_1[0] != distance_2[0]:
-            return distance_1[0] < distance_2[0]
-        else:
-            
-            # Idents at the same distance from the agent where one is more directly on its current path
-            if abs(distance_1[1]) != abs(distance_2[1]):
-                return abs(distance_1[1]) < abs(distance_2[1])
-            
-            # Idents at the same distance from the agent where both are symmetrically at angles to the agent's direction of motion
-            elif distance_1[1] == -distance_2[1]:
-                return distance_1[1] < distance_2[1]
-            
-            # Two idents are in the same location
-            else:
-                # Compare 1st hexadecimal character (property)
-                # TODO: Do I need to convert into decimal?
-                if ident_1[0] < ident_2[0]:
-                    return True
-                elif ident_1[0] > ident_2[0]:
-                    return False
-                else:
-                    # Two identical idents (should not happen)
-                    print(f"ident_1 = {ident_1}, ident_2 = {ident_2}, agent = {agent}")
-                    print(f"dist_1 = {distance_1}, dist_2 = {distance_2}")
-                    exit("Two equal idents found")
-
-
-    ##########################################################################################################      
-
 
     ##########################################################################################################
 
