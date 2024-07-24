@@ -23,34 +23,6 @@ class Direction_Teacher(Teacher):
         if seed == -1:
             self.seed = 1821
 
-<<<<<<< HEAD
-        # TODO: Write constructor
-
-    ##############################################################################################################
-
-    '''@staticmethod
-    def final_state(s : str, dfa: list[list[int]], alpha):
-
-        input = []
-
-        assert (type(s) is str)
-        assert len(s)%3 == 0
-
-        # Convert passed string into an array of ints, where each int is the index in the alphabet array corresponding to that character
-        for i in range(int(len(s)/3)):
-            input.append(alpha.index(s[i*3 : i*3 + 3]))
-        
-        # Enter the DFA (M) at state 0
-        next_state_index = 0
-
-        # Navigate through the DFA to the final state
-        for char_index in input:
-            current_state = dfa[next_state_index]
-            next_state_index = current_state[char_index + 1]
-        
-        # Return final state
-        return dfa[next_state_index]'''
-=======
         # Create empty world with space for idents
         # TODO: Check that there is enough space for the max number of idents in the world
         self.world = World(read_file=False, display_window=False)
@@ -90,7 +62,6 @@ class Direction_Teacher(Teacher):
         self.surrounding_walls : int = len(self.wall_list)
         self.valid_walls : int = self.surrounding_walls
         print(f"self.surrounding_walls = {self.surrounding_walls}")
->>>>>>> a723c4197b75dfc33e6464fa43d101d3d7ad7d32
     
     ##############################################################################################################
 
