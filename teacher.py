@@ -17,12 +17,52 @@ class Teacher:
         # The teacher will use the provided alphabet
         self.alphabet = alphabet
 
-        # NOTE: I am commenting out this check for now. Hopefully L Star will still function with a multi-charcater alphabet :)))
-        # Check the alphabet for validity (each symbol is just one character)
-        # for symbol in alphabet:
-        #     if len(symbol) != 1:
-        #         print("Error: Invalid alphabet")
-        #         exit(1)
+        # Check the alphabet for validity (each symbol is three characters)
+        for symbol in alphabet:
+            if len(symbol) != 3:
+                print("Error: Invalid alphabet. All symbols must be three hexadecimal characters.")
+                exit(1)
+
+        # Create empty world with space for idents
+        # TODO: Check that there is enough space for the max number of idents in the world
+        self.world = World(read_file=False, display_window=False)
+        self.ident_list = [Ident(matrix_index=-1, list_index=-1, world=self.world)]*100
+        # TODO: Is this the proper way to construct an agent?
+        self.agents = [Ident(matrix_index=-1, list_index=-1, world=self.world, property="agent")]*10
+        self.valid_idents = 0
+        self.valid_agents = 0
+
+        # TODO: How to get the agent to only check the valid idents in a world? (i.e. to check the ident_list from 0 to self.valid_idents-1; same for self.valid_agent and self.valid_walls)
+        self.wall_list = []
+        # TODO: Manage walls? Differentiate between ring and freestanding walls?
+        ''' walls just for the test case where things are a 3x3 square'''
+        # TODO: Remove these walls
+        for i in range(6, 11):
+            new_ident = Ident(6, i, self.world)
+            new_ident.state = -2
+            self.world.hex_matrix[6][i].idents.append(new_ident)
+            self.wall_list.append(new_ident)
+
+            new_ident2 = Ident(10, i, self.world)
+            new_ident2.state = -2
+            self.world.hex_matrix[10][i].idents.append(new_ident2)
+            self.wall_list.append(new_ident2)
+
+            new_ident3 = Ident(i, 6, self.world)
+            new_ident.state3 = -2
+            self.world.hex_matrix[i][6].idents.append(new_ident3)
+            self.wall_list.append(new_ident3)
+
+            new_ident4 = Ident(i, 10, self.world)
+            new_ident4.state = -2
+            self.world.hex_matrix[i][10].idents.append(new_ident4)
+            self.wall_list.append(new_ident4)
+        
+        # TODO: Make sure that these are ints, not object references
+        self.surrounding_walls : int = len(self.wall_list)
+        self.valid_walls : int = self.surrounding_walls
+        print(f"self.surrounding_walls = {self.surrounding_walls}")
+            
 
         # Using this guide to PRN generation in Python: https://www.tutorialspoint.com/generate-pseudo-random-numbers-in-python
         random.seed(seed)
@@ -130,6 +170,11 @@ class Teacher:
     ##########################################################################################################
     # TODO: Create option not to read agent file?
     def _create_world(self, s):
+        # Reset trackers how many idents are valid
+        self.valid_idents = 0
+        self.valid_agents = 0
+        self.valid_walls = self.surrounding_walls
+
         # Assert that the length of the world-string is valid
         # NOTE: The >= 6 assertion leads to crashing, as sometimes a three-char string (one letter of the alphabet) is passed
         # if len(s) < 6 or len(s)%3 != 0:
@@ -137,30 +182,11 @@ class Teacher:
         # assert(len(s) >= 6)
         assert(len(s) % 3 == 0)
 
-        new_world = World(read_file=False, display_window=False)
+        # TODO: Find a less memory-intensive way of swapping this
+        for hex_row in self.world.hex_matrix:
+            for hex in hex_row:
+                hex.idents.clear()
 
-        ''' walls just for the test case where things are a 3x3 square'''
-        for i in range(6, 11):
-            new_ident = Ident(6, i, new_world)
-            new_ident.state = -2
-            new_world.hex_matrix[6][i].idents.append(new_ident)
-            new_world.wall_list.append(new_ident)
-
-            new_ident2 = Ident(10, i, new_world)
-            new_ident2.state = -2
-            new_world.hex_matrix[10][i].idents.append(new_ident2)
-            new_world.wall_list.append(new_ident2)
-
-            new_ident3 = Ident(i, 6, new_world)
-            new_ident.state3 = -2
-            new_world.hex_matrix[i][6].idents.append(new_ident3)
-            new_world.wall_list.append(new_ident3)
-
-            new_ident4 = Ident(i, 10, new_world)
-            new_ident4.state = -2
-            new_world.hex_matrix[i][10].idents.append(new_ident4)
-            new_world.wall_list.append(new_ident4)
-            
         # Parse string into world
         # TODO: the forcibly converting it into an integer could cause problems later. Note to self, be careful.
         for i in range(int((len(s))/3)):
@@ -169,10 +195,15 @@ class Teacher:
             property = int(s[i*3], 16)
             mi = int(s[i*3 + 1], 16)
             li = int(s[i*3 + 2], 16)
+            
 
-            new_ident = Ident(mi, li, new_world)
+            new_ident = self.ident_list[self.valid_idents]
 
-            new_world.hex_matrix[mi][li].idents.append(new_ident)
+            new_ident.matrix_index = mi
+            new_ident.list_index = li
+            assert new_ident.world == self.world
+
+            self.world.hex_matrix[mi][li].idents.append(new_ident)
             
             # The first char in ever "letter" (3-char string) form the property
             # The properties are wall (0), stationary non-agent (1), moving agent (in directions 0 through 5, 1 through 7),
@@ -181,11 +212,16 @@ class Teacher:
             # 0 => wall
             if property == 0:
                 new_ident.state = -2
-                new_world.wall_list.append(new_ident)
+                self.wall_list.append(new_ident)
+                self.valid_walls
 
             # If not a wall, it goes on the ident list
+            # (It already is on the ident list, but we iterate to indicate that it is valid)
             else:
-                new_world.ident_list.append(new_ident)
+                # self.world.ident_list.append(new_ident, self.valid_idents)
+                self.valid_idents += 1
+
+            # Set the new ident's state
 
             # 1 => stationary (non-agent)
             if property == 1:
@@ -203,7 +239,8 @@ class Teacher:
             # 8 => stationary (agent)
             if property == 8:
                 new_ident.state = -1
-                new_world.agents.append(new_ident)
+                # new_world.agents.append(new_ident)
+                self.valid_agents += 1
             
             # 9 => direction 0 (agent)
             # 10 => direction 1 (agent)
@@ -213,21 +250,29 @@ class Teacher:
             # 14 => direction 5 (agent)
             elif property >= 9 and property <= 14:
                 new_ident.state = property - 9
-                new_world.agents.append(new_ident)
+                # new_world.agents.append(new_ident)
+                self.valid_agents += 1
+
 
             # 15 => goal (stationary)
             elif property == 15:
                 new_ident.state = -1
                 # Mark as goal
                 new_ident.property = "goal"
-                new_world.goals.append(new_ident)
+                # new_world.goals.append(new_ident)
+                self.valid_agents += 1
+
             
             # Save the first ident described in the string as my_agent
             if i == 0:
                 self.my_agent = new_ident
         
-        self.world = new_world    
-
+        # Set world to only contain valid idents by slicing lists stored in self
+        # TODO: Check that the correct final index is taken
+        self.world.ident_list = self.ident_list[0:self.valid_idents]
+        self.world.agents = self.agents[0:self.valid_agents]
+        self.world.wall_list = self.wall_list[0:self.valid_walls]
+        
 
     # membership query
     # takes a string s and returns a boolean indicating whether s is accepted or rejected by the given DFA
