@@ -58,8 +58,9 @@ class Teacher:
             self.world.hex_matrix[i][10].idents.append(new_ident4)
             self.world.wall_list.append(new_ident4)
         
-        self.surrounding_walls = len(self.world.wall_list)
-        self.valid_walls = self.surrounding_walls
+        # TODO: Make sure that these are ints, not object references
+        self.surrounding_walls : int = len(self.world.wall_list)
+        self.valid_walls : int = self.surrounding_walls
             
 
         # Using this guide to PRN generation in Python: https://www.tutorialspoint.com/generate-pseudo-random-numbers-in-python
