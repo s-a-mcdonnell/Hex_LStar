@@ -23,7 +23,6 @@ class Direction_Teacher(Teacher):
         if seed == -1:
             self.seed = 1821
 
-
         # TODO: Write constructor
 
     ##############################################################################################################
