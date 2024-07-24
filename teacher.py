@@ -26,14 +26,14 @@ class Teacher:
         # Create empty world with space for idents
         # TODO: Check that there is enough space for the max number of idents in the world
         self.world = World(read_file=False, display_window=False)
-        self.world.ident_list = [Ident(matrix_index=-1, list_index=-1, world=self.world)]*100
+        self.ident_list = [Ident(matrix_index=-1, list_index=-1, world=self.world)]*100
         # TODO: Is this the proper way to construct an agent?
-        self.world.agents = [Ident(matrix_index=-1, list_index=-1, world=self.world, property="agent")]*10
+        self.agents = [Ident(matrix_index=-1, list_index=-1, world=self.world, property="agent")]*10
         self.valid_idents = 0
         self.valid_agents = 0
 
         # TODO: How to get the agent to only check the valid idents in a world? (i.e. to check the ident_list from 0 to self.valid_idents-1; same for self.valid_agent and self.valid_walls)
-
+        self.wall_list = []
         # TODO: Manage walls? Differentiate between ring and freestanding walls?
         ''' walls just for the test case where things are a 3x3 square'''
         # TODO: Remove these walls
@@ -41,26 +41,27 @@ class Teacher:
             new_ident = Ident(6, i, self.world)
             new_ident.state = -2
             self.world.hex_matrix[6][i].idents.append(new_ident)
-            self.world.wall_list.append(new_ident)
+            self.wall_list.append(new_ident)
 
             new_ident2 = Ident(10, i, self.world)
             new_ident2.state = -2
             self.world.hex_matrix[10][i].idents.append(new_ident2)
-            self.world.wall_list.append(new_ident2)
+            self.wall_list.append(new_ident2)
 
             new_ident3 = Ident(i, 6, self.world)
             new_ident.state3 = -2
             self.world.hex_matrix[i][6].idents.append(new_ident3)
-            self.world.wall_list.append(new_ident3)
+            self.wall_list.append(new_ident3)
 
             new_ident4 = Ident(i, 10, self.world)
             new_ident4.state = -2
             self.world.hex_matrix[i][10].idents.append(new_ident4)
-            self.world.wall_list.append(new_ident4)
+            self.wall_list.append(new_ident4)
         
         # TODO: Make sure that these are ints, not object references
-        self.surrounding_walls : int = len(self.world.wall_list)
+        self.surrounding_walls : int = len(self.wall_list)
         self.valid_walls : int = self.surrounding_walls
+        print(f"self.surrounding_walls = {self.surrounding_walls}")
             
 
         # Using this guide to PRN generation in Python: https://www.tutorialspoint.com/generate-pseudo-random-numbers-in-python
@@ -196,7 +197,7 @@ class Teacher:
             li = int(s[i*3 + 2], 16)
             
 
-            new_ident = self.world.ident_list[self.valid_idents]
+            new_ident = self.ident_list[self.valid_idents]
 
             new_ident.matrix_index = mi
             new_ident.list_index = li
@@ -211,7 +212,8 @@ class Teacher:
             # 0 => wall
             if property == 0:
                 new_ident.state = -2
-                new_world.wall_list.append(new_ident)
+                self.wall_list.append(new_ident)
+                self.valid_walls
 
             # If not a wall, it goes on the ident list
             # (It already is on the ident list, but we iterate to indicate that it is valid)
@@ -264,6 +266,12 @@ class Teacher:
             # Save the first ident described in the string as my_agent
             if i == 0:
                 self.my_agent = new_ident
+        
+        # Set world to only contain valid idents by slicing lists stored in self
+        # TODO: Check that the correct final index is taken
+        self.world.ident_list = self.ident_list[0:self.valid_idents]
+        self.world.agents = self.agents[0:self.valid_agents]
+        self.world.wall_list = self.wall_list[0:self.valid_walls]
         
 
     # membership query
