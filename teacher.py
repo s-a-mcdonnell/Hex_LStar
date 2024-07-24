@@ -2,6 +2,19 @@ import random
 from hex_v2 import World, Ident
 import make_alphabet
 import pdb
+import functools
+
+# NOTE: python dictionaries with the brackets are automatically HashMaps I think??
+def memoize(obj):
+    cache = obj.cache = {}
+
+    @functools.wraps(obj)
+    def memoizer(*args, **kwargs):
+        key = str(args) + str(kwargs)
+        if key not in cache:
+            cache[key] = obj(*args, **kwargs)
+        return cache[key]
+    return memoizer
 
 ##############################################################################################################
 
@@ -232,6 +245,7 @@ class Teacher:
     # membership query
     # takes a string s and returns a boolean indicating whether s is accepted or rejected by the given DFA
     # TODO: Adapt for hex world
+    @memoize
     def member(self, s : str, dfa: list[list[int]] = None, alpha = None):
         # print("membership query called")
 
