@@ -27,7 +27,11 @@ class Movement_Teacher(Teacher):
         # Create empty world with space for idents
         # TODO: Check that there is enough space for the max number of idents in the world
         self.world = World(read_file=False, display_window=False)
-        self.ident_list = [Ident(matrix_index=-1, list_index=-1, world=self.world)]*100
+        #self.ident_list = [Ident(matrix_index=-1, list_index=-1, world=self.world)]*100
+        self.ident_list = []
+        for i in range(100):
+            self.ident_list.append(Ident(matrix_index=-1, list_index=-1, world=self.world))
+        # TODO: Edit declaration of other lists to create distinct items
         # TODO: Is this the proper way to construct an agent?
         self.agents = [Ident(matrix_index=-1, list_index=-1, world=self.world, property="agent")]*10
         self.goal_list = [Ident(matrix_index=-1, list_index=-1, world=self.world, property="goal")]*10
@@ -62,8 +66,12 @@ class Movement_Teacher(Teacher):
         
         # TODO: Make sure that these are ints, not object references
         self.surrounding_walls : int = len(self.wall_list)
-        self.valid_walls : int = self.surrounding_walls
         print(f"self.surrounding_walls = {self.surrounding_walls}")
+        self.valid_walls : int = self.surrounding_walls
+
+        # TODO: Adjust to max number of other walls
+        for i in range (50):
+            self.wall_list.append(Ident(matrix_index=-1, list_index=-1, world=self.world, state=-2))
     
     ##########################################################################################################
 

@@ -204,14 +204,7 @@ class Teacher:
             mi = int(s[i*3 + 1], 16)
             li = int(s[i*3 + 2], 16)
             
-
-            new_ident = self.ident_list[self.valid_idents]
-            print(f"new_ident = {new_ident}")
-
-
-            new_ident.matrix_index = mi
-            new_ident.list_index = li
-            assert new_ident.world == self.world
+            
 
             
             # The first char in ever "letter" (3-char string) form the property
@@ -220,6 +213,16 @@ class Teacher:
 
             # 0 => wall
             if property == 0:
+                # TODO: How to now repeat ident when working with goals for example
+                print(f"wall found. self.valid_walls = {self.valid_walls}. len(self.wall_list) = {len(self.wall_list)}")
+                new_ident = self.wall_list[self.valid_walls]
+                print(f"new_ident (non-goal)= {new_ident}")
+
+
+                new_ident.matrix_index = mi
+                new_ident.list_index = li
+                assert new_ident.world == self.world
+
                 new_ident.state = -2
                 self.wall_list.insert(self.valid_walls, new_ident)
                 self.valid_walls += 1
@@ -228,6 +231,14 @@ class Teacher:
             # (It already is on the ident list, but we iterate to indicate that it is valid)
             else:
                 # self.world.ident_list.append(new_ident, self.valid_idents)
+                # TODO: How to now repeat ident when working with goals for example
+                new_ident = self.ident_list[self.valid_idents]
+                print(f"new_ident (goal) = {new_ident}")
+
+
+                new_ident.matrix_index = mi
+                new_ident.list_index = li
+                assert new_ident.world == self.world
                 self.valid_idents += 1
                 self.world.hex_matrix[mi][li].idents.append(new_ident)
 
@@ -286,6 +297,7 @@ class Teacher:
         self.world.ident_list = self.ident_list[0:self.valid_idents]
         self.world.agents = self.agents[0:self.valid_agents]
         self.world.wall_list = self.wall_list[0:self.valid_walls]
+        print(f"self.valid_goals = {self.valid_goals}")
         self.world.goals = self.goal_list[0:self.valid_goals]
         # self.my_agent.world = self.world
         
