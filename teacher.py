@@ -26,9 +26,14 @@ class Teacher:
         # Create empty world with space for idents
         # TODO: Check that there is enough space for the max number of idents in the world
         self.world = World(read_file=False, display_window=False)
-        self.ident_list = [Ident(matrix_index=-1, list_index=-1, world=self.world)]*100
+        # self.ident_list = [Ident(matrix_index=-1, list_index=-1, world=self.world)]*100
+        self.ident_list = []
+        for i in range(100):
+            self.ident_list.append(Ident(matrix_index=-1, list_index=-1, world=self.world))
+        # TODO: Edit declaration of other lists to create distinct items
         # TODO: Is this the proper way to construct an agent?
         self.agents = [Ident(matrix_index=-1, list_index=-1, world=self.world, property="agent")]*10
+        self.goal_list = [Ident(matrix_index=-1, list_index=-1, world=self.world, property="goal")]*10
         self.valid_idents = 0
         self.valid_agents = 0
 
@@ -170,9 +175,11 @@ class Teacher:
     ##########################################################################################################
     # TODO: Create option not to read agent file?
     def _create_world(self, s):
+        print(f"create_world() called with string {s if s else "empty"}")
         # Reset trackers how many idents are valid
         self.valid_idents = 0
         self.valid_agents = 0
+        self.valid_goals = 0
         self.valid_walls = self.surrounding_walls
 
         # Assert that the length of the world-string is valid
@@ -190,7 +197,8 @@ class Teacher:
         # Parse string into world
         # TODO: the forcibly converting it into an integer could cause problems later. Note to self, be careful.
         for i in range(int((len(s))/3)):
-
+            print(f"run through loop to create world, valid_idents = {self.valid_idents}")
+            print(f"self.ident_list[]")
             # splice the three character string into three one-character chunks
             property = int(s[i*3], 16)
             mi = int(s[i*3 + 1], 16)
@@ -198,12 +206,13 @@ class Teacher:
             
 
             new_ident = self.ident_list[self.valid_idents]
+            print(f"new_ident = {new_ident}")
+
 
             new_ident.matrix_index = mi
             new_ident.list_index = li
             assert new_ident.world == self.world
 
-            self.world.hex_matrix[mi][li].idents.append(new_ident)
             
             # The first char in ever "letter" (3-char string) form the property
             # The properties are wall (0), stationary non-agent (1), moving agent (in directions 0 through 5, 1 through 7),
@@ -212,14 +221,16 @@ class Teacher:
             # 0 => wall
             if property == 0:
                 new_ident.state = -2
-                self.wall_list.append(new_ident)
-                self.valid_walls
+                self.wall_list.insert(self.valid_walls, new_ident)
+                self.valid_walls += 1
 
             # If not a wall, it goes on the ident list
             # (It already is on the ident list, but we iterate to indicate that it is valid)
             else:
                 # self.world.ident_list.append(new_ident, self.valid_idents)
                 self.valid_idents += 1
+                self.world.hex_matrix[mi][li].idents.append(new_ident)
+
 
             # Set the new ident's state
 
@@ -260,18 +271,23 @@ class Teacher:
                 # Mark as goal
                 new_ident.property = "goal"
                 # new_world.goals.append(new_ident)
-                self.valid_agents += 1
+                self.goal_list.insert(self.valid_goals, new_ident)
+                self.valid_goals += 1
 
             
             # Save the first ident described in the string as my_agent
             if i == 0:
                 self.my_agent = new_ident
+                print(f"setting my_agent to {self.my_agent}")
+
         
         # Set world to only contain valid idents by slicing lists stored in self
         # TODO: Check that the correct final index is taken
         self.world.ident_list = self.ident_list[0:self.valid_idents]
         self.world.agents = self.agents[0:self.valid_agents]
         self.world.wall_list = self.wall_list[0:self.valid_walls]
+        self.world.goals = self.goal_list[0:self.valid_goals]
+        # self.my_agent.world = self.world
         
 
     # membership query

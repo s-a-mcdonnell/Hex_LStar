@@ -30,6 +30,7 @@ class Direction_Teacher(Teacher):
         self.ident_list = [Ident(matrix_index=-1, list_index=-1, world=self.world)]*100
         # TODO: Is this the proper way to construct an agent?
         self.agents = [Ident(matrix_index=-1, list_index=-1, world=self.world, property="agent")]*10
+        self.goal_list = [Ident(matrix_index=-1, list_index=-1, world=self.world, property="goal")]*10
         self.valid_idents = 0
         self.valid_agents = 0
 

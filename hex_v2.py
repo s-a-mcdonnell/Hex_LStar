@@ -750,6 +750,12 @@ class Ident:
 
     @staticmethod
     def find_next_move(agent):
+        print("find_next_move() called")
+        print(f"agent = {agent}")
+        print(f"agent location: ({agent.matrix_index}, {agent.list_index})")
+        print(f"1st goal = {agent.world.goals[0]}")
+        print(f"1st goal location = ({agent.world.goals[0].matrix_index}, {agent.world.goals[0].list_index})")
+
         # TODO: This is a temp measure for testing
         # TODO: Find and return actual next move according to agent type
         
