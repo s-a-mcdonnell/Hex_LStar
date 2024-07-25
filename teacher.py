@@ -10,11 +10,7 @@ class Teacher:
     ##########################################################################################################
 
     # Constructor
-    def __init__(self, alphabet, num_states = -1, seed = 1821, premade_dfa = None):
-        # TODO: Delete debugging print statement
-        print("teacher created")
-
-        # The teacher will use the provided alphabet
+    def __init__(self, alphabet, seed=-1, premade_dfa=None):
         self.alphabet = alphabet
 
         # Check the alphabet for validity (each symbol is three characters)
@@ -23,10 +19,17 @@ class Teacher:
                 print("Error: Invalid alphabet. All symbols must be three hexadecimal characters.")
                 exit(1)
 
+        self.seed = seed
+        if seed == -1:
+            self.seed = 1821
+
+        if premade_dfa:
+            self.m = premade_dfa
+        
         # Create empty world with space for idents
         # TODO: Check that there is enough space for the max number of idents in the world
         self.world = World(read_file=False, display_window=False)
-        # self.ident_list = [Ident(matrix_index=-1, list_index=-1, world=self.world)]*100
+        #self.ident_list = [Ident(matrix_index=-1, list_index=-1, world=self.world)]*100
         self.ident_list = []
         for i in range(100):
             self.ident_list.append(Ident(matrix_index=-1, list_index=-1, world=self.world))
@@ -65,58 +68,12 @@ class Teacher:
         
         # TODO: Make sure that these are ints, not object references
         self.surrounding_walls : int = len(self.wall_list)
-        self.valid_walls : int = self.surrounding_walls
         print(f"self.surrounding_walls = {self.surrounding_walls}")
-            
+        self.valid_walls : int = self.surrounding_walls
 
-        # Using this guide to PRN generation in Python: https://www.tutorialspoint.com/generate-pseudo-random-numbers-in-python
-        random.seed(seed)
-        
-        # If a premade DFA was provided, use it
-        if premade_dfa:
-            self.m = premade_dfa
-
-        # Else, create a DFA
-        else:
-            # Determine the number of states in the DFA (between 1 and 100, inclusive)
-            # NOTE: The upper limit here is arbitrarily chosen
-            # NOTE: Not all of these will be accessible, depending on how the arrows point
-            if num_states == -1:
-                num_states = random.randint(1, 100)
-
-            # The DFA (M) is a matrix in which the rows are the states
-            # The first entry in each row is a boolean in int form (0 or 1) indicating whether the state is an accept (1) or reject (0) state
-            # The remaining entries in each row are the numbers of the states which the corresponding alphabet value at that index points to
-            self.m = []
-            
-            # Initialize all values in M to -1 (invalid)
-            for i in range(num_states):
-                new_state = []
-                self.m.append(new_state)
-                for j in range(len(alphabet) + 1):
-                    self.m[i].append(-1)
-
-            arrows_created = 0
-            accept_states = 0
-            reject_states = 0
-            # Set each arrow in each state to point at a random state
-            for state in self.m:
-                # The first entry in each state is a boolean indicating whether it is an accept or reject state
-                state[0] = random.randint(0, 1)
-                if state[0]:
-                    accept_states += 1
-                else:
-                    reject_states += 1
-
-                # The subsequent entries indicate which state a given alphabet value directs to
-                for i in range(1, len(state)):
-                    arrow = random.randint(0, num_states - 1)
-                    state[i] = arrow
-                    arrows_created += 1
-            
-            # Print DFA
-            print("DFA to learn:")
-            print(self.m)
+        # TODO: Adjust to max number of other walls
+        for i in range (50):
+            self.wall_list.append(Ident(matrix_index=-1, list_index=-1, world=self.world, state=-2))
 
     ##########################################################################################################
 
