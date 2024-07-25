@@ -18,13 +18,6 @@ def memoize(obj):
 
 
 class Movement_Teacher(Teacher):
-    def __init__(self, alphabet, seed=-1):
-        self.alphabet = alphabet
-        self.seed = seed
-        if seed == -1:
-            self.seed = 1821
-
-        # TODO: Write constructor
     
     ##########################################################################################################
 

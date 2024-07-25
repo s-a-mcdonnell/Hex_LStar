@@ -25,6 +25,7 @@ class Ident:
     ##########################################################################################################
     
     def __init__(self, matrix_index, list_index, world, color=(255, 255, 255), state: int = -1, serial_number = -1, hist = None, property = None, partner_serial_number = -1):
+        
         if hist is None:
             hist = []
         self.color = color

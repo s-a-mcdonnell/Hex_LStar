@@ -46,8 +46,8 @@ direction_dfa = read_dfa(__location__, "direction_dfa.txt", alphabet=alphabet)
 print("dfas parsed")
 
 # initialize Teachers using our generated DFAs as the premade_dfa to put into the Teacher
-mov_teach = Teacher(alphabet, num_states = 1, premade_dfa = movement_dfa)
-dir_teach = Teacher(alphabet, num_states = 1, premade_dfa = direction_dfa)
+mov_teach = Teacher(alphabet, premade_dfa = movement_dfa)
+dir_teach = Teacher(alphabet, premade_dfa = direction_dfa)
 
 # TODO: adapt test_points.py for various alphabet inputs based on changes made to the types of strings inputted into solver.py ?
 
