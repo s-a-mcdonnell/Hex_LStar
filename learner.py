@@ -109,7 +109,10 @@ class Learner:
 
             # Create new sheet in Excel file for this test
             self.sheet = wb.add_sheet(f'{mem_per_eq} MQ per EQ, teacher {teacher_type}')
-            # self.sheet = wb.add_sheet(f'{mem_per_eq} Membership Queries per Equivalance Query')
+
+            # Label columns
+            self.sheet.write(0, 0, 'States in DFA')
+            self.sheet.write(0, 1, 'Accuracy')
             
 
         # Note that the alphabet must contains characters (strings of length one), not longer strings or ints
@@ -295,8 +298,10 @@ class Learner:
             if self.accuracy_checks:
                 success_rate = self.__test_accuracy()
                 print(f"Accuracy of DFA is... {success_rate * 100}%")
-                # TODO: Write accuracy to sheet (https://www.geeksforgeeks.org/writing-excel-sheet-using-python/)
-                self.sheet.write(len(self.m_hat), 0, f'{success_rate}')
+                
+                # Write accuracy to sheet (https://www.geeksforgeeks.org/writing-excel-sheet-using-python/)
+                self.sheet.write(len(self.m_hat), 0, f'{len(self.m_hat)}')
+                self.sheet.write(len(self.m_hat), 1, f'{success_rate}')
 
 
 

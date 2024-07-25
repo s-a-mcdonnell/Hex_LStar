@@ -12,9 +12,10 @@ wb = Workbook()
 # NOTE: You can set your own number of membership queries per equivalence query
 '''for mem_in_eq in [20, 50, 100, 150, 200]:'''
 for mem_in_eq in [5, 20]:
+    print(f"\nRunning test with {mem_in_eq} membershup queries per equivalence query\n")
     solver.run_solver(mem_in_eq, show_graphs=False, accuracy_checks=True, wb=wb)
 
 if wb:
-    wb.save('Acc__states_w__mem_per_eq.xls')
+    wb.save('Acc_states_w_mem_per_eq.xls')
 
 
