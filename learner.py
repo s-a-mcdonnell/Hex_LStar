@@ -1,4 +1,5 @@
 from teacher import Teacher
+from hex_v2 import Ident
 
 import itertools as it
 import matplotlib.pyplot as plt
@@ -83,7 +84,7 @@ class Learner:
     
     ##########################################################################################################
 
-    def __init__(self, alphabet = ['0','1'], teacher_type=-1, num_states = -1, seed = -1, premade_dfa = None, display_graphs = False):
+    def __init__(self, alphabet = ['0','1'], teacher_type=-1, num_states = -1, seed = -1, premade_dfa = None, display_graphs = False, accuracy_checks=False):
         print(f"init called on Learner type {teacher_type}")
 
         self.solved = False
@@ -92,6 +93,9 @@ class Learner:
 
         # Whether or not to draw the graphs
         self.graphs = display_graphs
+
+        # Whether or not to do accuracy checks with every iteration of M_hat
+        self.accuracy_checks = accuracy_checks
 
         # Note that the alphabet must contains characters (strings of length one), not longer strings or ints
         # NOTE: now that we are using characters in our alphabet of length three, this does not apply
@@ -268,14 +272,20 @@ class Learner:
 
             end = time.time()
 
-            # TODO: Delete debugging print statement
+            # TODO: Delete debugging print statements
             print()
             runs += 1
             print("LOOP COMPLETE IN L STAR ==> " + str(runs))
             print("Tree size is... " + str(self.t.size(self.t.root)))
             print("M hat size is..." + str(len(self.m_hat)))
             print("Time for this loop..." + str(end - start))
-            # TODO: have the DFA write to a file
+            
+            # Check and print accuracy if desired
+            if self.accuracy_checks:
+                success_rate = self.__test_accuracy()
+                print(f"Accuracy of DFA: {success_rate * 100}%")
+
+
             print()
 
         # If we have exited the loop, we have solved the DFA
@@ -291,6 +301,39 @@ class Learner:
         return self.m_hat
 
     ##########################################################################################################
+
+    # Returns an integer
+    def __test_accuracy(self):
+        # Assert that the teacher belongs to one of the subclasses
+        assert isinstance(self.my_teacher, (Movement_Teacher, Direction_Teacher))
+        
+        # A variable to tally the number of correct results
+        success_tally = 0
+
+        total_queries = 500
+        # TODO: Determine if 500 is a reasonable number of membership queries to make for this check
+        for i in range(0, total_queries):
+        
+            test_string = self.my_teacher.generate_string()
+            self.my_teacher._create_world(test_string)
+            assert self.my_teacher.my_agent
+            agent_dir = Ident.find_next_move(self.my_teacher.my_agent)
+            
+            if isinstance(self.my_teacher, Movement_Teacher):
+                if agent_dir != 0 and self.my_teacher.member(test_string):
+                    success_tally += 1
+                
+            else:
+                assert isinstance(self.my_teacher, Direction_Teacher)
+                if agent_dir == 0:
+                    # TODO: Find a better way of determining what to do when agent_dir is 0 (Direction_Teacher is not used)
+                    success_tally += 1
+                elif agent_dir == 1 and self.my_teacher.member(test_string):
+                    success_tally += 1
+
+        return success_tally/total_queries
+
+            
 
     # Finds and returns the distinguishing string corresponding to the last (most recent) common ancestor of the access strings s1 and s2 in T
     def __get_lca(self, s1 , s2):

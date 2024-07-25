@@ -79,6 +79,8 @@ if __name__ == "__main__":
     # Print usage information
     print("Welcome to the L* Tester")
     print("This program accepts up to three command-line arguments and up to two file inputs")
+    # TODO: Enable command-line input to determine if accuracy checks should be done
+    # TODO: Maybe make command-line arguments order-blind? (ex arguments would be "graphs" or or "accuracy" or "states=3")
     print("Command-line arguments: Boolean (True or False, 1 or 0) indicating whether or not graphs are to be drawn, int specifying the number of states in the DFA to be learned, int specifying the seed for a pseudo-randomized DFA")
     print("File inputs: The alphabet to use (alphabet.txt) and a pre-made DFA for testing (dfa.txt)")
     print("----------")
@@ -118,6 +120,7 @@ if __name__ == "__main__":
 
     # Create learner:
     # If command-line arguments are provided, pass them to the learner
+    # TODO: Parse and pass command-line argument for whether or not to do accuracy checks
     if len(sys.argv) > 2:
         my_learner = Learner(alphabet, num_states = num_states, seed = seed, display_graphs=show_graphs)
 
