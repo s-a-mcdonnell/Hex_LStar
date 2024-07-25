@@ -10,68 +10,70 @@ class Teacher:
     ##########################################################################################################
 
     # Constructor
-    def __init__(self, alphabet, num_states = -1, seed = 1821, premade_dfa = None):
-        # TODO: Delete debugging print statement
-        # print("teacher created")
-
-        # The teacher will use the provided alphabet
+    def __init__(self, alphabet, seed=-1, premade_dfa=None):
         self.alphabet = alphabet
 
-        # NOTE: I am commenting out this check for now. Hopefully L Star will still function with a multi-charcater alphabet :)))
-        # Check the alphabet for validity (each symbol is just one character)
-        # for symbol in alphabet:
-        #     if len(symbol) != 1:
-        #         print("Error: Invalid alphabet")
-        #         exit(1)
+        # Check the alphabet for validity (each symbol is three characters)
+        for symbol in alphabet:
+            if len(symbol) != 3:
+                print("Error: Invalid alphabet. All symbols must be three hexadecimal characters.")
+                exit(1)
 
-        # Using this guide to PRN generation in Python: https://www.tutorialspoint.com/generate-pseudo-random-numbers-in-python
-        random.seed(seed)
-        
-        # If a premade DFA was provided, use it
+        self.seed = seed
+        if seed == -1:
+            self.seed = 1821
+
         if premade_dfa:
             self.m = premade_dfa
+        
+        # Create empty world with space for idents
+        # TODO: Check that there is enough space for the max number of idents in the world
+        self.world = World(read_file=False, display_window=False)
+        #self.ident_list = [Ident(matrix_index=-1, list_index=-1, world=self.world)]*100
+        self.ident_list = []
+        for i in range(100):
+            self.ident_list.append(Ident(matrix_index=-1, list_index=-1, world=self.world))
+        # TODO: Edit declaration of other lists to create distinct items
+        # TODO: Is this the proper way to construct an agent?
+        self.agents = [Ident(matrix_index=-1, list_index=-1, world=self.world, property="agent")]*10
+        self.goal_list = [Ident(matrix_index=-1, list_index=-1, world=self.world, property="goal")]*10
+        self.valid_idents = 0
+        self.valid_agents = 0
 
-        # Else, create a DFA
-        else:
-            # Determine the number of states in the DFA (between 1 and 100, inclusive)
-            # NOTE: The upper limit here is arbitrarily chosen
-            # NOTE: Not all of these will be accessible, depending on how the arrows point
-            if num_states == -1:
-                num_states = random.randint(1, 100)
+        # TODO: How to get the agent to only check the valid idents in a world? (i.e. to check the ident_list from 0 to self.valid_idents-1; same for self.valid_agent and self.valid_walls)
+        self.wall_list = []
+        # TODO: Manage walls? Differentiate between ring and freestanding walls?
+        ''' walls just for the test case where things are a 3x3 square'''
+        # TODO: Remove these walls
+        for i in range(6, 11):
+            new_ident = Ident(6, i, self.world)
+            new_ident.state = -2
+            self.world.hex_matrix[6][i].idents.append(new_ident)
+            self.wall_list.append(new_ident)
 
-            # The DFA (M) is a matrix in which the rows are the states
-            # The first entry in each row is a boolean in int form (0 or 1) indicating whether the state is an accept (1) or reject (0) state
-            # The remaining entries in each row are the numbers of the states which the corresponding alphabet value at that index points to
-            self.m = []
-            
-            # Initialize all values in M to -1 (invalid)
-            for i in range(num_states):
-                new_state = []
-                self.m.append(new_state)
-                for j in range(len(alphabet) + 1):
-                    self.m[i].append(-1)
+            new_ident2 = Ident(10, i, self.world)
+            new_ident2.state = -2
+            self.world.hex_matrix[10][i].idents.append(new_ident2)
+            self.wall_list.append(new_ident2)
 
-            arrows_created = 0
-            accept_states = 0
-            reject_states = 0
-            # Set each arrow in each state to point at a random state
-            for state in self.m:
-                # The first entry in each state is a boolean indicating whether it is an accept or reject state
-                state[0] = random.randint(0, 1)
-                if state[0]:
-                    accept_states += 1
-                else:
-                    reject_states += 1
+            new_ident3 = Ident(i, 6, self.world)
+            new_ident.state3 = -2
+            self.world.hex_matrix[i][6].idents.append(new_ident3)
+            self.wall_list.append(new_ident3)
 
-                # The subsequent entries indicate which state a given alphabet value directs to
-                for i in range(1, len(state)):
-                    arrow = random.randint(0, num_states - 1)
-                    state[i] = arrow
-                    arrows_created += 1
-            
-            # Print DFA
-            print("DFA to learn:")
-            print(self.m)
+            new_ident4 = Ident(i, 10, self.world)
+            new_ident4.state = -2
+            self.world.hex_matrix[i][10].idents.append(new_ident4)
+            self.wall_list.append(new_ident4)
+        
+        # TODO: Make sure that these are ints, not object references
+        self.surrounding_walls : int = len(self.wall_list)
+        print(f"self.surrounding_walls = {self.surrounding_walls}")
+        self.valid_walls : int = self.surrounding_walls
+
+        # TODO: Adjust to max number of other walls
+        for i in range (50):
+            self.wall_list.append(Ident(matrix_index=-1, list_index=-1, world=self.world, state=-2))
 
     ##########################################################################################################
 
@@ -85,7 +87,6 @@ class Teacher:
             print("Incompatable alphabet size")
             return True
 
-        # print("equivalency query called")
 
         # Generate and test an arbitrarily large number of strings
         # for each of these strings, if self.member(s, self.m) is not self.member(s, m_hat), return s
@@ -95,8 +96,6 @@ class Teacher:
             if self.member(s) != self.member(s, m_hat):
                 assert(type(self.member(s)) is bool)
                 assert(type(self.member(s, m_hat)) is bool)
-                # TODO: Delete debugging print statement
-                # print("Counterexample found: " + s)
                 return s            
 
         # else return false (so that the truthiness of a counterexample and a matching DFA result will be different)
@@ -128,8 +127,16 @@ class Teacher:
         return dfa[next_state_index]
         
     ##########################################################################################################
+
     # TODO: Create option not to read agent file?
     def _create_world(self, s):
+    
+        # Reset trackers how many idents are valid
+        self.valid_idents = 0
+        self.valid_agents = 0
+        self.valid_goals = 0
+        self.valid_walls = self.surrounding_walls
+
         # Assert that the length of the world-string is valid
         # NOTE: The >= 6 assertion leads to crashing, as sometimes a three-char string (one letter of the alphabet) is passed
         # if len(s) < 6 or len(s)%3 != 0:
@@ -137,30 +144,11 @@ class Teacher:
         # assert(len(s) >= 6)
         assert(len(s) % 3 == 0)
 
-        new_world = World(read_file=False, display_window=False)
+        # TODO: Find a less memory-intensive way of swapping this
+        for hex_row in self.world.hex_matrix:
+            for hex in hex_row:
+                hex.idents.clear()
 
-        ''' walls just for the test case where things are a 3x3 square'''
-        for i in range(6, 11):
-            new_ident = Ident(6, i, new_world)
-            new_ident.state = -2
-            new_world.hex_matrix[6][i].idents.append(new_ident)
-            new_world.wall_list.append(new_ident)
-
-            new_ident2 = Ident(10, i, new_world)
-            new_ident2.state = -2
-            new_world.hex_matrix[10][i].idents.append(new_ident2)
-            new_world.wall_list.append(new_ident2)
-
-            new_ident3 = Ident(i, 6, new_world)
-            new_ident.state3 = -2
-            new_world.hex_matrix[i][6].idents.append(new_ident3)
-            new_world.wall_list.append(new_ident3)
-
-            new_ident4 = Ident(i, 10, new_world)
-            new_ident4.state = -2
-            new_world.hex_matrix[i][10].idents.append(new_ident4)
-            new_world.wall_list.append(new_ident4)
-            
         # Parse string into world
         # TODO: the forcibly converting it into an integer could cause problems later. Note to self, be careful.
         for i in range(int((len(s))/3)):
@@ -169,10 +157,7 @@ class Teacher:
             property = int(s[i*3], 16)
             mi = int(s[i*3 + 1], 16)
             li = int(s[i*3 + 2], 16)
-
-            new_ident = Ident(mi, li, new_world)
-
-            new_world.hex_matrix[mi][li].idents.append(new_ident)
+            
             
             # The first char in ever "letter" (3-char string) form the property
             # The properties are wall (0), stationary non-agent (1), moving agent (in directions 0 through 5, 1 through 7),
@@ -180,12 +165,32 @@ class Teacher:
 
             # 0 => wall
             if property == 0:
+                # TODO: Check that this works (not tested because testing was done on simpler world-strings)
+                new_ident = self.wall_list[self.valid_walls]
+
+                new_ident.matrix_index = mi
+                new_ident.list_index = li
+                assert new_ident.world == self.world
+
                 new_ident.state = -2
-                new_world.wall_list.append(new_ident)
+                self.wall_list.insert(self.valid_walls, new_ident)
+                self.valid_walls += 1
 
             # If not a wall, it goes on the ident list
+            # (It already is on the ident list, but we iterate to indicate that it is valid)
             else:
-                new_world.ident_list.append(new_ident)
+                # self.world.ident_list.append(new_ident, self.valid_idents)
+                # TODO: How to now repeat ident when working with goals for example
+                new_ident = self.ident_list[self.valid_idents]
+
+                new_ident.matrix_index = mi
+                new_ident.list_index = li
+                assert new_ident.world == self.world
+                self.valid_idents += 1
+                self.world.hex_matrix[mi][li].idents.append(new_ident)
+
+
+            # Set the new ident's state
 
             # 1 => stationary (non-agent)
             if property == 1:
@@ -203,7 +208,8 @@ class Teacher:
             # 8 => stationary (agent)
             if property == 8:
                 new_ident.state = -1
-                new_world.agents.append(new_ident)
+                # new_world.agents.append(new_ident)
+                self.valid_agents += 1
             
             # 9 => direction 0 (agent)
             # 10 => direction 1 (agent)
@@ -213,33 +219,47 @@ class Teacher:
             # 14 => direction 5 (agent)
             elif property >= 9 and property <= 14:
                 new_ident.state = property - 9
-                new_world.agents.append(new_ident)
+                # new_world.agents.append(new_ident)
+                self.valid_agents += 1
+
 
             # 15 => goal (stationary)
             elif property == 15:
                 new_ident.state = -1
                 # Mark as goal
                 new_ident.property = "goal"
-                new_world.goals.append(new_ident)
+                # new_world.goals.append(new_ident)
+                self.goal_list.insert(self.valid_goals, new_ident)
+                self.valid_goals += 1
+
             
             # Save the first ident described in the string as my_agent
             if i == 0:
                 self.my_agent = new_ident
+
         
-        self.world = new_world    
+        # Set world to only contain valid idents by slicing lists stored in self
+        # TODO: Check that the correct final index is taken
+        self.world.ident_list = self.ident_list[0:self.valid_idents]
+        self.world.agents = self.agents[0:self.valid_agents]
+        self.world.wall_list = self.wall_list[0:self.valid_walls]
+        self.world.goals = self.goal_list[0:self.valid_goals]
+        assert self.my_agent.world == self.world
 
+    ##########################################################################################################
 
+    
     # membership query
     # takes a string s and returns a boolean indicating whether s is accepted or rejected by the given DFA
-    # TODO: Adapt for hex world
     def member(self, s : str, dfa: list[list[int]] = None, alpha = None):
-        # print("membership query called")
 
         if not dfa:
             dfa = self.m
         
         if not alpha:
             alpha = self.alphabet
+
+        assert dfa
 
         # Return the int boolean indicating if the final state is an accept or reject state
         final_state : list[int] = Teacher.final_state(s, dfa, alpha)
@@ -295,7 +315,6 @@ class Teacher:
         
         # Deal with ident in the same location as the agent
         if mi_dist == 0 and li_dist == 0:
-            # print("angle case -1 (overlapping)")
             
             # TODO: Return a direction other than 0? (0 also has another meaning --> straight ahead)
             # return [total_dist, 0]
@@ -305,13 +324,11 @@ class Teacher:
                 abs_angle = id[0] - 9
             else:
                 assert (id[0] == 0 or id[0] == 1 or id[0] == 8 or id[0] == 15)
-                # print("stationary idents overlapping")
                 # TODO: Return a direction other than 0? (0 also has another meaning --> straight ahead)
                 return [total_dist, 0] 
 
         # Deal with ident on a straight northwest/southeast line
         elif li_dist == 0:
-            # print(f"angle case 0 for id {id}, mi_dist {mi_dist}, li_dist {li_dist}")
             assert mi_dist != 0
 
             abs_angle = 2 if mi_dist > 0 else 5
@@ -321,7 +338,6 @@ class Teacher:
         
         # Deal with ident on a straight vertical line
         elif mi_dist == 0:
-            # print("angle case 1")
             assert li_dist != 0
 
             abs_angle = 3 if li_dist > 0 else 0
@@ -331,14 +347,10 @@ class Teacher:
         
         # Deal with ident on a straight northeast/southwest line
         elif mi_dist == -li_dist:
-            # print("angle case 2")
-            # TODO: Check how direction is determined here
             abs_angle = 1 if mi_dist > li_dist else 4
-            # return [total_dist, 1 if mi_dist > li_dist else 4]
         
         # TODO: Deal with all other cases (not straight lines)
         else:
-            # print("angle case 3 (complex)")
             # To find angle:
             # TODO: Find the hex on the same concentric ring which is one of the the 6 straight lines and is the closest to the desired ident but counter-clockwise from it
             if mi_dist > 0 and li_dist < 0:
@@ -376,40 +388,29 @@ class Teacher:
                 case _:
                     exit(f"invalid ref angle {ref_angle}")
             
-            # print(f"red_angle {ref_angle} for id {id}")
 
             # The angle of the desired ident = the angle of the reference hex + (distance from reference hex to desired ident)/(side length of ring - 1)
             # = angle of reference hex + (distance from ref hex to desired ident)/(# of ring)
             # = angle of reference hex + (distance from ref hex to desired ident)/(total_dist)
             abs_angle = ref_angle + offset/total_dist
 
-            # print(f"abs angle between agent {ag} and ident {id} is {abs_angle}")
-
-        # print(f"agent direction {agent_dir}, ident abs angle {abs_angle}")
-
         # TODO: Check how relative angle is calculated
+        # Calculate relative angle (relationship between absolute angle and the agent's direction)
         if abs(abs_angle - agent_dir) <= 3:
-            # print(f"relative angle case 1 for id {id}")
             relative_angle = abs_angle - agent_dir
         elif (abs_angle - agent_dir <= 0) and (abs_angle - agent_dir < -3):
-            # print(f"relative angle case 2 for id {id}")
             relative_angle =  (abs_angle - agent_dir)%6
 
         else:
             
             assert abs_angle - agent_dir > 0
             # TODO: Check this relative angle case specifically
-            # print(f"relative angle case 3 for id {id}")
-            # print(f"abs_angle {abs_angle}, agent_dir {agent_dir}")
 
             assert abs_angle - agent_dir > 3
 
             relative_angle = abs_angle - agent_dir - 6
         
         assert abs(relative_angle) <= 3
-
-        # print(f"id {id}, ag {ag}")
-        # print(f"relative angle {relative_angle} found between agent direction {agent_dir} and ident absolute angle {abs_angle}")
 
         return[total_dist, relative_angle]
 
@@ -485,9 +486,6 @@ class Teacher:
     # NOTE issue: How will the hex world respond when quieried like a DFA when the string is the wrong length? Could we work on how we define the alphabet to allow multiple-char letters so that things will be added/removed on the level of a unit of meaning?
     @staticmethod
     def generate_string():
-
-        # print("generate_string() called")
-        # print(f"rand int {random.randint(0, 10)}")
 
         strg = ""
 
@@ -595,10 +593,6 @@ class Teacher:
         # # Concatenate these ident strings in the given order then return
         # for ident_string in other_idents:
         #     strg += ident_string
-
-
-
-        # print(f"generated string: {strg}")
         
         return strg
 

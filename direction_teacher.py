@@ -18,11 +18,6 @@ def memoize(obj):
 
 
 class Direction_Teacher(Teacher):
-    def __init__(self, alphabet, seed=-1):
-        self.alphabet = alphabet
-        self.seed = seed
-        if seed == -1:
-            self.seed = 1821
     
     ##############################################################################################################
 
