@@ -87,32 +87,3 @@ class Movement_Teacher(Teacher):
                 # TODO: is this where we call the second DFA from?
                 return True            
     ##########################################################################################################
-
-    # equivalency query
-    # takes the DFA hypothesis m_hat
-    # returns either a counterexample or False (indicating that the DFAs match)
-    # TODO: Adapt for hex world
-    def equivalent(self, m_hat):
-        assert m_hat
-
-        print("equivalency query called in movement teacher")
-
-        # Generate and test an arbitrarily large number of strings
-        # for each of these strings, if self.member(s, self.m) is not self.member(s, m_hat), return s
-
-        # TODO: Increase range
-        for i in range(100):
-            s = Teacher.generate_string()
-            # print(f"string {s} returned from generate_string()")
-            # print(f"self.member(s) = {self.member(s)}, self.member(s, m_hat) = {self.member(s, m_hat)}")
-            if self.member(s) != self.member(s, m_hat):
-                '''assert(type(self.member(s)) is bool)
-                assert(type(self.member(s, m_hat)) is bool)'''
-                # TODO: Delete debugging print statement
-                # print("Counterexample found: " + s)
-                print(f"returning string {s} from equivalency query")
-                return s            
-
-        # else return false (so that the truthiness of a counterexample and a matching DFA result will be different)
-        print("No counterexample found")
-        return False

@@ -1,16 +1,17 @@
 import cProfile
 import pstats
 
-import sys
 import os
+import sys
+
+# To write to Excel
+import xlwt 
+from xlwt import Workbook
 
 from learner import Learner
-from movement_teacher import Movement_Teacher
-from direction_teacher import Direction_Teacher
 # import pdb; pdb.set_trace()
 
-def __read_line(line):
-    global alphabet
+def __read_line(line, alphabet):
     # If the line ends in a new line character, add everything except the new line character as an entry in the alphabet
     if line[len(line) - 1] == "\n":
         assert len(line) == 4
@@ -48,22 +49,60 @@ def __write_dfa_to_file(dfa, loc, file_name):
 
 ##########################################################################################################
 
-# profiler information -> https://docs.python.org/3/library/profile.html#pstats.Stats
+def run_solver(mem_per_eq:int, show_graphs:bool, accuracy_checks:bool, wb:Workbook):
+    # profiler information -> https://docs.python.org/3/library/profile.html#pstats.Stats
+    with cProfile.Profile() as profile:
+        alphabet = []
 
-with cProfile.Profile() as profile:
+        print("start")
 
-    alphabet = []
+        # reading the alphabet from a file
+        __location__ = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__)))
+        file = open(os.path.join(__location__, "alphabet.txt"), "r")
+        for line in file:
+            __read_line(line, alphabet)
 
-    print("start")
+        print("ALPHABET PARSED")
 
-    # reading the alphabet from a file
-    __location__ = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__)))
-    file = open(os.path.join(__location__, "alphabet.txt"), "r")
-    for line in file:
-        __read_line(line)
+        # Create learners:
+        # 0 -> movement teacher, 1 -> direction teacher
+        movement_learner = Learner(mem_per_eq, alphabet=alphabet, teacher_type=0, display_graphs=show_graphs, accuracy_checks=accuracy_checks, wb=wb)
+        direction_learner = Learner(mem_per_eq, alphabet=alphabet, teacher_type=1, display_graphs=show_graphs, accuracy_checks=accuracy_checks, wb=wb)
 
-    print("ALPHABET PARSED")
+        print("DFAs INITIALIZED")
+        print()
 
+        # Learn movement teacher using L*
+        movement_DFA = movement_learner.lstar_algorithm()
+        print("FIRST DFA => MOVEMENT => IS DONE")
+
+        # write first DFA to a file for ease of access
+        __location__ = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__)))
+
+        __write_dfa_to_file(movement_DFA, __location__, "movement_dfa.txt")
+
+
+        # Learn direction teacher using L*
+        direction_DFA = direction_learner.lstar_algorithm()
+        print("SECOND DFA => DIRECTION => IS DONE")
+
+        # write direction teacher to a file
+        __write_dfa_to_file(direction_DFA, __location__, "direction_dfa.txt")
+
+        # NOTE: use test_points.py to test the results of the DFAs generated in this solver.py file
+
+        print("end")
+
+    results = pstats.Stats(profile)
+    results.sort_stats(pstats.SortKey.TIME)
+
+    results.print_stats() 
+    # NOTE: uncomment thr above if you want to have the stats printed into the terminal
+
+    results.dump_stats("results.prof")
+    # NOTE: the above allows the tuna package "pip install tuna" to provide a visual representation of function time using "tuna results.prof"
+
+if __name__ == "__main__":
     # Parse command-line arguments
     args = []
     if len(sys.argv) > 1:
@@ -72,6 +111,7 @@ with cProfile.Profile() as profile:
 
     print(f"args: {args}")
 
+    # Use values from passed arguments
     if "graphs" in args:
         show_graphs = True
     else:
@@ -79,43 +119,10 @@ with cProfile.Profile() as profile:
 
     if "accuracy" in args:
         accuracy_checks = True
+        # Information on writing to Excel here: https://www.geeksforgeeks.org/writing-excel-sheet-using-python/#
+        wb = Workbook()
     else:
         accuracy_checks = False
+        wb = None
 
-    # Create learners:
-    # 0 -> movement teacher, 1 -> direction teacher
-    movement_learner = Learner(alphabet=alphabet, teacher_type=0, display_graphs=show_graphs, accuracy_checks=accuracy_checks)
-    direction_learner = Learner(alphabet=alphabet, teacher_type=1, display_graphs=show_graphs, accuracy_checks=accuracy_checks)
-
-    print("DFAs INITIALIZED")
-    print()
-
-    # Learn movement teacher using L*
-    movement_DFA = movement_learner.lstar_algorithm()
-    print("FIRST DFA => MOVEMENT => IS DONE")
-
-    # write first DFA to a file for ease of access
-    __location__ = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__)))
-
-    __write_dfa_to_file(movement_DFA, __location__, "movement_dfa.txt")
-
-
-    # Learn direction teacher using L*
-    direction_DFA = direction_learner.lstar_algorithm()
-    print("SECOND DFA => DIRECTION => IS DONE")
-
-    # write direction teacher to a file
-    __write_dfa_to_file(direction_DFA, __location__, "direction_dfa.txt")
-
-    # NOTE: use test_points.py to test the results of the DFAs generated in this solver.py file
-
-    print("end")
-
-results = pstats.Stats(profile)
-results.sort_stats(pstats.SortKey.TIME)
-
-results.print_stats() 
-# NOTE: uncomment thr above if you want to have the stats printed into the terminal
-
-results.dump_stats("results.prof")
-# NOTE: the above allows the tuna package "pip install tuna" to provide a visual representation of function time using "tuna results.prof"
+    run_solver(100, show_graphs, accuracy_checks, None)

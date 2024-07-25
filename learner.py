@@ -7,6 +7,10 @@ import networkx as nx
 from movement_teacher import Movement_Teacher
 from direction_teacher import Direction_Teacher
 
+# To write to Excel sheets
+import xlwt 
+from xlwt import Workbook
+
 import time
 import functools
 
@@ -84,7 +88,7 @@ class Learner:
     
     ##########################################################################################################
 
-    def __init__(self, alphabet = ['0','1'], teacher_type=-1, num_states = -1, seed = -1, premade_dfa = None, display_graphs = False, accuracy_checks=False):
+    def __init__(self, mem_per_eq, alphabet = ['0','1'], teacher_type=-1, num_states = -1, seed = -1, premade_dfa = None, display_graphs = False, accuracy_checks=False, wb=None):
         print(f"init called on Learner type {teacher_type}")
 
         self.solved = False
@@ -96,6 +100,16 @@ class Learner:
 
         # Whether or not to do accuracy checks with every iteration of M_hat
         self.accuracy_checks = accuracy_checks
+        
+        # Workbook to write to Excel (https://www.geeksforgeeks.org/writing-excel-sheet-using-python/#)
+        self.wb = wb
+        if self.wb:
+            # There should only be a workbook if accuracy checks are being done
+            assert self.accuracy_checks
+
+            # Create new sheet in Excel file for this test
+            sheet1 = wb.add_sheet(f'{mem_per_eq} Membership Queries per Equivalance Query')
+            
 
         # Note that the alphabet must contains characters (strings of length one), not longer strings or ints
         # NOTE: now that we are using characters in our alphabet of length three, this does not apply
@@ -109,17 +123,17 @@ class Learner:
         if premade_dfa:
             assert len(premade_dfa[0]) == len(alphabet) + 1
 
-            self.my_teacher = Teacher(self.alphabet, premade_dfa = premade_dfa)
+            self.my_teacher = Teacher(self.alphabet, mem_per_eq, premade_dfa = premade_dfa)
 
         
         # Else the DFA to be learned will be constructed by the teacher
         else:
             if teacher_type == -1:
-                self.my_teacher = Teacher(self.alphabet, num_states = num_states, seed = seed)
+                self.my_teacher = Teacher(self.alphabet, mem_per_eq, num_states = num_states, seed = seed)
             elif teacher_type == 0:
-                self.my_teacher = Movement_Teacher(self.alphabet, seed = seed)
+                self.my_teacher = Movement_Teacher(self.alphabet, mem_per_eq, seed = seed)
             elif teacher_type == 1:
-                self.my_teacher = Direction_Teacher(self.alphabet, seed = seed)
+                self.my_teacher = Direction_Teacher(self.alphabet, mem_per_eq, seed = seed)
             else:
                 exit("Error: Invalid teacher type")
 
@@ -283,7 +297,9 @@ class Learner:
             # Check and print accuracy if desired
             if self.accuracy_checks:
                 success_rate = self.__test_accuracy()
-                print(f"Accuracy of DFA: {success_rate * 100}%")
+                print(f"Accuracy of DFA is... {success_rate * 100}%")
+                # TODO: Write accuracy to sheet
+
 
 
             print()
