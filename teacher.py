@@ -12,7 +12,7 @@ class Teacher:
     # Constructor
     def __init__(self, alphabet, num_states = -1, seed = 1821, premade_dfa = None):
         # TODO: Delete debugging print statement
-        # print("teacher created")
+        print("teacher created")
 
         # The teacher will use the provided alphabet
         self.alphabet = alphabet
@@ -130,7 +130,6 @@ class Teacher:
             print("Incompatable alphabet size")
             return True
 
-        # print("equivalency query called")
 
         # Generate and test an arbitrarily large number of strings
         # for each of these strings, if self.member(s, self.m) is not self.member(s, m_hat), return s
@@ -140,8 +139,6 @@ class Teacher:
             if self.member(s) != self.member(s, m_hat):
                 assert(type(self.member(s)) is bool)
                 assert(type(self.member(s, m_hat)) is bool)
-                # TODO: Delete debugging print statement
-                # print("Counterexample found: " + s)
                 return s            
 
         # else return false (so that the truthiness of a counterexample and a matching DFA result will be different)
@@ -175,7 +172,6 @@ class Teacher:
     ##########################################################################################################
     # TODO: Create option not to read agent file?
     def _create_world(self, s):
-        print(f"create_world() called with string {s if s else "empty"}")
         # Reset trackers how many idents are valid
         self.valid_idents = 0
         self.valid_agents = 0
@@ -197,8 +193,7 @@ class Teacher:
         # Parse string into world
         # TODO: the forcibly converting it into an integer could cause problems later. Note to self, be careful.
         for i in range(int((len(s))/3)):
-            print(f"run through loop to create world, valid_idents = {self.valid_idents}")
-            print(f"self.ident_list[]")
+
             # splice the three character string into three one-character chunks
             property = int(s[i*3], 16)
             mi = int(s[i*3 + 1], 16)
@@ -213,11 +208,8 @@ class Teacher:
 
             # 0 => wall
             if property == 0:
-                # TODO: How to now repeat ident when working with goals for example
-                print(f"wall found. self.valid_walls = {self.valid_walls}. len(self.wall_list) = {len(self.wall_list)}")
+                # TODO: Check that this works (not tested because testing was done on simpler world-strings)
                 new_ident = self.wall_list[self.valid_walls]
-                print(f"new_ident (non-goal)= {new_ident}")
-
 
                 new_ident.matrix_index = mi
                 new_ident.list_index = li
@@ -233,8 +225,6 @@ class Teacher:
                 # self.world.ident_list.append(new_ident, self.valid_idents)
                 # TODO: How to now repeat ident when working with goals for example
                 new_ident = self.ident_list[self.valid_idents]
-                print(f"new_ident (goal) = {new_ident}")
-
 
                 new_ident.matrix_index = mi
                 new_ident.list_index = li
@@ -289,7 +279,6 @@ class Teacher:
             # Save the first ident described in the string as my_agent
             if i == 0:
                 self.my_agent = new_ident
-                print(f"setting my_agent to {self.my_agent}")
 
         
         # Set world to only contain valid idents by slicing lists stored in self
@@ -297,16 +286,14 @@ class Teacher:
         self.world.ident_list = self.ident_list[0:self.valid_idents]
         self.world.agents = self.agents[0:self.valid_agents]
         self.world.wall_list = self.wall_list[0:self.valid_walls]
-        print(f"self.valid_goals = {self.valid_goals}")
         self.world.goals = self.goal_list[0:self.valid_goals]
-        # self.my_agent.world = self.world
+        assert self.my_agent.world == self.world
         
 
     # membership query
     # takes a string s and returns a boolean indicating whether s is accepted or rejected by the given DFA
     # TODO: Adapt for hex world
     def member(self, s : str, dfa: list[list[int]] = None, alpha = None):
-        # print("membership query called")
 
         if not dfa:
             dfa = self.m
@@ -368,7 +355,6 @@ class Teacher:
         
         # Deal with ident in the same location as the agent
         if mi_dist == 0 and li_dist == 0:
-            # print("angle case -1 (overlapping)")
             
             # TODO: Return a direction other than 0? (0 also has another meaning --> straight ahead)
             # return [total_dist, 0]
@@ -378,13 +364,11 @@ class Teacher:
                 abs_angle = id[0] - 9
             else:
                 assert (id[0] == 0 or id[0] == 1 or id[0] == 8 or id[0] == 15)
-                # print("stationary idents overlapping")
                 # TODO: Return a direction other than 0? (0 also has another meaning --> straight ahead)
                 return [total_dist, 0] 
 
         # Deal with ident on a straight northwest/southeast line
         elif li_dist == 0:
-            # print(f"angle case 0 for id {id}, mi_dist {mi_dist}, li_dist {li_dist}")
             assert mi_dist != 0
 
             abs_angle = 2 if mi_dist > 0 else 5
@@ -394,7 +378,6 @@ class Teacher:
         
         # Deal with ident on a straight vertical line
         elif mi_dist == 0:
-            # print("angle case 1")
             assert li_dist != 0
 
             abs_angle = 3 if li_dist > 0 else 0
@@ -404,14 +387,10 @@ class Teacher:
         
         # Deal with ident on a straight northeast/southwest line
         elif mi_dist == -li_dist:
-            # print("angle case 2")
-            # TODO: Check how direction is determined here
             abs_angle = 1 if mi_dist > li_dist else 4
-            # return [total_dist, 1 if mi_dist > li_dist else 4]
         
         # TODO: Deal with all other cases (not straight lines)
         else:
-            # print("angle case 3 (complex)")
             # To find angle:
             # TODO: Find the hex on the same concentric ring which is one of the the 6 straight lines and is the closest to the desired ident but counter-clockwise from it
             if mi_dist > 0 and li_dist < 0:
@@ -449,40 +428,29 @@ class Teacher:
                 case _:
                     exit(f"invalid ref angle {ref_angle}")
             
-            # print(f"red_angle {ref_angle} for id {id}")
 
             # The angle of the desired ident = the angle of the reference hex + (distance from reference hex to desired ident)/(side length of ring - 1)
             # = angle of reference hex + (distance from ref hex to desired ident)/(# of ring)
             # = angle of reference hex + (distance from ref hex to desired ident)/(total_dist)
             abs_angle = ref_angle + offset/total_dist
 
-            # print(f"abs angle between agent {ag} and ident {id} is {abs_angle}")
-
-        # print(f"agent direction {agent_dir}, ident abs angle {abs_angle}")
-
         # TODO: Check how relative angle is calculated
+        # Calculate relative angle (relationship between absolute angle and the agent's direction)
         if abs(abs_angle - agent_dir) <= 3:
-            # print(f"relative angle case 1 for id {id}")
             relative_angle = abs_angle - agent_dir
         elif (abs_angle - agent_dir <= 0) and (abs_angle - agent_dir < -3):
-            # print(f"relative angle case 2 for id {id}")
             relative_angle =  (abs_angle - agent_dir)%6
 
         else:
             
             assert abs_angle - agent_dir > 0
             # TODO: Check this relative angle case specifically
-            # print(f"relative angle case 3 for id {id}")
-            # print(f"abs_angle {abs_angle}, agent_dir {agent_dir}")
 
             assert abs_angle - agent_dir > 3
 
             relative_angle = abs_angle - agent_dir - 6
         
         assert abs(relative_angle) <= 3
-
-        # print(f"id {id}, ag {ag}")
-        # print(f"relative angle {relative_angle} found between agent direction {agent_dir} and ident absolute angle {abs_angle}")
 
         return[total_dist, relative_angle]
 
@@ -558,9 +526,6 @@ class Teacher:
     # NOTE issue: How will the hex world respond when quieried like a DFA when the string is the wrong length? Could we work on how we define the alphabet to allow multiple-char letters so that things will be added/removed on the level of a unit of meaning?
     @staticmethod
     def generate_string():
-
-        # print("generate_string() called")
-        # print(f"rand int {random.randint(0, 10)}")
 
         strg = ""
 
@@ -668,10 +633,6 @@ class Teacher:
         # # Concatenate these ident strings in the given order then return
         # for ident_string in other_idents:
         #     strg += ident_string
-
-
-
-        # print(f"generated string: {strg}")
         
         return strg
 

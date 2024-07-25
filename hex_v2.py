@@ -25,7 +25,6 @@ class Ident:
     ##########################################################################################################
     
     def __init__(self, matrix_index, list_index, world, color=(255, 255, 255), state: int = -1, serial_number = -1, hist = None, property = None, partner_serial_number = -1):
-        print("ident constructor called")
         
         if hist is None:
             hist = []
@@ -752,14 +751,6 @@ class Ident:
 
     @staticmethod
     def find_next_move(agent):
-        print("find_next_move() called")
-        print(f"agent = {agent}")
-        print(f"agent location: ({agent.matrix_index}, {agent.list_index})")
-        if len(agent.world.goals):
-            print(f"1st goal = {agent.world.goals[0]}")
-            print(f"1st goal location = ({agent.world.goals[0].matrix_index}, {agent.world.goals[0].list_index})")
-        else:
-            print("no goals in world")
         # TODO: This is a temp measure for testing
         # TODO: Find and return actual next move according to agent type
         
