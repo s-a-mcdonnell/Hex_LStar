@@ -1,7 +1,9 @@
 import cProfile
 import pstats
 
+import sys
 import os
+
 from learner import Learner
 from movement_teacher import Movement_Teacher
 from direction_teacher import Direction_Teacher
@@ -62,10 +64,28 @@ with cProfile.Profile() as profile:
 
     print("ALPHABET PARSED")
 
+    # Parse command-line arguments
+    args = []
+    if len(sys.argv) > 1:
+        for i in range(1, len(sys.argv)):
+            args.append(sys.argv[i].lower())
+
+    print(f"args: {args}")
+
+    if "graphs" in args:
+        show_graphs = True
+    else:
+        show_graphs = False
+
+    if "accuracy" in args:
+        accuracy_checks = True
+    else:
+        accuracy_checks = False
+
     # Create learners:
     # 0 -> movement teacher, 1 -> direction teacher
-    movement_learner = Learner(alphabet=alphabet, teacher_type=0)
-    direction_learner = Learner(alphabet=alphabet, teacher_type=1)
+    movement_learner = Learner(alphabet=alphabet, teacher_type=0, display_graphs=show_graphs, accuracy_checks=accuracy_checks)
+    direction_learner = Learner(alphabet=alphabet, teacher_type=1, display_graphs=show_graphs, accuracy_checks=accuracy_checks)
 
     print("DFAs INITIALIZED")
     print()
