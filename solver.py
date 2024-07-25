@@ -46,6 +46,8 @@ def __write_dfa_to_file(dfa, loc, file_name):
 
 ##########################################################################################################
 
+# profiler information -> https://docs.python.org/3/library/profile.html#pstats.Stats
+
 with cProfile.Profile() as profile:
 
     alphabet = []

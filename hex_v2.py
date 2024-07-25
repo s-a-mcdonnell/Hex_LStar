@@ -64,7 +64,6 @@ class Ident:
     ##########################################################################################################
 
     # Public version of __get_neighbor
-    # TODO: Check access control terminology for python
     def get_neighbor(self, matrix, dir):
         return self.__get_neighbor(matrix, dir)
 
@@ -210,7 +209,6 @@ class Ident:
         w = self.world
         hex = w.hex_matrix_new[self.matrix_index][self.list_index]
 
-        # TODO: implement handling of agent hitting goalpost here!! :)
         if (hex.contains_property("agent")):
             maybe_goal = next((Ident for Ident in w.goals if (Ident.matrix_index == self.matrix_index) and (Ident.list_index == self.list_index)), None)
             # find the first ident in goals with matching grid positions to self
@@ -444,7 +442,7 @@ class Ident:
                     # additionally, check the two immediate neighbors of the stationary hex to see if it has stationary neighbors, and if so, those start moving too
                     left_neighbor = self.__get_neighbor(w.hex_matrix_new, (self.state - 2)%6)
                     right_neighbor = self.__get_neighbor(w.hex_matrix_new, (self.state + 2)%6)
-                    # TODO: additionally, make sure that you only influence a neighbor if that neighbor is not being influenced by its own direct hit
+                    # NOTE: you only influence a neighbor if that neighbor is not being influenced by its own direct hit
                     # TODO: what if one neighbor is being influenced by two different hits on neighboring stationaries????
                     # i have confirmed that these neighbors are the correct hexes
                     if left_neighbor is not None and not(left_neighbor.contains_portal()):
@@ -470,9 +468,7 @@ class Ident:
                             w.ident_list.append(to_become)
 
 
-                            # TODO: what to do about the case where you need to average them..?
                             # check the length of to write to idents and if it is longer than 1 now, average them! :)
-                            # would they have the same serial number though???
                             print("LEFT testing ident length...")
                             if(len(to_write_to.idents) == 2) and (to_write_to.idents[0] in w.ident_list) and (to_write_to.idents[1] in w.ident_list):
                                 print("LEFT CALL: Overlapping influences on stationary hex!!!")
@@ -548,7 +544,6 @@ class Ident:
 
     # If the head-on (direction of self.state) neighboring hex contains an ident with the given direction, returns said ident
     # Else returns None
-    # TODO: Does this method still have a purpose?
     def __neighbor_contains_direction(self, neighbor_state, neighbor_index=None):
         # Default value
         if neighbor_index == None:
@@ -737,22 +732,17 @@ class Ident:
         goals = self.world.goals
         goal_distances = {}
         for goal in goals:
-            # TODO: is self passed in here a hex or an ident???
             dist = World.axial_distance(goal, hex_test)
             goal_distances[goal] = dist
 
         # return goal corresponding to minimum distance in the dictionary
         min_value = min(goal_distances.values())
 
-        # print("value for goal to neighbor " + str(hex_test) + " is " + str(min_value))
-
         return min_value
 
 
     @staticmethod
     def find_next_move(agent):
-        # TODO: This is a temp measure for testing
-        # TODO: Find and return actual next move according to agent type
         
         assert type(agent) == Ident
 
@@ -1756,10 +1746,9 @@ class World:
             # TODO: Draw something more interesting (insert an image --> cat?)
             pygame.draw.rect(self.screen, (255, 0, 0), pygame.Rect(10, 10, 20, 20))
             
-            # TODO: insert info page here as image on screen possibly with drawing
             print()   
             print("It took " + str(self.frames_created) + " frames to get into the goal.")
-            # TODO: add more info to this: something about where the goal was located (matrix coords) and which hex went into it? (ident/color)
+            # TODO: add more info to this ALSO GENERAL INFO PAGE: something about where the goal was located (matrix coords) and which hex went into it? (ident/color)
             pygame.display.update()
             while(self.goalEnd):
                 for event in pygame.event.get():
