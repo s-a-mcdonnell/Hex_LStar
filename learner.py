@@ -108,7 +108,8 @@ class Learner:
             assert self.accuracy_checks
 
             # Create new sheet in Excel file for this test
-            sheet1 = wb.add_sheet(f'{mem_per_eq} Membership Queries per Equivalance Query')
+            self.sheet = wb.add_sheet(f'{mem_per_eq} MQ per EQ, teacher {teacher_type}')
+            # self.sheet = wb.add_sheet(f'{mem_per_eq} Membership Queries per Equivalance Query')
             
 
         # Note that the alphabet must contains characters (strings of length one), not longer strings or ints
@@ -234,10 +235,6 @@ class Learner:
     # Updates the access string reference dictionary with the given values
     # Isolated to its own method for debugging purposes (prevent clobbering)
     def update_dictionary(self, key : str, index : int):
-        # TODO: Delete debugging print statement
-        # print("adding key " + key + " to dictionary")
-        
-        # assert (not key in self.access_string_reference.keys()) 
 
         # Print debugging information if trying to clobber a pre-existing key:
         if key in self.access_string_reference.keys():
@@ -298,7 +295,8 @@ class Learner:
             if self.accuracy_checks:
                 success_rate = self.__test_accuracy()
                 print(f"Accuracy of DFA is... {success_rate * 100}%")
-                # TODO: Write accuracy to sheet
+                # TODO: Write accuracy to sheet (https://www.geeksforgeeks.org/writing-excel-sheet-using-python/)
+                self.sheet.write(len(self.m_hat), 0, f'{success_rate}')
 
 
 

@@ -1,36 +1,20 @@
 import solver
-import sys
 
 # To write to Excel
 import xlwt 
 from xlwt import Workbook 
-  
+
+# Information on writing to Excel here: https://www.geeksforgeeks.org/writing-excel-sheet-using-python/#
+wb = Workbook()
 
 
-# Parse command-line arguments
-args = []
-if len(sys.argv) > 1:
-    for i in range(1, len(sys.argv)):
-        args.append(sys.argv[i].lower())
+# Run solver several times with a different number of membership queries per equivalence query
+# NOTE: You can set your own number of membership queries per equivalence query
+'''for mem_in_eq in [20, 50, 100, 150, 200]:'''
+for mem_in_eq in [5, 20]:
+    solver.run_solver(mem_in_eq, show_graphs=False, accuracy_checks=True, wb=wb)
 
-print(f"args: {args}")
+if wb:
+    wb.save('Acc__states_w__mem_per_eq.xls')
 
-# Use values from passed arguments
-if "graphs" in args:
-    show_graphs = True
-else:
-    show_graphs = False
-
-if "accuracy" in args:
-    accuracy_checks = True
-    # Information on writing to Excel here: https://www.geeksforgeeks.org/writing-excel-sheet-using-python/#
-    wb = Workbook()
-else:
-    accuracy_checks = False
-    wb = None
-
-
-
-# TODO: Run solver several times with a different number of membership queries per equivalence query
-solver.run_solver(100, show_graphs, accuracy_checks, wb)
 
