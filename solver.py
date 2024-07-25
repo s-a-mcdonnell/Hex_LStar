@@ -92,7 +92,7 @@ with cProfile.Profile() as profile:
 results = pstats.Stats(profile)
 results.sort_stats(pstats.SortKey.TIME)
 
-# results.print_stats() 
+results.print_stats() 
 # NOTE: uncomment thr above if you want to have the stats printed into the terminal
 
 results.dump_stats("results.prof")
