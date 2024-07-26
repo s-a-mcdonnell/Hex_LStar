@@ -12,10 +12,10 @@ def check_validity(input):
 
     # invalid if the second two coordinate 4-bit strings are outside of the walls
     # x needs to be... greater than zero, and less than 13
-    if (x <= 6) or (x >= 10):
+    if (x <= 5) or (x >= 11):
         return False
     
-    if (y <= 6) or (y >= 10):
+    if (y <= 5) or (y >= 11):
         return False
     
     # y needs to be... greater than 6 - i...

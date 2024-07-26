@@ -1,5 +1,6 @@
 import cProfile
 import pstats
+import time
 
 import os
 from learner import Learner
@@ -62,6 +63,8 @@ with cProfile.Profile() as profile:
 
     print("ALPHABET PARSED")
 
+    total_start = time.time()
+
     # Create learners:
     # 0 -> movement teacher, 1 -> direction teacher
     movement_learner = Learner(alphabet=alphabet, teacher_type=0)
@@ -88,7 +91,7 @@ with cProfile.Profile() as profile:
     __write_dfa_to_file(direction_DFA, __location__, "direction_dfa.txt")
 
     # NOTE: use test_points.py to test the results of the DFAs generated in this solver.py file
-
+    total_end = time.time()
     print("end")
 
 results = pstats.Stats(profile)
@@ -99,3 +102,5 @@ results.print_stats()
 
 results.dump_stats("results.prof")
 # NOTE: the above allows the tuna package "pip install tuna" to provide a visual representation of function time using "tuna results.prof"
+
+print(f"OVERALL TIME: {total_end - total_start}")

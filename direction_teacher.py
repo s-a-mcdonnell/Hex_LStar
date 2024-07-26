@@ -73,7 +73,7 @@ class Direction_Teacher(Teacher):
         # for each of these strings, if self.member(s, self.m) is not self.member(s, m_hat), return s
 
         # TODO: increase range
-        for i in range(100):
+        for i in range(150):
             s = Teacher.generate_string()
             # return counterexample if one exists
             if self.member(s) != self.member(s, m_hat):
