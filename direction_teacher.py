@@ -59,26 +59,4 @@ class Direction_Teacher(Teacher):
             else:
                 return False
             
-    ##############################################################################################################
-
-    # equivalency query
-    # takes the DFA hypothesis m_hat
-    # returns either a counterexample or False (indicating that the DFAs match)
-    def equivalent(self, m_hat):
-        assert m_hat
-
-        print("equivalency query called in direction teacher")
-
-        # Generate and test an arbitrarily large number of strings
-        # for each of these strings, if self.member(s, self.m) is not self.member(s, m_hat), return s
-
-        # TODO: increase range
-        for i in range(100):
-            s = Teacher.generate_string()
-            # return counterexample if one exists
-            if self.member(s) != self.member(s, m_hat):
-                return s            
-
-        # else return false (so that the truthiness of a counterexample and a matching DFA result will be different)
-        print("No counterexample found")
-        return False
+    #############################################################################################################
