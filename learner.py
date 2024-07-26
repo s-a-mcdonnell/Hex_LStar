@@ -88,7 +88,7 @@ class Learner:
     
     ##########################################################################################################
 
-    def __init__(self, mem_per_eq, alphabet = ['0','1'], teacher_type=-1, num_states = -1, seed = -1, premade_dfa = None, display_graphs = False, accuracy_checks=False, wb=None):
+    def __init__(self, mem_per_eq, alphabet = ['0','1'], teacher_type=-1, num_states = -1, seed = -1, premade_dfa = None, display_graphs = False, accuracy_checks=False, wb=None, test_id=0):
         print(f"init called on Learner type {teacher_type}")
 
         self.solved = False
@@ -108,7 +108,7 @@ class Learner:
             assert self.accuracy_checks
 
             # Create new sheet in Excel file for this test
-            self.sheet = wb.add_sheet(f'{mem_per_eq} MQ per EQ, teacher {teacher_type}')
+            self.sheet = wb.add_sheet(f'{mem_per_eq} MQ per EQ, teacher {teacher_type}, test {test_id}')
 
             # Label columns
             self.sheet.write(0, 0, 'States in DFA')
@@ -332,8 +332,12 @@ class Learner:
         total_queries = 500
         # TODO: Determine if 500 is a reasonable number of membership queries to make for this check
         for i in range(0, total_queries):
-        
             test_string = self.my_teacher.generate_string()
+
+            if self.my_teacher.member(test_string) == self.my_teacher.member(test_string, self.m_hat):
+                success_tally += 1
+        
+            '''test_string = self.my_teacher.generate_string()
             self.my_teacher._create_world(test_string)
             assert self.my_teacher.my_agent
             agent_dir = Ident.find_next_move(self.my_teacher.my_agent)
@@ -348,7 +352,7 @@ class Learner:
                     # TODO: Find a better way of determining what to do when agent_dir is 0 (Direction_Teacher is not used)
                     success_tally += 1
                 elif agent_dir == 1 and self.my_teacher.member(test_string):
-                    success_tally += 1
+                    success_tally += 1'''
 
         return success_tally/total_queries
 

@@ -49,7 +49,7 @@ def __write_dfa_to_file(dfa, loc, file_name):
 
 ##########################################################################################################
 
-def run_solver(mem_per_eq:int, show_graphs:bool, accuracy_checks:bool, wb:Workbook):
+def run_solver(mem_per_eq:int, show_graphs:bool, accuracy_checks:bool, wb:Workbook=None, test_id:int=0):
     # profiler information -> https://docs.python.org/3/library/profile.html#pstats.Stats
     with cProfile.Profile() as profile:
         alphabet = []
@@ -66,8 +66,8 @@ def run_solver(mem_per_eq:int, show_graphs:bool, accuracy_checks:bool, wb:Workbo
 
         # Create learners:
         # 0 -> movement teacher, 1 -> direction teacher
-        movement_learner = Learner(mem_per_eq, alphabet=alphabet, teacher_type=0, display_graphs=show_graphs, accuracy_checks=accuracy_checks, wb=wb)
-        direction_learner = Learner(mem_per_eq, alphabet=alphabet, teacher_type=1, display_graphs=show_graphs, accuracy_checks=accuracy_checks, wb=wb)
+        movement_learner = Learner(mem_per_eq, alphabet=alphabet, teacher_type=0, display_graphs=show_graphs, accuracy_checks=accuracy_checks, wb=wb, test_id=test_id)
+        direction_learner = Learner(mem_per_eq, alphabet=alphabet, teacher_type=1, display_graphs=show_graphs, accuracy_checks=accuracy_checks, wb=wb, test_id=test_id)
 
         print("DFAs INITIALIZED")
         print()
@@ -125,4 +125,4 @@ if __name__ == "__main__":
         accuracy_checks = False
         wb = None
 
-    run_solver(100, show_graphs, accuracy_checks, None)
+    run_solver(100, show_graphs, accuracy_checks, wb)
