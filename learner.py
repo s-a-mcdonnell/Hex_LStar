@@ -108,7 +108,7 @@ class Learner:
             assert self.accuracy_checks
 
             # Create new sheet in Excel file for this test
-            self.sheet = wb.add_sheet(f'{mem_per_eq} MQ per EQ, teacher {teacher_type}, test {test_id}')
+            self.sheet = wb.add_sheet(f'{mem_per_eq} M_E, {teacher_type}, {test_id}')
 
             # Label columns
             self.sheet.write(0, 0, 'States in DFA')
