@@ -23,8 +23,10 @@ class Teacher:
     ##########################################################################################################
 
     # Constructor
-    def __init__(self, alphabet, seed=-1, premade_dfa=None):
+    def __init__(self, alphabet, mem_per_eq:int, seed=-1, premade_dfa=None):
         self.alphabet = alphabet
+
+        self.mem_per_eq = mem_per_eq
 
         # Check the alphabet for validity (each symbol is three characters)
         for symbol in alphabet:
@@ -93,22 +95,18 @@ class Teacher:
     # equivalency query
     # takes the DFA hypothesis m_hat
     # returns either a counterexample or False (indicating that the DFAs match)
-    # TODO: Adapt for hex world
     def equivalent(self, m_hat):
         assert m_hat
-        if len(self.m[0]) != len(m_hat[0]):
-            print("Incompatable alphabet size")
-            return True
 
+        print("equivalency query called in direction teacher")
 
         # Generate and test an arbitrarily large number of strings
         # for each of these strings, if self.member(s, self.m) is not self.member(s, m_hat), return s
 
-        for i in range(1000000):
+        for i in range(self.mem_per_eq):
             s = Teacher.generate_string()
+            # return counterexample if one exists
             if self.member(s) != self.member(s, m_hat):
-                assert(type(self.member(s)) is bool)
-                assert(type(self.member(s, m_hat)) is bool)
                 return s            
 
         # else return false (so that the truthiness of a counterexample and a matching DFA result will be different)
