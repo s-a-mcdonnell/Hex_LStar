@@ -1,5 +1,6 @@
 import cProfile
 import pstats
+import time
 
 import os
 import sys
@@ -64,6 +65,8 @@ def run_solver(mem_per_eq:int, show_graphs:bool, accuracy_checks:bool, wb:Workbo
 
         print("ALPHABET PARSED")
 
+        total_start = time.time()
+
         # Create learners:
         # 0 -> movement teacher, 1 -> direction teacher
         movement_learner = Learner(mem_per_eq, alphabet=alphabet, teacher_type=0, display_graphs=show_graphs, accuracy_checks=accuracy_checks, wb=wb, test_id=test_id)
@@ -89,9 +92,9 @@ def run_solver(mem_per_eq:int, show_graphs:bool, accuracy_checks:bool, wb:Workbo
         # write direction teacher to a file
         __write_dfa_to_file(direction_DFA, __location__, "direction_dfa.txt")
 
-        # NOTE: use test_points.py to test the results of the DFAs generated in this solver.py file
-
-        print("end")
+    # NOTE: use test_points.py to test the results of the DFAs generated in this solver.py file
+    total_end = time.time()
+    print("end")
 
     results = pstats.Stats(profile)
     results.sort_stats(pstats.SortKey.TIME)
@@ -99,8 +102,10 @@ def run_solver(mem_per_eq:int, show_graphs:bool, accuracy_checks:bool, wb:Workbo
     results.print_stats() 
     # NOTE: uncomment thr above if you want to have the stats printed into the terminal
 
-    results.dump_stats("results.prof")
-    # NOTE: the above allows the tuna package "pip install tuna" to provide a visual representation of function time using "tuna results.prof"
+
+    results.dump_stats("results.prof")    # NOTE: the above allows the tuna package "pip install tuna" to provide a visual representation of function time using "tuna results.prof"
+
+    print(f"OVERALL TIME: {total_end - total_start}")
 
 if __name__ == "__main__":
     # Parse command-line arguments

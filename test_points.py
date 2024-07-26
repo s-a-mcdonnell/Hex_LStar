@@ -60,7 +60,7 @@ dir_teach = Teacher(alphabet, premade_dfa = direction_dfa)
     new_string = Teacher.generate_string()
     print(f"Agent move from string {new_string}: {__get_move(new_string)}")'''
 
-goals = ["f77", "f78", "f79", "f87", "f88", "f89", "f97", "f98", "f99"]
+goals = ['f66', 'f67', 'f68', 'f69', 'f6a', 'f76', 'f77', 'f78', 'f79', 'f7a','f86', 'f87', 'f88', 'f89', 'f8a', 'f96', 'f97', 'f98', 'f99', 'f9a', 'fa6', 'fa7', 'fa8', 'fa9', 'faa']
 
 tally = 0
 true_tally = 0
@@ -85,9 +85,10 @@ for i in range(0, 10000):
 
     # select one random goal for the string
     # TODO: make it so more than one goal goes into some of the text strings please???
-    goal = goals[random.randint(0, 8)]
+    for j in range(0, 3):
+        goal = goals[random.randint(0, 24)]
 
-    strg += goal
+        strg += goal
 
     dir_teach._create_world(strg)
     assert dir_teach.my_agent
