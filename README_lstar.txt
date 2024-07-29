@@ -22,6 +22,7 @@ The files are as follows...
     initial_state.txt -> 
     movement_dfa.txt -> 
     profile.txt -> 
+    requirements.txt -> 
 
     Other:
     results.prof -> 

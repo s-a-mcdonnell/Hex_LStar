@@ -1,4 +1,9 @@
+
 def check_validity(input):
+    '''
+    Check the validity of a specified character based on programmer-specified conditions 
+    (often the size of the environment being tested)
+    '''
     # Empty strings are invalid
     if len(input) == 0:
         return False
@@ -35,7 +40,13 @@ def check_validity(input):
 
     return True
 
+
 def write_alphabet():
+    '''
+    Write all valid letters of the alphabet into a text file for easy access by DFAs
+    Currently, each "character" in our alphabet is made up of three hexadecimal characters:
+    First character represents the ident, and second two represent the graph hex position of the ident
+    '''
     # Writing to a text file according to this tutorial: https://www.w3schools.com/python/python_file_write.asp
 
     # Overwrite text in alphabet file with the empty string
@@ -60,4 +71,5 @@ def write_alphabet():
     
     f.close()
 
+# MAIN
 write_alphabet()

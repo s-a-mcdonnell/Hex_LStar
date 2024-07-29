@@ -4,8 +4,8 @@ import os
 
 ##########################################################################################################
 
-# Reads chars from the alphabet file and returns list storing alphabet
 def read_alphabet(loc):
+    '''Reads chars from the alphabet file and returns a list storing the alphabet'''
 
     # Default alphabet is 0 and 1
     try:
@@ -30,9 +30,13 @@ def read_alphabet(loc):
 
 ##########################################################################################################
 
-# Reads lines from the DFA file and returns matrix (2d list) storing DFA
 def read_dfa(loc, file_name, alphabet):
-    # Return None if no file is provided
+    '''
+    Reads lines from the DFA file and returns a matrix (2d list) storing the DFA in the file
+    Returns None if no file is provided to the function
+    '''
+
+    # return None if no file
     try:
         dfa_file = open(os.path.join(loc, file_name), "r")
     except:
@@ -72,7 +76,7 @@ def read_dfa(loc, file_name, alphabet):
     # Return parsed DFA
     return dfa
 
-##########################################################################################################
+############################################################################################################
 
 if __name__ == "__main__":
 
