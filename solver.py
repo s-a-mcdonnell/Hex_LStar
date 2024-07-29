@@ -51,7 +51,7 @@ def __write_dfa_to_file(dfa, loc, file_name):
 
 ##########################################################################################################
 
-def run_solver(mem_per_eq:int, show_graphs:bool, accuracy_checks:bool, wb:Workbook, test_id:int=0):
+def run_solver(mem_per_eq:int, show_graphs:bool, accuracy_checks:bool, wb:Workbook=None, test_id:int=0):
     # profiler information -> https://docs.python.org/3/library/profile.html#pstats.Stats
 
     with cProfile.Profile() as profile:
@@ -132,4 +132,4 @@ if __name__ == "__main__":
         accuracy_checks = False
         wb = None
 
-    run_solver(100, show_graphs, accuracy_checks, None)
+    run_solver(100, show_graphs, accuracy_checks, wb)
