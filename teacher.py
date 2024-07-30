@@ -24,7 +24,7 @@ class Teacher:
     ##########################################################################################################
 
     # Constructor
-    def __init__(self, alphabet, mem_per_eq:int, seed=-1, premade_dfa=None):
+    def __init__(self, alphabet, mem_per_eq:int=100, seed=-1, premade_dfa=None):
         '''
         Teacher constructor
         :param alphabet:
