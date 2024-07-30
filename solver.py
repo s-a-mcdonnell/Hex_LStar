@@ -52,7 +52,8 @@ def __write_dfa_to_file(dfa, loc, file_name):
         if dfa.index(row) < len(dfa) - 1:
             dfa_file.write('\n')
     
-    # TODO: Close file?
+    # Close file
+    dfa_file.close()
 
 
 ##########################################################################################################
