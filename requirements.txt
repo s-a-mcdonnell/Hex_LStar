@@ -1,2 +1,4 @@
-pygame
 xlwt
+matplotlib
+networkx
+pygame
