@@ -3,8 +3,6 @@ import copy
 import os
 import pygame
 
-from Hex_Agents import *
-
 # Debugger
 import pdb
 
@@ -62,11 +60,6 @@ class Ident:
         self.property = property
 
         self.partner_serial_number = partner_serial_number
-
-        if agent == 'keyboard':
-            self.agent = KeyboardAgent(self)
-        else:
-            self.agent = AstarAgent(self)
 
     ##########################################################################################################
 

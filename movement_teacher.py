@@ -54,13 +54,10 @@ class Movement_Teacher(Teacher):
             assert self.world
             assert self.my_agent
 
-            # TODO: How to get the agent's next move when the agent is/isn't reading from a text file?
+            # Find the agent's next move
             agent_move = Ident.find_next_move(self.my_agent)
 
-            if agent_move == 0:
-                return False
-            # false on first DFA => we are not manually changing the agent's direction (ie -> instruction 0)
             # true on first DFA => we are changing the agent's direction via the agent (ie -> instruction -1 or 1)
-            else:
-                return True            
+            # false on first DFA => we are not manually changing the agent's direction (ie -> instruction 0)
+            return agent_move != 0          
     ##########################################################################################################
