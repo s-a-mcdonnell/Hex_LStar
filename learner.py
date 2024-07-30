@@ -203,9 +203,6 @@ class Learner:
         # Append the first state to M_hat        
         self.m_hat.append(to_append)
 
-        # print("m hat table: " + str(self.m_hat))
-        # print("access dictionary: " + str(self.access_string_reference))
-
         # draw m_hat graph here, as m_hat is not updated in initialization past this point
         if self.graphs:
             self.draw_graph()
@@ -230,10 +227,7 @@ class Learner:
 
             assert type(gamma) is str
 
-            # assert(self.my_teacher.member(gamma) != self.my_teacher.member(gamma, self.m_hat, self.alphabet))
-
-
-            print("Counterexample found, adding to tree.")
+            # determine if the counterexample is a member of teacher DFA M
             if self.my_teacher.member(gamma):
                 self.t.root.right_child = Node(gamma, self.t.root, 1)
                 self.t.root.left_child = Node("", self.t.root, 1)
@@ -247,9 +241,13 @@ class Learner:
 
     ##########################################################################################################
 
-    # Updates the access string reference dictionary with the given values
-    # Isolated to its own method for debugging purposes (prevent clobbering)
+
     def update_dictionary(self, key : str, index : int):
+        '''
+        updates the variable access_string_reference (dictionary) with the given values
+        :param key: the key in the key,value pair being added to the dictionary
+        :param index: the value in the key value pair, which represnts the index in the matrix of the acess string being added
+        '''
 
         # Print debugging information if trying to clobber a pre-existing key:
         if key in self.access_string_reference.keys():
@@ -263,6 +261,7 @@ class Learner:
     ##########################################################################################################
 
     def lstar_algorithm(self):
+        '''runs Anlguin's L-Star algorithm and prints the learned DFA and its tree upon completion'''
         print("running l-star")
 
         runs = 0
@@ -273,12 +272,9 @@ class Learner:
 
             # create new M_hat from current T => call construct_hypothesis
             self.m_hat = self.construct_hypothesis()
-            
-            # print(f"m_hat updated {self.m_hat}")
 
             if self.graphs:
                 self.draw_graph()
-                print("graph displayed.")
             
             # equivalence query => does our current M_hat equal the real M from teacher?
             gamma = self.my_teacher.equivalent(self.m_hat)
@@ -333,8 +329,9 @@ class Learner:
 
     ##########################################################################################################
 
-    # Returns an integer
     def __test_accuracy(self):
+        ''' returns an integer value representing the proportion of correctly sorted strings by the current M_Hat compared to the Teacher'''
+
         # Assert that the teacher belongs to one of the subclasses
         assert isinstance(self.my_teacher, (Movement_Teacher, Direction_Teacher))
         
@@ -369,9 +366,13 @@ class Learner:
         return success_tally/total_queries
 
             
-
-    # Finds and returns the distinguishing string corresponding to the last (most recent) common ancestor of the access strings s1 and s2 in T
     def __get_lca(self, s1 , s2):
+        '''
+        returns the distinguishing string corresponding to the last (most recent) common ancestor of the access strings s1 and s2 in tree T
+        :param s1: access string 1
+        :param s2: access string 2
+        '''
+
         # Get the tree nodes corresponding to the two passed access strings
         # NOTE: We could also have passed n1 instead of s1 to this method, but we would need to sift for s2 (which comes from M_hat) regardless
 
@@ -408,6 +409,11 @@ class Learner:
     # output: Edits T to update it (returns nothing)
     # NOTE: remember to SET THE PARENT of a new node when you declare it
     def update_tree(self, gamma):
+        '''
+        takes in a counterexaple and edits the Classification Tree T to update it with the new string and sift all other affected strings
+        NOTE: does not return the tree but updates it within the method
+        :param gamma: new counterexample provided by equivalence query that needs to be sifted down the tree
+        '''
 
         # Assert that gamma really is a counterexample
         assert bool(self.my_teacher.member(gamma)) != bool(self.my_teacher.member(gamma, self.m_hat, self.alphabet))
@@ -500,11 +506,13 @@ class Learner:
 
     ##########################################################################################################
 
-    # input: T is our classification tree
     # output: hypothesis M_hat constructed from T
     def construct_hypothesis(self):
-        # TODO: Delete debugging print statement
-        # print("construct hypothesis called")
+        '''
+        Constructs a hypothesized DFA M_Hat from the classification tree self.t.
+        Returns array representing the DFA
+        '''
+
         to_become = []
 
         # for each access string (leaf) of T, create a state in M_hat
@@ -521,13 +529,7 @@ class Learner:
             for i in range(len(self.alphabet)):
                 to_append.append(-1)
             
-            # TODO: Delete debugging print statements
-            # print(f"appending row to to_become for key {key}")
             to_become.append(to_append)
-        
-        #print("M_hat mid-construction: " + str(to_become))
-
-        #print("access_string_reference.keys(): " + str(self.access_string_reference.keys()))
 
         # start state of M_hat is lambda, the empty string
         # for each state in M_hat and each symbol b in the language, compute the b-transition out of the access string s:
@@ -545,19 +547,18 @@ class Learner:
             for entry in row:
                 assert entry >= 0
 
-        # TODO: Delete debugging print statements
-        # print("new m_hat:")
-        # print(to_become)
+        # return updated M_Hat
         return to_become
 
     ##########################################################################################################
 
-    # input: s is the string being sifted and T is our tree
-    # output: leaf NODE (not access string) in T for the state of M accessed by s
     def __sift_return_node(self, s):
-        # TODO: Delete debugging print statement
-        # print("sift_return_node called on " + (s if s else "the empty string"))
-        
+        '''
+        sifts string s through the Tree T and returns the leaf NODE (not the access string, which is the Node's value) in T for the state in M accessed by string s
+        :param s: the string being sifted
+        NOTE: this function will be called as a memoized version of itself if the param s is an access string
+        '''
+
         # set current node to root of T
         current = self.t.root
 
@@ -568,9 +569,6 @@ class Learner:
                         
             # d is distinguishing string at current node
             d = current.value
-
-            #print("current.val  ue: " + d)
-            #print(s + " + " + d + " is " + ("accepted" if self.my_teacher.member(s+d) else "rejected") + " by M")
 
             # membership query on sd (concatenated) 
             # if membership query is accepted, current node is right child of current node
@@ -592,18 +590,19 @@ class Learner:
         assert (current.value in self.access_string_reference.keys())
         
         # Return the access string at the leaf found
-        # TODO: Delete debugging print statement
-        # print(f"ending sift after {loops_to_find_leaf} loops. returning NODE {self.access_string_reference[current.value]} with access string {current.value if current.value else "empty"}")
         return current
 
     ##########################################################################################################
 
     # input: s is the string being sifted and T is our tree
     # output: access string in T for the state of M accessed by s
-    # TODO: MEMOIZE SIFTING!!!!
     def __sift(self, s):
-        #print("---")
-        # print("sift called on " + (s if s else "the empty string"))
+        '''
+        Returns the access string from tree T associated with the state of M accessed by string s.
+        Calls sift_return_node and then returns the value from the node.
+        :param s: the string s being sifted
+        '''
+
         if s in self.access_string_reference.keys():
             return memoize(self.__sift_return_node(s)).value
         return self.__sift_return_node(s).value

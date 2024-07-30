@@ -1,4 +1,4 @@
-# The first teacher (is the agent turning itself?)
+# Tteacher type 0 -> determines whether or not the agent is turning
 
 from teacher import Teacher
 from hex_v2 import World, Ident
@@ -6,6 +6,10 @@ from hex_v2 import World, Ident
 import functools
 
 def memoize(obj):
+    '''
+    Memoize function from https://wiki.python.org/moin/PythonDecoratorLibrary#Memoize
+    Caches inputs of a deterministic function with their associated outputs for quicker access time overall
+    '''
     cache = obj.cache = {}
 
     @functools.wraps(obj)
@@ -21,37 +25,14 @@ class Movement_Teacher(Teacher):
     
     ##########################################################################################################
 
-    '''@staticmethod
-    def final_state(s : str, dfa: list[list[int]], alpha):
-
-        input = []
-
-        assert (type(s) is str)
-        assert len(s)%3 == 0
-
-        # Convert passed string into an array of ints, where each int is the index in the alphabet array corresponding to that character
-        for i in range(int(len(s)/3)):
-            input.append(alpha.index(s[i*3 : i*3 + 3]))
-        
-        # Enter the DFA (M) at state 0
-        next_state_index = 0
-
-        # Navigate through the DFA to the final state
-        for char_index in input:
-            current_state = dfa[next_state_index]
-            next_state_index = current_state[char_index + 1]
-        
-        # Return final state
-        return dfa[next_state_index]'''
-    
-    ##########################################################################################################
-
     # membership query
     # takes a string s and returns a boolean indicating whether s is accepted or rejected by the given DFA
-    # TODO: Adapt for hex world
     @memoize
     def member(self, s : str, dfa: list[list[int]] = None, alpha = None):
-        # print(f"membership query called on string {s}")
+        '''
+        Membership query: takes a string s and returs a boolean indicated whether s is accepted or rejected by the given Teacher DFA.
+        In this case, specifically, return False if the agent move from the Hex World is 0 (ie, the agent does not manually turn.)
+        '''
 
         if not alpha:
             alpha = self.alphabet
@@ -75,15 +56,11 @@ class Movement_Teacher(Teacher):
 
             # TODO: How to get the agent's next move when the agent is/isn't reading from a text file?
             agent_move = Ident.find_next_move(self.my_agent)
-            # print(f"agent move: {agent_move}")
 
-            # TODO: Return a boolean corresponding to the agent's state
-            # TODO: Actually we want to just report the agent's action, not how it might have been affected by the physics rules
             if agent_move == 0:
                 return False
             # false on first DFA => we are not manually changing the agent's direction (ie -> instruction 0)
             # true on first DFA => we are changing the agent's direction via the agent (ie -> instruction -1 or 1)
             else:
-                # TODO: is this where we call the second DFA from?
                 return True            
     ##########################################################################################################

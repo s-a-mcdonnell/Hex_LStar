@@ -11,9 +11,11 @@ import xlwt
 from xlwt import Workbook
 
 from learner import Learner
-# import pdb; pdb.set_trace()
 
 def __read_line(line, alphabet):
+    '''
+    FUNCTION DOCUMENTATION HERE
+    '''
     # If the line ends in a new line character, add everything except the new line character as an entry in the alphabet
     if line[len(line) - 1] == "\n":
         assert len(line) == 4
@@ -27,6 +29,10 @@ def __read_line(line, alphabet):
 ##############################################################################################
 
 def __write_dfa_to_file(dfa, loc, file_name):
+    '''
+    FUNCTION DOCUMENTATION HERE
+    '''
+
     # Return None if no file is provided
     try:
         dfa_file = open(os.path.join(loc, file_name), "w")
@@ -52,8 +58,20 @@ def __write_dfa_to_file(dfa, loc, file_name):
 ##########################################################################################################
 
 def run_solver(mem_per_eq:int, show_graphs:bool, accuracy_checks:bool, wb:Workbook=None, test_id:int=0):
-    # profiler information -> https://docs.python.org/3/library/profile.html#pstats.Stats
+    '''
+    Runs an instance of learning the HexWorld DFAs with a specified number of membership queries.
+    Will print two DFAs to separate text files of movement_dfa.txt and direction_dfa.txt.
+    Also profiles the runs with the default Python cProfile packages
+    :param mem_per_eq: the number of membership queries in a single equivalence query for this runthrough of learning the DFAs
+    :param show_graphs: boolean value determining whether or not graphs are drawn (default is no)
+    :param accuracy_checks: boolean value determining if accuracy checks are performed at every stage of updating M_Hat
+    :param wb: the name of the Excel workbook accuracy values would be written to if applicable
+    :param test_id: a number to add to the name of the sheet within the Excel workbook, if applicable
+    '''
 
+    # runs the Profiler when running tests via solver to assess funtion runtime disparity
+
+    # profiler information -> https://docs.python.org/3/library/profile.html#pstats.Stats
     with cProfile.Profile() as profile:
         alphabet = []
 

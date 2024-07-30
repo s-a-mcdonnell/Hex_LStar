@@ -4,8 +4,9 @@ import make_alphabet
 import pdb
 import functools
 
-# NOTE: python dictionaries with the brackets are automatically HashMaps I think??
+
 def memoize(obj):
+    '''memoize method and information from https://wiki.python.org/moin/PythonDecoratorLibrary#Memoize'''
     cache = obj.cache = {}
 
     @functools.wraps(obj)
@@ -24,6 +25,14 @@ class Teacher:
 
     # Constructor
     def __init__(self, alphabet, mem_per_eq:int, seed=-1, premade_dfa=None):
+        '''
+        Teacher constructor
+        :param alphabet:
+        :param mem_per_eq:
+        :param seed:
+        :param premade_dfa: 
+        '''
+
         self.alphabet = alphabet
 
         self.mem_per_eq = mem_per_eq

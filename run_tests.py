@@ -16,9 +16,9 @@ else:
 
 # Run solver several times with a different number of membership queries per equivalence query
 # NOTE: You can set your own number of membership queries per equivalence query
-'''for mem_in_eq in [20, 50, 100, 150, 200]:'''
+'''example: for mem_in_eq in [20, 50, 100, 150, 200]:'''
 test_num = 0
-for mem_in_eq in [500]:
+for mem_in_eq in [100]:
     print(f"\nRunning test with {mem_in_eq} membershup queries per equivalence query\n")
     
     try:
@@ -33,5 +33,3 @@ for mem_in_eq in [500]:
 
 if wb:
     wb.save(f'{file_name}.xls')
-
-
