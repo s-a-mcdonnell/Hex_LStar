@@ -64,10 +64,10 @@ class Teacher:
         self.valid_idents = 0
         self.valid_agents = 0
 
-        # TODO: How to get the agent to only check the valid idents in a world? (i.e. to check the ident_list from 0 to self.valid_idents-1; same for self.valid_agent and self.valid_walls)
         self.wall_list = []
+
         # TODO: Manage walls? Differentiate between ring and freestanding walls?
-        ''' walls just for the test case where things are a 3x3 square'''
+        ''' walls just for the test case where things are a 5x5 square'''
         # TODO: Remove these walls
         for i in range(5, 12):
             new_ident = Ident(5, i, self.world)
@@ -158,10 +158,6 @@ class Teacher:
         self.valid_walls = self.surrounding_walls
 
         # Assert that the length of the world-string is valid
-        # NOTE: The >= 6 assertion leads to crashing, as sometimes a three-char string (one letter of the alphabet) is passed
-        # if len(s) < 6 or len(s)%3 != 0:
-        #     print(f"Odd length world-string: {s}")
-        # assert(len(s) >= 6)
         assert(len(s) % 3 == 0)
 
         # TODO: Find a less memory-intensive way of swapping this
@@ -170,7 +166,6 @@ class Teacher:
                 hex.idents.clear()
 
         # Parse string into world
-        # TODO: the forcibly converting it into an integer could cause problems later. Note to self, be careful.
         for i in range(int((len(s))/3)):
 
             # splice the three character string into three one-character chunks
@@ -526,8 +521,7 @@ class Teacher:
         # Save valid agent
         strg += my_agent
 
-        # Generate a valid goal of random location
-        # TODO: Enable the creation of multiple goals
+        # Generate (a) valid goal(s) of random location
         # NOTE: The maximum number of goals is arbitrary
         num_goals = random.randint(1, 3)
         goals = []
@@ -560,7 +554,7 @@ class Teacher:
                         break
 
 
-        # Save valid goals to string
+        # Append valid goals to string
         for goal in goals:
             strg += goal
 
@@ -608,14 +602,6 @@ class Teacher:
                         break
         '''
 
-        # # TODO: Sort the three-char strings first by matrix index (2nd char), then list index (2nd char), then property (1st char)
-        # # NOTE: I'm trying another way (not using merge sort) --> less efficient, but hopefully less buggy
-        # #Teacher.__merge_sort(other_idents)
-
-        # # Concatenate these ident strings in the given order then return
-        # for ident_string in other_idents:
-        #     strg += ident_string
-        
         return strg
 
 
