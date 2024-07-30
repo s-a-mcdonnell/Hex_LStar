@@ -1,0 +1,195 @@
+         -775679987 function calls (-775702059 primitive calls) in 3239.004 seconds
+
+   Ordered by: internal time
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+ 67509012 2435.870    0.000 2989.913    0.000 C:\Users\skyle\OneDrive\Documents\GitHub\HexSimulator\hex_v2.py:858(__init__)
+-1459588792  456.311   -0.000  456.311   -0.000 {method 'rotate' of 'pygame.math.Vector2' objects}
+   139245  134.539    0.001 3178.451    0.023 C:\Users\skyle\OneDrive\Documents\GitHub\HexSimulator\hex_v2.py:1175(__init__)
+499478182   71.987    0.000   71.987    0.000 {method 'append' of 'list' objects}
+ 67509012   40.029    0.000   40.029    0.000 C:\Users\skyle\OneDrive\Documents\GitHub\HexSimulator\hex_v2.py:850(__create_coor)
+   278494   26.857    0.000   26.857    0.000 {built-in method nt._getfinalpathname}
+  7797720   18.658    0.000   28.416    0.000 C:\Users\skyle\OneDrive\Documents\GitHub\HexSimulator\hex_v2.py:912(make_wall)
+ 11074047   10.020    0.000   10.020    0.000 C:\Users\skyle\OneDrive\Documents\GitHub\HexSimulator\hex_v2.py:27(__init__)
+   139245    8.044    0.000 3190.315    0.023 C:\Users\skyle\OneDrive\Documents\GitHub\HexSimulator\teacher.py:132(_create_world)
+  4071557    7.569    0.000 2211.142    0.001 C:\Users\skyle\OneDrive\Documents\GitHub\HexSimulator\movement_teacher.py:11(memoizer)
+   139245    6.287    0.000    6.354    0.000 {built-in method pygame.base.init}
+   785546    2.456    0.000 3204.814    0.004 C:\Users\skyle\OneDrive\Documents\GitHub\HexSimulator\learner.py:484(__sift_return_node)
+   905451    1.983    0.000 1021.283    0.001 C:\Users\skyle\OneDrive\Documents\GitHub\HexSimulator\direction_teacher.py:11(memoizer)
+   139245    1.544    0.000   31.933    0.000 C:\Users\skyle\OneDrive\Documents\GitHub\HexSimulator\hex_v2.py:751(find_next_move)
+   387360    1.540    0.000   29.545    0.000 C:\Users\skyle\OneDrive\Documents\GitHub\HexSimulator\hex_v2.py:732(find_closest_goal)
+   139247    1.051    0.000   29.904    0.000 <frozen ntpath>:692(realpath)
+   417747    0.973    0.000    1.345    0.000 <frozen ntpath>:179(splitroot)
+   139247    0.875    0.000    2.357    0.000 <frozen ntpath>:236(split)
+   671412    0.777    0.000   27.646    0.000 C:\Users\skyle\OneDrive\Documents\GitHub\HexSimulator\hex_v2.py:1295(axial_distance)
+   814410    0.776    0.000    0.776    0.000 {method 'index' of 'list' objects}
+   278494    0.664    0.000    0.664    0.000 {built-in method nt.getcwd}
+      137    0.663    0.005 3191.152   23.293 C:\Users\skyle\OneDrive\Documents\GitHub\HexSimulator\learner.py:427(construct_hypothesis)
+  3300944    0.641    0.000    0.641    0.000 {built-in method builtins.len}
+   671412    0.598    0.000   26.580    0.000 C:\Users\skyle\OneDrive\Documents\GitHub\HexSimulator\hex_v2.py:1291(axial_subtract)
+   139250    0.592    0.000    1.104    0.000 <frozen ntpath>:107(join)
+   278494    0.524    0.000    0.524    0.000 {built-in method _winapi.LCMapStringEx}
+   784800    0.474    0.000 3189.608    0.004 C:\Users\skyle\OneDrive\Documents\GitHub\HexSimulator\learner.py:531(__sift)
+    97692    0.405    0.000 2203.572    0.023 C:\Users\skyle\OneDrive\Documents\GitHub\HexSimulator\movement_teacher.py:59(member)
+   696251    0.400    0.000    0.400    0.000 {method 'startswith' of 'str' objects}
+  1253236    0.391    0.000    0.391    0.000 {built-in method builtins.isinstance}
+   835490    0.356    0.000    0.356    0.000 {method 'replace' of 'str' objects}
+   278494    0.352    0.000    1.025    0.000 <frozen ntpath>:51(normcase)
+   453835    0.318    0.000    0.843    0.000 C:\Users\skyle\AppData\Local\Programs\Python\Python312\Lib\random.py:291(randrange)
+   516480    0.301    0.000    0.301    0.000 {built-in method builtins.min}
+  2059848    0.294    0.000    0.294    0.000 {built-in method builtins.abs}
+  1700966    0.285    0.000    0.285    0.000 {method 'keys' of 'dict' objects}
+     2110    0.266    0.000    1.546    0.001 C:\Users\skyle\OneDrive\Documents\GitHub\HexSimulator\teacher.py:486(generate_string)
+   453835    0.258    0.000    0.406    0.000 C:\Users\skyle\AppData\Local\Programs\Python\Python312\Lib\random.py:242(_randbelow_with_getrandbits)
+   387360    0.241    0.000    0.413    0.000 C:\Users\skyle\OneDrive\Documents\GitHub\HexSimulator\hex_v2.py:67(get_neighbor)
+   139247    0.239    0.000    0.402    0.000 <frozen ntpath>:87(isabs)
+  1113989    0.226    0.000    0.226    0.000 {built-in method nt.fspath}
+    43788    0.195    0.000 1019.300    0.023 C:\Users\skyle\OneDrive\Documents\GitHub\HexSimulator\direction_teacher.py:31(member)
+   139247    0.176    0.000    2.533    0.000 <frozen ntpath>:275(dirname)
+   645941    0.176    0.000    0.176    0.000 {method 'values' of 'dict' objects}
+     3153    0.173    0.000    0.173    0.000 {built-in method builtins.print}
+   387360    0.172    0.000    0.172    0.000 C:\Users\skyle\OneDrive\Documents\GitHub\HexSimulator\hex_v2.py:74(__get_neighbor)
+   201310    0.163    0.000    0.184    0.000 C:\Users\skyle\OneDrive\Documents\GitHub\HexSimulator\make_alphabet.py:1(check_validity)
+   139247    0.146    0.000    0.367    0.000 <frozen ntpath>:35(_get_bothseps)
+   139247    0.136    0.000    0.136    0.000 {built-in method nt._path_normpath}
+   453835    0.130    0.000    0.973    0.000 C:\Users\skyle\AppData\Local\Programs\Python\Python312\Lib\random.py:332(randint)
+  1361505    0.120    0.000    0.120    0.000 {built-in method _operator.index}
+   139267    0.114    0.000    0.114    0.000 {method 'rstrip' of 'str' objects}
+   129120    0.102    0.000    0.102    0.000 C:\Users\skyle\OneDrive\Documents\GitHub\HexSimulator\hex_v2.py:793(<genexpr>)
+   866409    0.090    0.000    0.090    0.000 {method 'getrandbits' of '_random.Random' objects}
+   129120    0.086    0.000    0.188    0.000 {built-in method builtins.next}
+        1    0.065    0.065    0.065    0.065 {built-in method _imp.create_dynamic}
+   451725    0.064    0.000    0.064    0.000 {built-in method builtins.hex}
+   453835    0.058    0.000    0.058    0.000 {method 'bit_length' of 'int' objects}
+     3590    0.022    0.000    0.056    0.000 C:\Users\skyle\OneDrive\Documents\GitHub\HexSimulator\teacher.py:418(less_than)
+        2    0.018    0.009    0.056    0.028 C:\Users\skyle\OneDrive\Documents\GitHub\HexSimulator\solver.py:24(__write_dfa_to_file)
+     4838    0.017    0.000    0.038    0.000 C:\Users\skyle\AppData\Local\Programs\Python\Python312\Lib\functools.py:35(update_wrapper)
+    40427    0.016    0.000    0.031    0.000 {method 'write' of '_io.TextIOWrapper' objects}
+     7180    0.016    0.000    0.028    0.000 C:\Users\skyle\OneDrive\Documents\GitHub\HexSimulator\teacher.py:273(__get_distance_and_direction)
+    38716    0.014    0.000    0.014    0.000 {built-in method builtins.getattr}
+     4838    0.012    0.000    0.054    0.000 C:\Users\skyle\OneDrive\Documents\GitHub\HexSimulator\learner.py:16(memoize)
+     2574    0.012    0.000    0.027    0.000 C:\Users\skyle\OneDrive\Documents\GitHub\HexSimulator\teacher.py:108(final_state)
+22203/137    0.012    0.000    0.012    0.000 C:\Users\skyle\OneDrive\Documents\GitHub\HexSimulator\learner.py:569(size)
+    40427    0.009    0.000    0.015    0.000 C:\Users\skyle\AppData\Local\Programs\Python\Python312\Lib\encodings\cp1252.py:18(encode)
+        3    0.008    0.003    0.008    0.003 {built-in method _io.open}
+     9506    0.007    0.000    0.010    0.000 C:\Users\skyle\OneDrive\Documents\GitHub\HexSimulator\teacher.py:251(__get_distance)
+        2    0.007    0.003 3238.062 1619.031 C:\Users\skyle\OneDrive\Documents\GitHub\HexSimulator\learner.py:235(lstar_algorithm)
+    40427    0.006    0.000    0.006    0.000 {built-in method _codecs.charmap_encode}
+      135    0.006    0.000   15.910    0.118 C:\Users\skyle\OneDrive\Documents\GitHub\HexSimulator\learner.py:332(update_tree)
+       93    0.005    0.000   19.599    0.211 C:\Users\skyle\OneDrive\Documents\GitHub\HexSimulator\movement_teacher.py:102(equivalent)
+    19350    0.004    0.000    0.004    0.000 {built-in method builtins.setattr}
+     4838    0.003    0.000    0.003    0.000 C:\Users\skyle\AppData\Local\Programs\Python\Python312\Lib\functools.py:65(wraps)
+     4977    0.003    0.000    0.003    0.000 {method 'update' of 'dict' objects}
+       46    0.003    0.000   12.070    0.262 C:\Users\skyle\OneDrive\Documents\GitHub\HexSimulator\direction_teacher.py:72(equivalent)
+        2    0.001    0.000    0.009    0.004 C:\Users\skyle\OneDrive\Documents\GitHub\HexSimulator\learner.py:580(print_tree)
+      135    0.001    0.000    0.010    0.000 C:\Users\skyle\OneDrive\Documents\GitHub\HexSimulator\learner.py:296(__get_lca)
+        1    0.000    0.000    0.000    0.000 {built-in method _io.open_code}
+     1202    0.000    0.000    0.000    0.000 {method 'insert' of 'list' objects}
+      274    0.000    0.000    0.000    0.000 {built-in method time.time}
+        5    0.000    0.000    0.000    0.000 {built-in method nt.stat}
+      139    0.000    0.000    0.000    0.000 C:\Users\skyle\OneDrive\Documents\GitHub\HexSimulator\learner.py:218(update_dictionary)
+        1    0.000    0.000    0.000    0.000 {method 'read' of '_io.BufferedReader' objects}
+      144    0.000    0.000    0.000    0.000 C:\Users\skyle\OneDrive\Documents\GitHub\HexSimulator\solver.py:10(__read_line)
+        2    0.000    0.000    0.877    0.438 C:\Users\skyle\OneDrive\Documents\GitHub\HexSimulator\learner.py:139(init_t_m_hat)
+      276    0.000    0.000    0.000    0.000 C:\Users\skyle\OneDrive\Documents\GitHub\HexSimulator\learner.py:544(__init__)
+      280    0.000    0.000    0.000    0.000 {method 'pop' of 'list' objects}
+        2    0.000    0.000    0.877    0.438 C:\Users\skyle\OneDrive\Documents\GitHub\HexSimulator\learner.py:86(__init__)
+        6    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap_external>:96(_path_join)
+      2/1    0.000    0.000    0.067    0.067 <frozen importlib._bootstrap>:1349(_find_and_load)
+        1    0.000    0.000    0.000    0.000 {method '__exit__' of '_io._IOBase' objects}
+        1    0.000    0.000    0.000    0.000 {built-in method marshal.loads}
+      2/1    0.000    0.000    0.067    0.067 <frozen importlib._bootstrap>:1304(_find_and_load_unlocked)
+        2    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap>:1240(_find_spec)
+        1    0.000    0.000    0.001    0.001 <frozen importlib._bootstrap_external>:1062(get_code)
+        2    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap_external>:1593(find_spec)
+        2    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap>:304(acquire)
+        2    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap_external>:172(_path_isabs)
+        1    0.000    0.000    0.000    0.000 {method 'disable' of '_lsprof.Profiler' objects}
+        2    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap>:426(_get_module_lock)
+      2/1    0.000    0.000    0.066    0.066 <frozen importlib._bootstrap>:911(_load_unlocked)
+        2    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap>:733(_init_module_attrs)
+        1    0.000    0.000    0.001    0.001 <frozen importlib._bootstrap_external>:1183(get_data)
+        2    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap>:124(setdefault)
+        1    0.000    0.000    0.066    0.066 C:\Users\skyle\AppData\Roaming\Python\Python312\site-packages\pygame\freetype.py:1(<module>)
+      5/2    0.000    0.000    0.066    0.033 <frozen importlib._bootstrap>:480(_call_with_frames_removed)
+        2    0.000    0.000    0.065    0.033 <frozen importlib._bootstrap>:806(module_from_spec)
+        2    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap_external>:482(cache_from_source)
+        2    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap_external>:1491(_get_spec)
+       27    0.000    0.000    0.000    0.000 {method 'endswith' of 'str' objects}
+        2    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap>:232(__init__)
+        2    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap_external>:802(spec_from_file_location)
+        2    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap>:74(__new__)
+        1    0.000    0.000    0.066    0.066 <frozen importlib._bootstrap_external>:989(exec_module)
+        2    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap_external>:1588(_get_spec)
+        2    0.000    0.000    0.000    0.000 C:\Users\skyle\AppData\Local\Programs\Python\Python312\Lib\encodings\cp1252.py:22(decode)
+        2    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap>:173(__exit__)
+        2    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap_external>:67(_relax_case)
+        2    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap_external>:611(_get_cached)
+        2    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap>:372(release)
+        2    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap_external>:132(_path_split)
+        1    0.000    0.000    0.000    0.000 C:\Users\skyle\AppData\Local\Programs\Python\Python312\Lib\cProfile.py:119(__exit__)
+        2    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap>:416(__enter__)
+        1    0.000    0.000    0.065    0.065 <frozen importlib._bootstrap_external>:1287(create_module)
+        2    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap>:82(remove)
+        1    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap_external>:751(_compile_bytecode)
+        1    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap_external>:666(_classify_pyc)
+       10    0.000    0.000    0.000    0.000 {method 'rpartition' of 'str' objects}
+        2    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap>:162(__enter__)
+       10    0.000    0.000    0.000    0.000 {built-in method _imp.release_lock}
+        2    0.000    0.000    0.000    0.000 {built-in method _imp.is_builtin}
+       10    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap>:491(_verbose_message)
+        2    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap>:645(parent)
+        2    0.000    0.000    0.000    0.000 {built-in method builtins.max}
+        2    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap>:79(__init__)
+        3    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap_external>:84(_unpack_uint32)
+        5    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap_external>:140(_path_stat)
+        6    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap_external>:134(<genexpr>)
+        2    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap_external>:1520(find_spec)
+        8    0.000    0.000    0.000    0.000 {method 'join' of 'str' objects}
+        2    0.000    0.000    0.000    0.000 {built-in method _codecs.charmap_decode}
+        1    0.000    0.000    0.066    0.066 {built-in method builtins.exec}
+        2    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap>:420(__exit__)
+        2    0.000    0.000    0.000    0.000 <frozen codecs>:186(__init__)
+        6    0.000    0.000    0.000    0.000 {method 'get' of 'dict' objects}
+        3    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap>:632(cached)
+        2    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap_external>:159(_path_isfile)
+        2    0.000    0.000    0.000    0.000 {built-in method nt._path_splitroot}
+        2    0.000    0.000    0.000    0.000 {built-in method _thread.allocate_lock}
+       10    0.000    0.000    0.000    0.000 {built-in method _imp.acquire_lock}
+        2    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap_external>:150(_path_is_mode_type)
+        2    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap>:445(cb)
+        4    0.000    0.000    0.000    0.000 {built-in method builtins.hasattr}
+        6    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap>:1226(__exit__)
+        2    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap>:1128(find_spec)
+        1    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap_external>:643(_check_name_wrapper)
+        1    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap>:48(_new_module)
+        4    0.000    0.000    0.000    0.000 {built-in method _thread.get_ident}
+        2    0.000    0.000    0.000    0.000 {built-in method _imp.find_frozen}
+        2    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap_external>:185(_path_abspath)
+        6    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap>:1222(__enter__)
+        1    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap_external>:1295(exec_module)
+        2    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap_external>:1469(_path_importer_cache)
+        1    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap_external>:699(_validate_timestamp_pyc)
+        2    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap>:982(find_spec)
+        4    0.000    0.000    0.000    0.000 {method '__exit__' of '_thread.RLock' objects}
+        3    0.000    0.000    0.000    0.000 {built-in method from_bytes}
+        1    0.000    0.000    0.000    0.000 C:\Users\skyle\OneDrive\Documents\GitHub\HexSimulator\movement_teacher.py:21(__init__)
+        1    0.000    0.000    0.000    0.000 C:\Users\skyle\OneDrive\Documents\GitHub\HexSimulator\direction_teacher.py:21(__init__)
+        2    0.000    0.000    0.000    0.000 {built-in method __new__ of type object at 0x00007FFFC2AB48F0}
+        2    0.000    0.000    0.000    0.000 {method 'pop' of 'dict' objects}
+        1    0.000    0.000    0.000    0.000 {built-in method _imp._fix_co_filename}
+        1    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap_external>:1202(path_stats)
+        4    0.000    0.000    0.000    0.000 {method 'rfind' of 'str' objects}
+        2    0.000    0.000    0.000    0.000 {method 'remove' of 'list' objects}
+        2    0.000    0.000    0.000    0.000 C:\Users\skyle\OneDrive\Documents\GitHub\HexSimulator\learner.py:564(__init__)
+        2    0.000    0.000    0.000    0.000 {built-in method _weakref._remove_dead_weakref}
+        2    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap>:599(__init__)
+        2    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap>:412(__init__)
+        1    0.000    0.000    0.000    0.000 <frozen codecs>:260(__init__)
+        1    0.000    0.000    0.000    0.000 {built-in method _imp.exec_dynamic}
+        2    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap>:653(has_location)
+        1    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap_external>:1153(__init__)
+        2    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap>:158(__init__)
+        1    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap_external>:1276(__init__)
+        1    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap_external>:1178(get_filename)
+        1    0.000    0.000    0.000    0.000 <frozen importlib._bootstrap_external>:986(create_module)
