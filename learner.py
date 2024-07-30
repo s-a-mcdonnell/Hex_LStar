@@ -15,10 +15,9 @@ import time
 import functools
 
 ##############################################################################################################
-
-# memoize method and information from https://wiki.python.org/moin/PythonDecoratorLibrary#Memoize
     
 def memoize(obj):
+    '''memoize method and information from https://wiki.python.org/moin/PythonDecoratorLibrary#Memoize'''
     cache = obj.cache = {}
 
     @functools.wraps(obj)
@@ -35,10 +34,11 @@ class Learner:
 
     ##########################################################################################################
 
-    # Draws current m_hat
     def draw_graph(self):
-
-        print("draw graph called.")
+        '''
+        Draws current a graph representing the current DFA M_Hat using Networkx.   
+        Graphs are set off to default but can be enabled with a command line prompt when running any of the testing files
+        '''
 
         # turn the m_hat array into the graph (add appropriate nodes and edges based on table)
         m_graph = nx.MultiDiGraph(directed = True)
@@ -84,12 +84,23 @@ class Learner:
         nx.draw_networkx_edge_labels(m_graph, pos, labels, label_pos=0.25, font_size = 10, font_color="black", connectionstyle=connectionstyle, bbox={"alpha": 0})
 
         plt.show()
-        print("plot printed.")
     
     ##########################################################################################################
 
-    def __init__(self, mem_per_eq, alphabet = ['0','1'], teacher_type=-1, num_states = -1, seed = -1, premade_dfa = None, display_graphs = False, accuracy_checks=False, wb=None, test_id=0):
-        print(f"init called on Learner type {teacher_type}")
+    def __init__(self, mem_per_eq, alphabet = ['0','1'], teacher_type=-1, num_states = -1, seed = -1, premade_dfa = None, display_graphs = False, accuracy_checks=False, wb=None, test_id = None):
+        '''
+        Initializes the learner
+        :param mem_per_eq: the number of equivalence queries performed during a single membership query by the teacher associated with this learner
+        :param alphabet: the alphabet the DFA is using (defaults to binary) (assumed to be in List form otherwise)
+        :param teacher_type: used if there is a specific subclass of teacher associated with this learner
+        :param num_states: number of states to be created in a randomly generated DFA for the teacher
+        :param seed: seed to be used for a randomly generated teacher DFA if applicable
+        :param premade_dfa: the premade Teacher DFA if applicable
+        :param display_graphs: boolean value for if graphs should be drawn of M_Hat as the program progresses
+        :param accuracy_checks: boolean value for if accuracy checks should be performed after every iteration through the main L-Star loop
+        :param wb: workbook in Excel that data should be written to IF APPLICABLE if accuracy checks are performed
+        :param test_id: this is for labeling the Excel files as well (differing between Sheets within the Workbook)
+        '''
 
         self.solved = False
         # Intialize alphabet
@@ -156,10 +167,11 @@ class Learner:
 
     ##########################################################################################################
 
-    # Initialize T and M_hat
-    # Helper method for contructor
     def init_t_m_hat(self):
-        print("init_t_m_hat() called")
+        '''
+        Initialize the Tree T and the initial M_Hat with the empty initial string and one other state.
+        Helper method for constructor __init__.
+        '''
 
         # initialize T with just the empty string (lambda)
         self.t = Tree(Node("", None, 0))

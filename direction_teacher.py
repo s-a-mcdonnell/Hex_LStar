@@ -6,6 +6,10 @@ from hex_v2 import World, Ident
 import functools
 
 def memoize(obj):
+    '''
+    Memoize function from https://wiki.python.org/moin/PythonDecoratorLibrary#Memoize
+    Caches inputs of a deterministic function with their associated outputs for quicker access time overall
+    '''
     cache = obj.cache = {}
 
     @functools.wraps(obj)
@@ -21,11 +25,9 @@ class Direction_Teacher(Teacher):
     
     ##############################################################################################################
 
-    # membership query
-    # takes a string s and returns a boolean indicating whether s is accepted or rejected by the given DFA
     @memoize
     def member(self, s : str, dfa: list[list[int]] = None, alpha = None):
-        # print("membership query called")
+        '''Membership query: takes a string s and returs a boolean indicated whether s is accepted or rejected by the given Teacher DFA'''
 
         if not alpha:
             alpha = self.alphabet

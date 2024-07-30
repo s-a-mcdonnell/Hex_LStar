@@ -63,15 +63,16 @@ class Ident:
 
     ##########################################################################################################
 
-    # Public version of __get_neighbor
     def get_neighbor(self, matrix, dir):
+        '''Public version of __get_neighbor()'''
         return self.__get_neighbor(matrix, dir)
 
     ##########################################################################################################
 
-    # Returns the neighboring hex in the given direction in the given matrix
-    # If that hex does not exist, returns None
+
     def __get_neighbor(self, matrix, dir):
+        '''Returns the neighboring hex in the given direction in the given matrix.
+        If that hex does not exist, returns None'''
         
         if dir == 0:
             # print("neighbor 0")
@@ -121,8 +122,8 @@ class Ident:
         
     ##########################################################################################################
 
-    # Finds the ident(s) with the same serial number as self in the passed list and removes them
     def remove_repeats(self, id_list):
+        '''Finds the ident(s) with the same serial number as self in the passed list and removes them from list'''
         for ident in id_list:
             if ident.serial_number == self.serial_number:
                 id_list.remove(ident)
@@ -131,11 +132,12 @@ class Ident:
 
     ##########################################################################################################
 
-    # Helper method for resolve_collisions()
-    # Takes the hex in which the ident is located and the direcs list of other idents in that hex
-    # Returns the direcs list with pairs of idents which cancel out removed
+
     @staticmethod
     def __remove_pairs(hex, dir, directions):
+        '''Helper method for resolve_collisions().
+        Takes the hex in which the ident is located and the direcs list of other idents in that hex.
+        Returns the direcs list with pairs of idents which cancel out removed'''
         direcs = directions.copy()
 
 
@@ -183,29 +185,30 @@ class Ident:
 
     ##########################################################################################################
 
-    # Returns the absolute value of the difference between the directions of two idents
     def find_offset(self, other):
+        '''Returns the absolute value of the difference between the directions of two idents'''
         for i in range(5):
             if ((self.state + i) % 6 == other.state) or ((self.state - i) % 6 == other.state):
                 return i
     
     ##########################################################################################################
 
-    # Returns a boolean indicating whether or not the given ident is a portal
     def is_portal(self):
+        '''Returns a boolean indicating whether or not the given ident is a portal'''
         return self.property == "portal"
 
     ##########################################################################################################
 
-    # returns a boolean indicating whether the given ident is a goalpost
-    # Returns a boolean indicating whether or not the given ident is a portal
     def is_goal(self):
+        '''Returns a boolean indicating whether the given ident is a goalpost'''
         return self in self.world.goals
+    
     ##########################################################################################################
 
     # note that I should never have to deal with walls in this method
     # note that this reads from hex_matrix_new and ident_list_new and writes to hex_matrix and ident_list
     def resolve_collisions(self):
+        '''Resolves collisions for hexes containing multiple idents'''
         w = self.world
         hex = w.hex_matrix_new[self.matrix_index][self.list_index]
 
@@ -542,9 +545,10 @@ class Ident:
 
     ##########################################################################################################
 
-    # If the head-on (direction of self.state) neighboring hex contains an ident with the given direction, returns said ident
-    # Else returns None
+    
     def __neighbor_contains_direction(self, neighbor_state, neighbor_index=None):
+        '''If the head-on (direction of self.state) neighboring hex contains an ident with the given direction, returns said ident; else returns None'''
+        
         # Default value
         if neighbor_index == None:
             neighbor_index = self.state
@@ -554,28 +558,26 @@ class Ident:
             print("Neighbor DNE")
             return None
 
-    # If the neighbor in the direction in which the ident is pointing is a wall, returns that ident
-    # Else returns None
+    ##########################################################################################################
+
     def __neighbor_is_wall(self, neighbor_index_offset=0):
+        '''If the neighbor in the direction in which the ident is pointing is a wall, returns that ident; else returns None'''
         neighbor_index = (self.state + neighbor_index_offset)%6
 
         return self.__neighbor_contains_direction(-2, neighbor_index)
         
     ##########################################################################################################
-
-    # If there will be a head-on-collision, returns the ident with which it will collide
-    # Else returns none
+    
     # TODO: Could just use a boolean
     def __head_on_collision(self):
+        '''If there will be a head-on-collision, returns the ident with which it will collide; else returns none'''
         return self.__neighbor_contains_direction((self.state + 3)%6)
 
     ##########################################################################################################
     
-    # Copies self and rotates it by the indicated number of directions
-    # Adopts said rotated ident
-    # Returns rotated ident
     def rotate_adopt(self, future_hex, future_ident_list, dir_offset: int = 3, dir_final : int =-3):
-
+        '''Copies self and rotates it by the indicated number of directions; adopts said rotated ident; returns rotated ident'''
+        
         # Calculate final direction if none is given
         if dir_final == -3:
             dir_final = (self.state + dir_offset)%6
@@ -609,10 +611,11 @@ class Ident:
 
     ##########################################################################################################
     
-    # If an ident is stationary or a wall, writes this value to the hex_matrix_new
-    # Elif an ident is running into a wall or a head-on collision, flips it in place (writing to hex_matrix_new)
-    # Else advances an ident by one hex in its direction of motion (if that hex exists)
+    
     def advance_or_flip(self):
+        '''If an ident is stationary or a wall, writes this value to the hex_matrix_new
+        Elif an ident is running into a wall or a head-on collision, flips it in place (writing to hex_matrix_new)
+        Else advances an ident by one hex in its direction of motion (if that hex exists)'''
         
         future_matrix = self.world.hex_matrix_new
         future_hex = future_matrix[self.matrix_index][self.list_index]
@@ -676,6 +679,7 @@ class Ident:
     ##########################################################################################################
 
     def visited(self, m, l):
+        '''Marks ident as visited'''
         # push onto stack history
         # pushed onto the history is
             # hex matrix index
@@ -692,27 +696,27 @@ class Ident:
         
         self.hist.append((m, l, self.state))
 
-        # print("------------------------------------------------------------------------------------------------------------------------", self.hist)
 
     ##########################################################################################################
 
     def __copy(self):
+        '''Copies and returns self'''
         # TODO: Should any of these components be done with .copy()?
         new_copy = Ident(self.matrix_index, self.list_index, self.world, color = self.color, state = self.state, serial_number = self.serial_number, hist = self.hist.copy(), property = self.property, partner_serial_number=self.partner_serial_number)
         return new_copy
     
-        # TODO: Relocate the re-assigning of World.agent here?
 
     ##########################################################################################################
     
-    # Public version of __copy()
     def copy(self):
-
+        '''Public version of __copy()'''
         return self.__copy()
 
     ###############################################################################################################
 
     def backstep(self):
+        '''Reverts self to its state and location from one frame prior'''
+
         past = self.hist.pop()
 
         # first we change the state to the state it was at that point in time
@@ -726,6 +730,7 @@ class Ident:
     ###############################################################################################################
 
     def find_closest_goal(self, hex_test):
+        '''Finds and returns the goal closest to self'''
 
         assert type(hex_test) is Hex
 
@@ -743,6 +748,7 @@ class Ident:
 
     @staticmethod
     def find_next_move(agent):
+        '''Finds and returns the agent's next move represented by an integer (0, 1, -1)''' 
         
         assert type(agent) == Ident
 
@@ -791,9 +797,9 @@ class Ident:
             return 0
         
     
-    # Adjust's agent's state based on input from file, read into world.agent_choices
     @staticmethod
     def get_next_move(agent):
+        '''Adjust's agent's state based on input from file, read into world.agent_choices'''
 
         assert agent in agent.world.agents
         assert agent in agent.world.ident_list
@@ -836,10 +842,10 @@ class Hex:
 
     ###############################################################################################################
 
-    # Takes x and y (Cartesian coordinates where (0, 0) is the top left corner)
-    # Returns a list of 6 coordinates defining a hexagon
     @staticmethod
     def __create_coor(x, y):
+        '''Takes x and y (Cartesian coordinates where (0, 0) is the top left corner)
+        Returns a list of 6 coordinates defining a hexagon'''
         # Making hex smaller so that borders will be visible
         return [(x+3, y+3), (x+37, y+3), (x+57, y+35), (x+37, y+67), (x+3, y+67), (x-17, y+35)]
 
@@ -875,8 +881,8 @@ class Hex:
         self.small_hexagon = [(self.x+9, self.y+11), (self.x+31, self.y+11), (self.x+47, self.y+35), (self.x+31, self.y+59), (self.x+9, self.y+59), (self.x-7, self.y+35)]
     ##########################################################################################################
 
-    # Returns a boolean indicating if the given hex contains any moving idents
     def is_moving(self):
+        '''Returns a boolean indicating if the given hex contains any moving idents'''
 
         for ident in self.idents:
             if ident.state >= 0:
@@ -887,9 +893,8 @@ class Hex:
     
     ##########################################################################################################
 
-    # If the given hex contains any portal idents, returns the first one found
-    # Otherwise returns None
     def contains_portal(self):
+        '''If the given hex contains any portal idents, returns the first one found; else returns None'''
         for ident in self.idents:
             if ident.is_portal():
                 return ident
@@ -898,25 +903,27 @@ class Hex:
     
     ##########################################################################################################
 
-    # Gives the designated hex a wall identity
     # TODO: Could also clear other idents?
     def make_wall(self, world, list_to_append):
+        '''Gives the designated hex a wall identity'''
+
         wall_ident = Ident(self.matrix_index, self.list_index, world, color = (0,0,0), state = -2)
         self.idents.append(wall_ident)
         list_to_append.append(wall_ident)
 
     ##########################################################################################################
 
-    # Gives the designated hex a goalpost identity
     def make_goal(self, world, list_to_append):
+        '''Gives the designated hex a goalpost identity'''
+
         goal_ident = Ident(self.matrix_index, self.list_index, world, color = (247, 173, 45), state = -1, serial_number = -1, hist = None, property = "goal")
         self.idents.append(goal_ident)
         list_to_append.append(goal_ident)
 
     ##########################################################################################################
 
-    # Checks if a hex contains an ident with a specifies property, otherwise, returns none
     def contains_property(self, prop):
+        '''Checks if a hex contains an ident with a specified property and returns that ident; else, returns none'''
 
         for ident in self.idents:
             if ident.property == prop:
@@ -926,10 +933,8 @@ class Hex:
 
     ##########################################################################################################
 
-    # Checks if a hex contains an ident heading in the given directon
-    # If it does, returns that ident
-    # Else returns None
     def contains_direction(self, dir: int):
+        '''Checks if a hex contains an ident heading in the given directon and returns that ident; else returns None'''
 
         # TODO: What if the hex contains multiple idents with that state?
         for ident in self.idents:
@@ -939,10 +944,9 @@ class Hex:
         return None
     
     ##########################################################################################################
-    # Checks if a hex contains a stationary, non-portal ident
-    # If it does, returns that ident
-    # Else returns None
+    
     def contains_stationary(self):
+        '''# Checks if a hex contains a stationary, non-portal ident and returns that ident; else returns None'''
 
         # TODO: What if the hex contains multiple stationary idents?
         for ident in self.idents:
@@ -953,8 +957,8 @@ class Hex:
     
     ##########################################################################################################
     @staticmethod
-    # Returns a list containing only truthy objects in the passed list
     def condense(my_list):
+        '''Returns a list containing only the truthy objects in the passed list'''
         returnable = []
 
         for object in my_list:
@@ -965,10 +969,11 @@ class Hex:
 
     ##########################################################################################################
 
-    # Resolves cases of superimposition caused by steps backward in resolve_collisions
     # TODO: Check if this cases issues with backstepping
     # TODO: What happens if we check the same hex multiple times with different idents?
     def check_superimposition(self, world, ident_to_check):
+        '''Resolves cases of superimposition caused by steps backward in resolve_collisions() (ex. bumps into stationary idents)'''
+
         # All the hexes in this list should contain at least one ident
         assert len(self.idents)
 
@@ -994,8 +999,6 @@ class Hex:
         
         # And create a list of moving idents without null spacers
         condensed_list = Hex.condense(moving_idents)
-
-
 
         # If the hex contains a mix of stationary and moving idents, handle it
         # TODO: What if the hex contains multiple stationary idents?
@@ -1122,8 +1125,8 @@ class Hex:
 
     ##########################################################################################################
 
-    # Graphics (drawing hexes and the corresponding idents)
     def draw(self, screen):
+        '''Graphics (drawing hexes and the corresponding idents)'''
             
         color_to_draw = Hex.DEFAULT_COLOR
 
@@ -1274,17 +1277,21 @@ class World:
                 self.hex_matrix[1+2*i][15-i].make_wall(self, self.wall_list)
                 self.hex_matrix[2+2*i][14-i].make_wall(self, self.wall_list)
 
-    ##########################################################################################################
 
-    # methods for determining the axial hex distance between two hexes in a hex world
     # from https://www.redblobgames.com/grids/hexagons/
-    
     @staticmethod
     def axial_subtract(a : Hex, b : Hex):
+        '''Method for determining the axial hex distance between two hexes in a hex world'''
+
         return Hex(a.matrix_index - b.matrix_index, a.list_index - b.list_index)
 
+    ##########################################################################################################
+
+    # from https://www.redblobgames.com/grids/hexagons/
     @staticmethod
     def axial_distance(a : Hex, b : Hex):
+        '''Method for determining the axial hex distance between two hexes in a hex world'''
+
         vec = World.axial_subtract(a, b)
         return (abs(vec.matrix_index)
             + abs(vec.matrix_index + vec.list_index)
@@ -1292,15 +1299,18 @@ class World:
     
     ##########################################################################################################
     
-    # Swaps out one agent for another in the agent list
     def swap_agents(self, agent_to_remove, agent_to_append):
+        '''Swaps out one agent for another in the agent list'''
         assert agent_to_remove.serial_number == agent_to_append.serial_number
         self.agents.remove(agent_to_remove)
         self.agents.append(agent_to_append)
     
     ##########################################################################################################
+    
     @classmethod
     def __get_color(self, color_text):
+        '''Returns color corresponding to passed string'''
+
         if color_text == "YELLOW" or color_text == "YELLOW\n":
             return (255, 255, 102)
         elif color_text == "PURPLE" or color_text == "PURPLE\n":
@@ -1327,7 +1337,7 @@ class World:
     ##########################################################################################################
 
     def __read_line(self, line):
-        # actual parsing of the text file
+        '''Parses a line of the initial state text file'''
         line_parts = line.split(" ")
         
         matrix_index = int(line_parts[0])
@@ -1408,8 +1418,9 @@ class World:
             print("Command " + command + " invalid.")
     ##########################################################################################################
 
-    # Parses agent choices text file
     def __read_agent_line(self, agent_num, line):
+        '''Parses a line of the agent choices text file'''
+
         print("Reading agent line " + str(agent_num))
 
         line_parts = line.split(" ")
@@ -1419,9 +1430,8 @@ class World:
 
     ##########################################################################################################
     
-
-    # Draws world
     def __draw(self):
+        '''Draws world'''
         # Reset screen
         self.screen.fill((0, 0, 0))
 
@@ -1432,10 +1442,10 @@ class World:
 
     ##########################################################################################################
 
-    # Moves other idents stored in the same hex as this portal ident to its paired location
     def __handle_portals(self):
+        '''Moves other idents stored in the same hex as this portal ident to its paired location'''
 
-    # Set up temp storage for idents to be moved
+        # Set up temp storage for idents to be moved
         # TODO: There must be a better way to initialize this
         updated_portal_idents = []
         
@@ -1523,6 +1533,7 @@ class World:
     ##########################################################################################################
 
     def update(self):
+        '''Advances world by one frame'''
 
         # Clear list of hexes to double-check for superimposed idents
         # TODO: We should be able to delete this, as the while loop that checks for superimposition pops until this list is empty
@@ -1626,7 +1637,7 @@ class World:
     ##########################################################################################################
 
     def __backstep(self):
-        # Reverts every hex to how it was one state back.
+        '''Reverts every hex to how it was one state back.'''
         # Each ident holds its own history of the past 5 steps at any given time.
         # Because the code is deterministic, the next step will be re-calculated the same way.
         
@@ -1680,6 +1691,8 @@ class World:
     ##########################################################################################################
 
     def run(self):
+        '''Runs simulation'''
+        
         run = True
 
         state = "pause"
