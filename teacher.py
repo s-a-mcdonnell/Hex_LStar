@@ -104,7 +104,7 @@ class Teacher:
         print(f"self.surrounding_walls = {self.surrounding_walls}")
         self.valid_walls : int = self.surrounding_walls
 
-        # TODO: Adjust to max number of other walls
+        # TODO: Adjust to max number of other (non-ring) walls
         for i in range (50):
             self.wall_list.append(Ident(matrix_index=-1, list_index=-1, world=self.world, state=-2))
 
@@ -159,8 +159,10 @@ class Teacher:
         
     ##########################################################################################################
 
-    # TODO: Create option not to read agent file?
-    def _create_world(self, s):
+    def _create_world(self, s:str):
+        '''Creates a world based on the passed string and uses this as self.world
+        :param s: a string describing the idents in a world
+        '''
     
         # Reset trackers how many idents are valid
         self.valid_idents = 0
@@ -206,7 +208,7 @@ class Teacher:
             # (It already is on the ident list, but we iterate to indicate that it is valid)
             else:
                 # self.world.ident_list.append(new_ident, self.valid_idents)
-                # TODO: How to now repeat ident when working with goals for example
+                # TODO: How to not repeat ident when working with goals for example
                 new_ident = self.ident_list[self.valid_idents]
 
                 new_ident.matrix_index = mi
@@ -275,12 +277,17 @@ class Teacher:
     ##########################################################################################################
 
     
-    # membership query
-    # takes a string s and returns a boolean indicating whether s is accepted or rejected by the given DFA
-    # TODO: Adapt for hex world
+    
     @memoize
     def member(self, s : str, dfa: list[list[int]] = None, alpha = None):
+        '''
+        Membership query
+        :param s: a string to query
+        :param dfa: a DFA represented as a 2D list
+        returns a boolean indicating whether s is accepted or rejected by the given DFA
+        '''
 
+        # TODO: is self.m ever not None for hex world?
         if not dfa:
             dfa = self.m
         
