@@ -304,9 +304,13 @@ class Teacher:
     ##########################################################################################################
 
     @staticmethod
-    # Returns the distance between two passed idents
     # NOTE: This distance calculation overlaps with a method Allison wrote in World
     def __get_distance(id_1:list[int], id_2:list[int]):
+        '''
+        Calculates and returns the distance between two idents (in number of hexes)
+        :param id_1:
+        :param id_2:
+        '''
         
         # The difference in the matrix index of the idents (vertical)
         mi_dist = id_1[1] - id_2[1]
@@ -326,9 +330,14 @@ class Teacher:
         return total_dist
 
     @staticmethod
-    # Returns a list of two numbers, where the first is the distance (in terms of number of hexes) from the given ident to the agent
-    # And the second is the relative direction from the agent in which one would have to travel to reach the ident
     def __get_distance_and_direction(id:list[int], ag:list[int]):
+        '''
+        Calculates and returns the distance (in number of hexes) and angle between an agent and an ident
+        Returns a list of two numbers, where the first is the distance (in terms of number of hexes) from agent to the given ident
+        And the second is the relative direction from the agent in which one would have to travel to reach the ident
+        :param id:
+        :param ag:
+        '''
         
         # The difference in the matrix index of the idents (vertical)
         mi_dist = id[1] - ag[1]
