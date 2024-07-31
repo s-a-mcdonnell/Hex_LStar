@@ -101,7 +101,6 @@ class Teacher:
         
 
         self.surrounding_walls : int = len(self.wall_list)
-        print(f"self.surrounding_walls = {self.surrounding_walls}")
         self.valid_walls : int = self.surrounding_walls
 
         # TODO: Adjust to max number of other (non-ring) walls
@@ -117,8 +116,6 @@ class Teacher:
         returns either a counterexample or False (indicating that the learned DFA returns the same results as the teacher's DFA/algorithm)
         '''
         assert m_hat
-
-        print("equivalency query called in direction teacher")
 
         # Generate and test an arbitrarily large number of strings
         # for each of these strings, if self.member(s, self.m) is not self.member(s, m_hat), return s
