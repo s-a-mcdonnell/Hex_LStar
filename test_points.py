@@ -5,7 +5,9 @@ import sys
 from teacher import Teacher
 import make_alphabet
 import random
-from hex_v2 import World, Ident
+from hex_world import World, Ident
+# import pdb; pdb.set_trace()
+
 
 ##########################################################################################################
 

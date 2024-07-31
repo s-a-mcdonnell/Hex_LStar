@@ -11,10 +11,14 @@ wb = Workbook()
 if len(sys.argv) >= 2:
     file_name = sys.argv[1]
 else:
-    file_name = "Acc_states_w_mem_per_eq"
+    file_name = "test_results"
 
 
 # Run solver several times with a different number of membership queries per equivalence query
+
+# test_num serves to avoid attempting to create multiple pages with the same name
+test_num = 0
+
 # NOTE: You can set your own number of membership queries per equivalence query
 '''example: for mem_in_eq in [20, 50, 100, 150, 200]:'''
 test_num = 0
