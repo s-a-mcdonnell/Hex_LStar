@@ -1,5 +1,7 @@
 An implementation of Dana Angluin's L* Algorithm for exactly learning DFAs in polynomial time as explained in Chapter 8: "Learning Finite Automata by Experimentation" in "An Introduction to Computational Learning Theory" by Micheal J. Kearns and Umesh V. Vazirani. However, it has been slightly altered to fit with hex agents in the Hex World create by Professor Alfeld's 2024 SURF lab.
 
+Interface with the program via solver.py and run_test.py. l_star_tester.py contains an example on how to use solver.py
+
 The files are as follows...
 
     Python files:
