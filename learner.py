@@ -1,15 +1,10 @@
 from teacher import Teacher
-from hex_v2 import Ident
 
 import itertools as it
 import matplotlib.pyplot as plt
 import networkx as nx
 from movement_teacher import Movement_Teacher
 from direction_teacher import Direction_Teacher
-
-# To write to Excel sheets
-import xlwt 
-from xlwt import Workbook
 
 import time
 import functools
@@ -161,10 +156,6 @@ class Learner:
             for entry in row:
                 assert entry >= 0
         
-        # print("m_hat at end of initialization: " + str(self.m_hat))
-
-        print(f"Learner type {teacher_type} initialization complete")
-
     ##########################################################################################################
 
     def init_t_m_hat(self):
@@ -208,18 +199,11 @@ class Learner:
             self.draw_graph()
     
         # equivalence query on initial M_hat
-        print("calling equivalence query from learner.init_t_m_hat()")
         gamma = self.my_teacher.equivalent(self.m_hat)
-        print(f"gamma returned is {gamma}")
 
         # If there is no counterexample, we have solved the DFA
         if not gamma:
             print("We are done. DFA is the trivial DFA.")
-            if self.my_teacher.member(""):
-                # empty string accepted
-                print("all accepted")
-            else:
-                print("all rejected")
             self.solved = True
         
         # Else put counterexample gamma into our tree T
@@ -251,7 +235,7 @@ class Learner:
 
         # Print debugging information if trying to clobber a pre-existing key:
         if key in self.access_string_reference.keys():
-            print("trying to clobber key " + key)
+            print("Error: Trying to clobber key " + key)
             self.__sift(key)
             #exit(1)
             assert not key in self.access_string_reference.keys()
@@ -262,9 +246,6 @@ class Learner:
 
     def lstar_algorithm(self):
         '''runs Anlguin's L-Star algorithm and prints the learned DFA and its tree upon completion'''
-        print("running l-star")
-
-        runs = 0
 
         while not self.solved:
 
@@ -292,16 +273,6 @@ class Learner:
                 # If no counterexample is provided, the DFA has been solved
                 self.solved = True
 
-            end = time.time()
-
-            # TODO: Delete debugging print statements
-            print()
-            runs += 1
-            print("LOOP COMPLETE IN L STAR ==> " + str(runs))
-            print("Tree size is... " + str(self.t.size(self.t.root)))
-            print("M hat size is..." + str(len(self.m_hat)))
-            print("Time for this loop..." + str(end - start))
-            
             # Check and print accuracy if desired
             if self.accuracy_checks:
                 success_rate = self.__test_accuracy()
@@ -312,11 +283,7 @@ class Learner:
                 self.sheet.write(len(self.m_hat), 1, f'{success_rate}')
 
 
-
-            print()
-
         # If we have exited the loop, we have solved the DFA
-        # if yes we are done
         print("DFA solved!")
         print(f"Learned DFA with {len(self.m_hat)} states:")
         for i in range(len(self.m_hat)):
@@ -345,23 +312,6 @@ class Learner:
 
             if self.my_teacher.member(test_string) == self.my_teacher.member(test_string, self.m_hat):
                 success_tally += 1
-        
-            '''test_string = self.my_teacher.generate_string()
-            self.my_teacher._create_world(test_string)
-            assert self.my_teacher.my_agent
-            agent_dir = Ident.find_next_move(self.my_teacher.my_agent)
-            
-            if isinstance(self.my_teacher, Movement_Teacher):
-                if agent_dir != 0 and self.my_teacher.member(test_string):
-                    success_tally += 1
-                
-            else:
-                assert isinstance(self.my_teacher, Direction_Teacher)
-                if agent_dir == 0:
-                    # TODO: Find a better way of determining what to do when agent_dir is 0 (Direction_Teacher is not used)
-                    success_tally += 1
-                elif agent_dir == 1 and self.my_teacher.member(test_string):
-                    success_tally += 1'''
 
         return success_tally/total_queries
 

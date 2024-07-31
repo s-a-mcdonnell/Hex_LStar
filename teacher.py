@@ -1,5 +1,5 @@
 import random
-from hex_v2 import World, Ident
+from hex_world import World, Ident
 import make_alphabet
 import pdb
 import functools
@@ -22,9 +22,14 @@ def memoize(obj):
 class Teacher:
 
     ##########################################################################################################
+    # NOTE: The maximum number of goals is arbitrary
+    MAX_NUM_GOALS = 3
+    
+    # NOTE: The maximum number of idents is arbitrary
+    MAX_NUM_IDENTS = 50
 
     # Constructor
-    def __init__(self, alphabet, mem_per_eq:int, seed=-1, premade_dfa=None):
+    def __init__(self, alphabet, mem_per_eq:int=100, seed=-1, premade_dfa=None):
         '''
         Teacher constructor
         :param alphabet:
@@ -51,24 +56,28 @@ class Teacher:
             self.m = premade_dfa
         
         # Create empty world with space for idents
-        # TODO: Check that there is enough space for the max number of idents in the world
         self.world = World(read_file=False, display_window=False)
-        #self.ident_list = [Ident(matrix_index=-1, list_index=-1, world=self.world)]*100
+
+        # There is enough space for all regular idents and all goals in the ident list
+        # TODO: Add space for agents?
         self.ident_list = []
-        for i in range(100):
+        for i in range(Teacher.MAX_NUM_IDENTS + Teacher.MAX_NUM_GOALS):
             self.ident_list.append(Ident(matrix_index=-1, list_index=-1, world=self.world))
-        # TODO: Edit declaration of other lists to create distinct items
-        # TODO: Is this the proper way to construct an agent?
+       
+        # TODO: How many agents to allow?
         self.agents = [Ident(matrix_index=-1, list_index=-1, world=self.world, property="agent")]*10
-        self.goal_list = [Ident(matrix_index=-1, list_index=-1, world=self.world, property="goal")]*10
+        
+        self.goal_list = [Ident(matrix_index=-1, list_index=-1, world=self.world, property="goal")]*Teacher.MAX_NUM_GOALS
+        
+        # How many agents and idents are currently being used
         self.valid_idents = 0
         self.valid_agents = 0
 
-        # TODO: How to get the agent to only check the valid idents in a world? (i.e. to check the ident_list from 0 to self.valid_idents-1; same for self.valid_agent and self.valid_walls)
         self.wall_list = []
+
         # TODO: Manage walls? Differentiate between ring and freestanding walls?
-        ''' walls just for the test case where things are a 3x3 square'''
-        # TODO: Remove these walls
+        ''' walls just for the test case where things are a 5x5 square'''
+        # NOTE: Remove these walls and expand the number of valid characters in the alphabet to enable worlds larger thatn 5x5
         for i in range(5, 12):
             new_ident = Ident(5, i, self.world)
             new_ident.state = -2
@@ -90,24 +99,23 @@ class Teacher:
             self.world.hex_matrix[i][11].idents.append(new_ident4)
             self.wall_list.append(new_ident4)
         
-        # TODO: Make sure that these are ints, not object references
+
         self.surrounding_walls : int = len(self.wall_list)
-        print(f"self.surrounding_walls = {self.surrounding_walls}")
         self.valid_walls : int = self.surrounding_walls
 
-        # TODO: Adjust to max number of other walls
+        # TODO: Adjust to max number of other (non-ring) walls
         for i in range (50):
             self.wall_list.append(Ident(matrix_index=-1, list_index=-1, world=self.world, state=-2))
 
     ##########################################################################################################
 
-    # equivalency query
-    # takes the DFA hypothesis m_hat
-    # returns either a counterexample or False (indicating that the DFAs match)
     def equivalent(self, m_hat):
+        '''
+        Equivalency query
+        :param m_hat: The tentative hypothesis
+        returns either a counterexample or False (indicating that the learned DFA returns the same results as the teacher's DFA/algorithm)
+        '''
         assert m_hat
-
-        print("equivalency query called in direction teacher")
 
         # Generate and test an arbitrarily large number of strings
         # for each of these strings, if self.member(s, self.m) is not self.member(s, m_hat), return s
@@ -148,8 +156,10 @@ class Teacher:
         
     ##########################################################################################################
 
-    # TODO: Create option not to read agent file?
-    def _create_world(self, s):
+    def _create_world(self, s:str):
+        '''Creates a world based on the passed string and uses this as self.world
+        :param s: a string describing the idents in a world
+        '''
     
         # Reset trackers how many idents are valid
         self.valid_idents = 0
@@ -158,10 +168,6 @@ class Teacher:
         self.valid_walls = self.surrounding_walls
 
         # Assert that the length of the world-string is valid
-        # NOTE: The >= 6 assertion leads to crashing, as sometimes a three-char string (one letter of the alphabet) is passed
-        # if len(s) < 6 or len(s)%3 != 0:
-        #     print(f"Odd length world-string: {s}")
-        # assert(len(s) >= 6)
         assert(len(s) % 3 == 0)
 
         # TODO: Find a less memory-intensive way of swapping this
@@ -170,7 +176,6 @@ class Teacher:
                 hex.idents.clear()
 
         # Parse string into world
-        # TODO: the forcibly converting it into an integer could cause problems later. Note to self, be careful.
         for i in range(int((len(s))/3)):
 
             # splice the three character string into three one-character chunks
@@ -200,7 +205,7 @@ class Teacher:
             # (It already is on the ident list, but we iterate to indicate that it is valid)
             else:
                 # self.world.ident_list.append(new_ident, self.valid_idents)
-                # TODO: How to now repeat ident when working with goals for example
+                # TODO: How to not repeat ident when working with goals for example
                 new_ident = self.ident_list[self.valid_idents]
 
                 new_ident.matrix_index = mi
@@ -269,12 +274,17 @@ class Teacher:
     ##########################################################################################################
 
     
-    # membership query
-    # takes a string s and returns a boolean indicating whether s is accepted or rejected by the given DFA
-    # TODO: Adapt for hex world
+    
     @memoize
     def member(self, s : str, dfa: list[list[int]] = None, alpha = None):
+        '''
+        Membership query
+        :param s: a string to query
+        :param dfa: a DFA represented as a 2D list
+        returns a boolean indicating whether s is accepted or rejected by the given DFA
+        '''
 
+        # TODO: is self.m ever not None for hex world?
         if not dfa:
             dfa = self.m
         
@@ -291,9 +301,13 @@ class Teacher:
     ##########################################################################################################
 
     @staticmethod
-    # Returns the distance between two passed idents
     # NOTE: This distance calculation overlaps with a method Allison wrote in World
     def __get_distance(id_1:list[int], id_2:list[int]):
+        '''
+        Calculates and returns the distance between two idents (in number of hexes)
+        :param id_1:
+        :param id_2:
+        '''
         
         # The difference in the matrix index of the idents (vertical)
         mi_dist = id_1[1] - id_2[1]
@@ -313,9 +327,14 @@ class Teacher:
         return total_dist
 
     @staticmethod
-    # Returns a list of two numbers, where the first is the distance (in terms of number of hexes) from the given ident to the agent
-    # And the second is the relative direction from the agent in which one would have to travel to reach the ident
     def __get_distance_and_direction(id:list[int], ag:list[int]):
+        '''
+        Calculates and returns the distance (in number of hexes) and angle between an agent and an ident
+        Returns a list of two numbers, where the first is the distance (in terms of number of hexes) from agent to the given ident
+        And the second is the relative direction from the agent in which one would have to travel to reach the ident
+        :param id:
+        :param ag:
+        '''
         
         # The difference in the matrix index of the idents (vertical)
         mi_dist = id[1] - ag[1]
@@ -526,10 +545,8 @@ class Teacher:
         # Save valid agent
         strg += my_agent
 
-        # Generate a valid goal of random location
-        # TODO: Enable the creation of multiple goals
-        # NOTE: The maximum number of goals is arbitrary
-        num_goals = random.randint(1, 3)
+        # Generate (a) valid goal(s) of random location
+        num_goals = random.randint(1, Teacher.MAX_NUM_GOALS)
         goals = []
         for i in range(num_goals):
             my_goal = ""
@@ -560,7 +577,7 @@ class Teacher:
                         break
 
 
-        # Save valid goals to string
+        # Append valid goals to string
         for goal in goals:
             strg += goal
 
@@ -569,10 +586,8 @@ class Teacher:
         '''
         # Generate a pseudo-randomly determined number of other 3-char strings (idents)
         # NOTE: The choice of maximum number of idents is arbitrary; We might want to set to 0 for testing
-        num_idents = random.randint(0, 50)
-        # num_idents = 3
         other_idents = []
-        for i in range(num_idents):
+        for i in range(Teacher.MAX_NUM_IDENTS):
             # breakpoint()
             new_ident = ""
             
@@ -608,14 +623,6 @@ class Teacher:
                         break
         '''
 
-        # # TODO: Sort the three-char strings first by matrix index (2nd char), then list index (2nd char), then property (1st char)
-        # # NOTE: I'm trying another way (not using merge sort) --> less efficient, but hopefully less buggy
-        # #Teacher.__merge_sort(other_idents)
-
-        # # Concatenate these ident strings in the given order then return
-        # for ident_string in other_idents:
-        #     strg += ident_string
-        
         return strg
 
 

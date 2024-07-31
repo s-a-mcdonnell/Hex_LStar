@@ -1,7 +1,7 @@
 # The second teacher (for an agent that is turning, is it turning clockwise or counterclockwise?)
 
 from teacher import Teacher
-from hex_v2 import World, Ident
+from hex_world import Ident
 
 import functools
 
@@ -48,17 +48,10 @@ class Direction_Teacher(Teacher):
             assert self.world
             assert self.my_agent
             
-            original_agent_state = self.my_agent.state
-
-            # TODO: Run one loop of updating the world and check was the agent's state is
-            # TODO: How to know what part of the agent instructions the world should be looking at? (potentially big issue, since we've created a world from scratch)
-
-            new_state = Ident.find_next_move(self.my_agent)
+            # Find the agent's next move
+            agent_move = Ident.find_next_move(self.my_agent)
 
             # SECOND DFA ==> acceptance is clockwise (positive) turn (next move value of 1) and rejection is everything else
-            if new_state == 1:
-                return True
-            else:
-                return False
+            return agent_move == 1
             
     #############################################################################################################

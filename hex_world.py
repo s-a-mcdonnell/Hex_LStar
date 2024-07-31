@@ -3,9 +3,6 @@ import copy
 import os
 import pygame
 
-# Debugger
-import pdb
-
 '''
 Process of the game:
 0. Iterate over Idents
@@ -702,7 +699,7 @@ class Ident:
     def __copy(self):
         '''Copies and returns self'''
         # TODO: Should any of these components be done with .copy()?
-        new_copy = Ident(self.matrix_index, self.list_index, self.world, color = self.color, state = self.state, serial_number = self.serial_number, hist = self.hist.copy(), property = self.property, partner_serial_number=self.partner_serial_number)
+        new_copy = Ident(self.matrix_index, self.list_index, self.world, color = self.color, state = self.state, serial_number = self.serial_number, hist = self.hist.copy(), property = self.property, partner_serial_number=self.partner_serial_number, agent=self.agent)
         return new_copy
     
 
@@ -811,12 +808,12 @@ class Ident:
 
 
         # TODO: What if the agent is currently stationary? (Currently, does nothing)
-        if agent.state >= 0:
-            agent.state += influence
-            agent.state %= 6
+        if self.state >= 0:
+            self.state += influence
+            self.state %= 6
 
-        # Iterate agent index
-        w.agent_step_indices[my_index] += 1
+        #     # Iterate agent index
+        #     w.agent_step_indices[my_index] += 1
 
 
     
@@ -1396,10 +1393,16 @@ class World:
             direction = int(line_parts[4])
             color_text = line_parts[3]
             color = World.__get_color(color_text)
+            
+            if len(line_parts) == 6:
+                if line_parts[5] == 'astar' or line_parts[5] == 'astar\n':
+                    new_agent = Ident(matrix_index, list_index, self, color = color, state = direction, serial_number = -1, hist = None, property = "agent", agent="astar")
 
-            new_agent = Ident(matrix_index, list_index, self, color = color, state = direction, serial_number = -1, hist = None, property = "agent")
+            else:
+                new_agent = Ident(matrix_index, list_index, self, color = color, state = direction, serial_number = -1, hist = None, property = "agent", agent="keyboard")
 
             # Add ident to ident list
+            print(f"appending agent {new_agent}")
             self.ident_list.append(new_agent)
             
             # Add ident to hex
@@ -1747,7 +1750,7 @@ class World:
                 self.update()
             elif state == "hyper":
                 dt = clock.tick(20) / 1000
-                self.update()
+                self.__update()
         
         # Exit
         if(self.goalEnd):

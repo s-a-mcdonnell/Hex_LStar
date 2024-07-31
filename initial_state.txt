@@ -1,4 +1,2 @@
-4 12 agent BLUE 4
-9 5 goal
-3 6 goal
-6 11 goal
+9 6 agent MAROON 5
+3 10 goal
