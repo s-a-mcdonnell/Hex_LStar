@@ -82,7 +82,7 @@ class Learner:
     
     ##########################################################################################################
 
-    def __init__(self, mem_per_eq, alphabet = ['0','1'], teacher_type=-1, num_states = -1, seed = -1, premade_dfa = None, display_graphs = False, accuracy_checks=False, wb=None, test_id = None):
+    def __init__(self, mem_per_eq=100, alphabet = ['0','1'], teacher_type=-1, num_states = -1, seed = -1, premade_dfa = None, display_graphs = False, accuracy_checks=False, wb=None, test_id = None):
         '''
         Initializes the learner
         :param mem_per_eq: the number of equivalence queries performed during a single membership query by the teacher associated with this learner
