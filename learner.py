@@ -156,10 +156,6 @@ class Learner:
             for entry in row:
                 assert entry >= 0
         
-        # print("m_hat at end of initialization: " + str(self.m_hat))
-
-        print(f"Learner type {teacher_type} initialization complete")
-
     ##########################################################################################################
 
     def init_t_m_hat(self):
@@ -203,18 +199,11 @@ class Learner:
             self.draw_graph()
     
         # equivalence query on initial M_hat
-        print("calling equivalence query from learner.init_t_m_hat()")
         gamma = self.my_teacher.equivalent(self.m_hat)
-        print(f"gamma returned is {gamma}")
 
         # If there is no counterexample, we have solved the DFA
         if not gamma:
             print("We are done. DFA is the trivial DFA.")
-            if self.my_teacher.member(""):
-                # empty string accepted
-                print("all accepted")
-            else:
-                print("all rejected")
             self.solved = True
         
         # Else put counterexample gamma into our tree T
@@ -246,7 +235,7 @@ class Learner:
 
         # Print debugging information if trying to clobber a pre-existing key:
         if key in self.access_string_reference.keys():
-            print("trying to clobber key " + key)
+            print("Error: Trying to clobber key " + key)
             self.__sift(key)
             #exit(1)
             assert not key in self.access_string_reference.keys()
@@ -257,9 +246,7 @@ class Learner:
 
     def lstar_algorithm(self):
         '''runs Anlguin's L-Star algorithm and prints the learned DFA and its tree upon completion'''
-        print("running l-star")
-
-        runs = 0
+        print("Running L*")
 
         while not self.solved:
 
@@ -287,16 +274,6 @@ class Learner:
                 # If no counterexample is provided, the DFA has been solved
                 self.solved = True
 
-            end = time.time()
-
-            # TODO: Delete debugging print statements
-            print()
-            runs += 1
-            print("LOOP COMPLETE IN L STAR ==> " + str(runs))
-            print("Tree size is... " + str(self.t.size(self.t.root)))
-            print("M hat size is..." + str(len(self.m_hat)))
-            print("Time for this loop..." + str(end - start))
-            
             # Check and print accuracy if desired
             if self.accuracy_checks:
                 success_rate = self.__test_accuracy()
@@ -307,11 +284,7 @@ class Learner:
                 self.sheet.write(len(self.m_hat), 1, f'{success_rate}')
 
 
-
-            print()
-
         # If we have exited the loop, we have solved the DFA
-        # if yes we are done
         print("DFA solved!")
         print(f"Learned DFA with {len(self.m_hat)} states:")
         for i in range(len(self.m_hat)):

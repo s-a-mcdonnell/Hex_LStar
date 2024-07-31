@@ -76,15 +76,13 @@ def run_solver(mem_per_eq:int, show_graphs:bool, accuracy_checks:bool, wb:Workbo
     with cProfile.Profile() as profile:
         alphabet = []
 
-        print("start")
-
         # reading the alphabet from a file
         __location__ = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__)))
         file = open(os.path.join(__location__, "alphabet.txt"), "r")
         for line in file:
             __read_line(line, alphabet)
 
-        print("ALPHABET PARSED")
+        print("Alphabet parsed")
 
         total_start = time.time()
 
@@ -93,8 +91,7 @@ def run_solver(mem_per_eq:int, show_graphs:bool, accuracy_checks:bool, wb:Workbo
         movement_learner = Learner(mem_per_eq, alphabet=alphabet, teacher_type=0, display_graphs=show_graphs, accuracy_checks=accuracy_checks, wb=wb, test_id=test_id)
         direction_learner = Learner(mem_per_eq, alphabet=alphabet, teacher_type=1, display_graphs=show_graphs, accuracy_checks=accuracy_checks, wb=wb, test_id=test_id)
 
-        print("DFAs INITIALIZED")
-        print()
+        print("Learners initialized")
 
         # Learn movement teacher using L*
         movement_DFA = movement_learner.lstar_algorithm()
@@ -102,31 +99,24 @@ def run_solver(mem_per_eq:int, show_graphs:bool, accuracy_checks:bool, wb:Workbo
 
         # write first DFA to a file for ease of access
         __location__ = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__)))
-
         __write_dfa_to_file(movement_DFA, __location__, "movement_dfa.txt")
-
 
         # Learn direction teacher using L*
         direction_DFA = direction_learner.lstar_algorithm()
         print("SECOND DFA => DIRECTION => IS DONE")
 
-        # write direction teacher to a file
+
+        # write DFA learned by direction teacher to a file
         __write_dfa_to_file(direction_DFA, __location__, "direction_dfa.txt")
 
-    # NOTE: use test_points.py to test the results of the DFAs generated in this solver.py file
     total_end = time.time()
-    print("end")
 
+    # Save states for analysis
     results = pstats.Stats(profile)
     results.sort_stats(pstats.SortKey.TIME)
-
-    results.print_stats() 
-    # NOTE: uncomment thr above if you want to have the stats printed into the terminal
-
-
     results.dump_stats("results.prof")    # NOTE: the above allows the tuna package "pip install tuna" to provide a visual representation of function time using "tuna results.prof"
 
-    print(f"OVERALL TIME: {total_end - total_start}")
+    print(f"Total runtime: {total_end - total_start} seconds")
 
 if __name__ == "__main__":
     # Parse command-line arguments
