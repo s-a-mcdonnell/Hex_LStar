@@ -246,6 +246,7 @@ class Learner:
 
     def lstar_algorithm(self):
         '''runs Anlguin's L-Star algorithm and prints the learned DFA and its tree upon completion'''
+        print("Running L*")
 
         while not self.solved:
 
