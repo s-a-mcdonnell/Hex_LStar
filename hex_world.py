@@ -3,9 +3,6 @@ import copy
 import os
 import pygame
 
-# Debugger
-import pdb
-
 '''
 Process of the game:
 0. Iterate over Idents

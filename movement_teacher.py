@@ -1,7 +1,7 @@
 # Tteacher type 0 -> determines whether or not the agent is turning
 
 from teacher import Teacher
-from hex_v2 import World, Ident
+from hex_world import World, Ident
 
 import functools
 

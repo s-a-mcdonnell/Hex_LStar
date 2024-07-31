@@ -1,15 +1,10 @@
 from teacher import Teacher
-from hex_v2 import Ident
 
 import itertools as it
 import matplotlib.pyplot as plt
 import networkx as nx
 from movement_teacher import Movement_Teacher
 from direction_teacher import Direction_Teacher
-
-# To write to Excel sheets
-import xlwt 
-from xlwt import Workbook
 
 import time
 import functools
@@ -345,23 +340,6 @@ class Learner:
 
             if self.my_teacher.member(test_string) == self.my_teacher.member(test_string, self.m_hat):
                 success_tally += 1
-        
-            '''test_string = self.my_teacher.generate_string()
-            self.my_teacher._create_world(test_string)
-            assert self.my_teacher.my_agent
-            agent_dir = Ident.find_next_move(self.my_teacher.my_agent)
-            
-            if isinstance(self.my_teacher, Movement_Teacher):
-                if agent_dir != 0 and self.my_teacher.member(test_string):
-                    success_tally += 1
-                
-            else:
-                assert isinstance(self.my_teacher, Direction_Teacher)
-                if agent_dir == 0:
-                    # TODO: Find a better way of determining what to do when agent_dir is 0 (Direction_Teacher is not used)
-                    success_tally += 1
-                elif agent_dir == 1 and self.my_teacher.member(test_string):
-                    success_tally += 1'''
 
         return success_tally/total_queries
 

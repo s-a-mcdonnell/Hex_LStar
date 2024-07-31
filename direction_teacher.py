@@ -1,7 +1,7 @@
 # The second teacher (for an agent that is turning, is it turning clockwise or counterclockwise?)
 
 from teacher import Teacher
-from hex_v2 import World, Ident
+from hex_world import Ident
 
 import functools
 

@@ -1,5 +1,5 @@
 import random
-from hex_v2 import World, Ident
+from hex_world import World, Ident
 import make_alphabet
 import pdb
 import functools
