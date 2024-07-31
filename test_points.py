@@ -6,8 +6,6 @@ from teacher import Teacher
 import make_alphabet
 import random
 from hex_v2 import World, Ident
-# import pdb; pdb.set_trace()
-
 
 ##########################################################################################################
 
@@ -50,15 +48,6 @@ mov_teach = Teacher(alphabet, premade_dfa = movement_dfa)
 dir_teach = Teacher(alphabet, premade_dfa = direction_dfa)
 
 # TODO: adapt test_points.py for various alphabet inputs based on changes made to the types of strings inputted into solver.py ?
-
-'''for i in range(1, len(sys.argv)):
-    assert len(sys.argv[i])%3 == 0
-    assert len(sys.argv[i]) >= 6
-    print(f"Agent move from string {sys.argv[i]}: {__get_move(sys.argv[i])}")'''    
-
-'''for i in range(20):
-    new_string = Teacher.generate_string()
-    print(f"Agent move from string {new_string}: {__get_move(new_string)}")'''
 
 goals = ['f66', 'f67', 'f68', 'f69', 'f6a', 'f76', 'f77', 'f78', 'f79', 'f7a','f86', 'f87', 'f88', 'f89', 'f8a', 'f96', 'f97', 'f98', 'f99', 'f9a', 'fa6', 'fa7', 'fa8', 'fa9', 'faa']
 

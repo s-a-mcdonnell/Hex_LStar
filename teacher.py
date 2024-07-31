@@ -27,10 +27,10 @@ class Teacher:
     def __init__(self, alphabet, mem_per_eq:int, seed=-1, premade_dfa=None):
         '''
         Teacher constructor
-        :param alphabet:
-        :param mem_per_eq:
-        :param seed:
-        :param premade_dfa: 
+        :param alphabet: the alphabet used for the Teacher's DFA M
+        :param mem_per_eq: the number of membership queries per equivalence query in L-Star
+        :param seed: seed for a randomly generated DFA, if applicable
+        :param premade_dfa: a premade DFA, in the form of an array, to be the DFA M for the teacher, if applicable
         '''
 
         self.alphabet = alphabet
@@ -105,6 +105,13 @@ class Teacher:
     # takes the DFA hypothesis m_hat
     # returns either a counterexample or False (indicating that the DFAs match)
     def equivalent(self, m_hat):
+        '''
+        An equivalence query which determines if two DFAs, M and M_Hat, are equivalent.
+        Returns either False if the DFAs are equivalent (to represent the lack of a countereaxmple).
+        If the DFAs are not equivalent, return a counterexample string (a string that one DFA accepts and the other rejects)
+        :param m_hat: the DFA being compared to Teacher's DFA (M)
+        '''
+
         assert m_hat
 
         print("equivalency query called in direction teacher")
@@ -126,6 +133,12 @@ class Teacher:
     
     @staticmethod
     def final_state(s : str, dfa: list[list[int]], alpha):
+        '''
+        Static method that returns the state in a specified DFA from a string (ie whether that string is rejected or accepted).
+        :param s: the string we are checking
+        :param dfa: the dfa we are putting the string through
+        :param alpha: the alphabet that the string and the dfa share
+        '''
 
         input = []
 
@@ -150,6 +163,11 @@ class Teacher:
 
     # TODO: Create option not to read agent file?
     def _create_world(self, s):
+        '''
+        Creates an iteration of World from hexv2.py with the arrangement specified in s.
+        Note that it does not create a completely new world, but sets certain idents to be "valid" as an effort for memory storage.
+        :param s: The string that represents the world with 3 hexadecimal characters (ie. f66 is a goal ident in position 6, 6 on the hex grid)
+        '''
     
         # Reset trackers how many idents are valid
         self.valid_idents = 0
@@ -158,10 +176,6 @@ class Teacher:
         self.valid_walls = self.surrounding_walls
 
         # Assert that the length of the world-string is valid
-        # NOTE: The >= 6 assertion leads to crashing, as sometimes a three-char string (one letter of the alphabet) is passed
-        # if len(s) < 6 or len(s)%3 != 0:
-        #     print(f"Odd length world-string: {s}")
-        # assert(len(s) >= 6)
         assert(len(s) % 3 == 0)
 
         # TODO: Find a less memory-intensive way of swapping this
@@ -259,7 +273,6 @@ class Teacher:
 
         
         # Set world to only contain valid idents by slicing lists stored in self
-        # TODO: Check that the correct final index is taken
         self.world.ident_list = self.ident_list[0:self.valid_idents]
         self.world.agents = self.agents[0:self.valid_agents]
         self.world.wall_list = self.wall_list[0:self.valid_walls]
@@ -269,11 +282,14 @@ class Teacher:
     ##########################################################################################################
 
     
-    # membership query
-    # takes a string s and returns a boolean indicating whether s is accepted or rejected by the given DFA
-    # TODO: Adapt for hex world
     @memoize
     def member(self, s : str, dfa: list[list[int]] = None, alpha = None):
+        '''
+        membership query -> takes a string s and determines whether it is accepted or rejected by a given DFA
+        :param s: the string being assessed
+        :param dfa: the DFA that is being queried for membership, if it is differnt from Teacher's DFA "M" (not always applicable)
+        :param alpha: the alphabet matching the inputted DFA, if applicable
+        '''
 
         if not dfa:
             dfa = self.m
@@ -293,6 +309,7 @@ class Teacher:
     @staticmethod
     # Returns the distance between two passed idents
     # NOTE: This distance calculation overlaps with a method Allison wrote in World
+    # TODO: document this method and determine if it is necessary (I don't think it hurts to have it - Allison)
     def __get_distance(id_1:list[int], id_2:list[int]):
         
         # The difference in the matrix index of the idents (vertical)
@@ -315,6 +332,7 @@ class Teacher:
     @staticmethod
     # Returns a list of two numbers, where the first is the distance (in terms of number of hexes) from the given ident to the agent
     # And the second is the relative direction from the agent in which one would have to travel to reach the ident
+    #TODO: document this
     def __get_distance_and_direction(id:list[int], ag:list[int]):
         
         # The difference in the matrix index of the idents (vertical)
@@ -443,7 +461,7 @@ class Teacher:
     # First, sort by the second hexadecimal character (matrix index)
     # Second, sort by the third hexadecimal character (list index)
     # Finally, sort by the first hexadecimal character (property)
-    # TODO: Test this comparison method
+    #TODO: document this method
     def less_than(ident_1 : str, ident_2 : str, agent : str):
 
         # Ensure that we are comparing two idents of valid string length
@@ -503,11 +521,13 @@ class Teacher:
 
     ##########################################################################################################
 
-    # TODO: Adapt for hex world
-    # NOTE: For now, we will only generate 17-char strings, with the first bit indicating whether or not there are walls around the edges, the next 8 bit specifying the coordinates of the agent, the last 8 indicating the coordinates of the goal
-    # NOTE issue: How will the hex world respond when quieried like a DFA when the string is the wrong length? Could we work on how we define the alphabet to allow multiple-char letters so that things will be added/removed on the level of a unit of meaning?
     @staticmethod
     def generate_string():
+        '''
+        static method that generates a random string with specified parameters such that it is a world
+        currently: generates a string of characters where each "character" is 3 hexadecimal figures
+        the string begins with the agent we are focusing on as our current agent
+        '''
 
         strg = ""
 
@@ -564,8 +584,9 @@ class Teacher:
         for goal in goals:
             strg += goal
 
-        # TODO: what is going on in the num idnts one, where is the variable ident coming from in the last else statement??
-
+        
+        # the below is commented out for our current 5x5 experiment.
+        # the below code generalizes the string further and allows for more complicated arrangements of hex world.
         '''
         # Generate a pseudo-randomly determined number of other 3-char strings (idents)
         # NOTE: The choice of maximum number of idents is arbitrary; We might want to set to 0 for testing
@@ -607,14 +628,6 @@ class Teacher:
                         other_idents.insert(other_idents.index(ident), new_ident)
                         break
         '''
-
-        # # TODO: Sort the three-char strings first by matrix index (2nd char), then list index (2nd char), then property (1st char)
-        # # NOTE: I'm trying another way (not using merge sort) --> less efficient, but hopefully less buggy
-        # #Teacher.__merge_sort(other_idents)
-
-        # # Concatenate these ident strings in the given order then return
-        # for ident_string in other_idents:
-        #     strg += ident_string
         
         return strg
 

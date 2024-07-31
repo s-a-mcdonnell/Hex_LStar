@@ -3,6 +3,12 @@ from learner import Learner
 import timeit
 import os
 
+'''
+This file was used to test the runtime of our Teacher._create_world() method
+This had been a method that was causing some runtime trouble during initial testing, and isolating it helped determine runtime errors
+TimeIt is used to take cycle time
+'''
+
 def __read_line(line):
     global alphabet
     # If the line ends in a new line character, add everything except the new line character as an entry in the alphabet
@@ -18,6 +24,9 @@ def __read_line(line):
 ##############################################################################################
 
 def world_init():
+    '''
+    creates a world from a randomly generated string, then deletes it from memory so we do not overload memory
+    '''
 
     s = Teacher.generate_string()
     print(s)
@@ -39,6 +48,7 @@ print("ALPHABET PARSED")
 
 movement_learner = Learner(alphabet=alphabet, teacher_type=0)
 
+# timeit.timeit takes the total time of 5000 executions of the code in the first string, in this case ,world.init()
 exec_time = timeit.timeit("world_init()", "from __main__ import world_init", number=5000)
 print(f"{exec_time} secs.")
 
