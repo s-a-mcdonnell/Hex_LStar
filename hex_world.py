@@ -16,12 +16,12 @@ Process of the game:
 # for storing information about a particular moving hex
 class Ident:
 
-    # TODO: Do we still need this?
+    # Static variable to track number of Idents created
     idents_created = 0
 
     ##########################################################################################################
     
-    def __init__(self, matrix_index, list_index, world, color=(255, 255, 255), state: int = -1, serial_number = -1, hist = None, property = None, partner_serial_number = -1):
+    def __init__(self, matrix_index, list_index, world, color=(255, 255, 255), state: int = -1, serial_number = -1, hist = None, property = None):
         '''
         Ident constructor
         :param matrix_index: an int representing the index of the list in the world.hex_matrix in which the Ident is located
@@ -31,8 +31,7 @@ class Ident:
         :param state: an int representing the state (wall, stationary, or direction) of the Ident
         :param serial_number: int serial number (to check against accidental cloning)
         :param hist: the history of the ident (for backstepping)
-        :param property: a string representing the special property of the ident, if any (ex. "goal," "portal")
-        :param parter_serial_number: int representing the derial number of a portal's destination Ident
+        :param property: a string representing the special property of the ident, if any (ex. "goal")
         '''
 
 
@@ -57,10 +56,6 @@ class Ident:
             Ident.idents_created += 1
         else:
             self.serial_number = serial_number
-            
-            '''if self.state != -2:
-                print("Ident with serial number " + str(self.serial_number) + " copied")
-                print("color: " + str(self.color))'''
 
         self.matrix_index = matrix_index
         self.list_index = list_index
@@ -68,8 +63,6 @@ class Ident:
         self.world = world
 
         self.property = property
-
-        self.partner_serial_number = partner_serial_number
 
     ##########################################################################################################
 
@@ -200,12 +193,6 @@ class Ident:
         for i in range(5):
             if ((self.state + i) % 6 == other.state) or ((self.state - i) % 6 == other.state):
                 return i
-    
-    ##########################################################################################################
-
-    def is_portal(self):
-        '''Returns a boolean indicating whether or not the given ident is a portal'''
-        return self.property == "portal"
 
     ##########################################################################################################
 
@@ -229,12 +216,6 @@ class Ident:
             if maybe_goal is not None:
                 w.goalEnd = True
                 return
-        
-        # If self is a portal, do nothing
-        if self.is_portal():
-            w.hex_matrix[self.matrix_index][self.list_index].idents.append(self)
-            w.ident_list.append(self)
-            return
 
         # The hex to which we will be writing
         write_to_hex = w.hex_matrix[self.matrix_index][self.list_index]
@@ -252,12 +233,6 @@ class Ident:
 
             return
         
-        # If the hex contains only one other state, and that state is a portal, nothing else needs be done
-        if len(hex.idents) == 2 and hex.contains_portal():
-            write_to_hex.idents.append(self)
-            w.ident_list.append(self)
-            return
-        
         # now we have determined that the ident has other idents with it
         # TODO: I think we can do this without getting index (just only append to directions if ident is not self)
         '''my_index = hex.get_ident_index(self)'''
@@ -267,8 +242,7 @@ class Ident:
         # Store all idents in self's hex except for self
         directions = []
         for ident in hex.idents:
-            # Do not add portal idents to list
-            if (ident.serial_number != self.serial_number) and (not ident.is_portal()):
+            if ident.serial_number != self.serial_number:
                 directions.append(ident)
                 # TODO: Add some kind of check for multiple stationary idents if this is not fixed by check_superimposition()
 
@@ -456,9 +430,7 @@ class Ident:
                     left_neighbor = self.__get_neighbor(w.hex_matrix_new, (self.state - 2)%6)
                     right_neighbor = self.__get_neighbor(w.hex_matrix_new, (self.state + 2)%6)
                     # NOTE: you only influence a neighbor if that neighbor is not being influenced by its own direct hit
-                    # TODO: what if one neighbor is being influenced by two different hits on neighboring stationaries????
-                    # i have confirmed that these neighbors are the correct hexes
-                    if left_neighbor is not None and not(left_neighbor.contains_portal()):
+                    if left_neighbor is not None:
                         ident_to_edit = left_neighbor.contains_direction(-1)
                         if (ident_to_edit is not None) and (len(left_neighbor.idents) == 1):
                             # if the left neighbor of the original stationary wall is also stationary, make it move
@@ -507,7 +479,7 @@ class Ident:
                                     to_write_to.idents.append(to_add)
                                     w.ident_list.append(to_add)
 
-                    if right_neighbor is not None and not(right_neighbor.contains_portal()):
+                    if right_neighbor is not None:
                         ident_to_edit = right_neighbor.contains_direction(-1)
                         if (ident_to_edit is not None) and (len(right_neighbor.idents) == 1):
                             # if the right neighbor of the original stationary wall is also stationary, make it move
@@ -712,7 +684,7 @@ class Ident:
     def __copy(self):
         '''Copies and returns self'''
         # TODO: Should any of these components be done with .copy()?
-        new_copy = Ident(self.matrix_index, self.list_index, self.world, color = self.color, state = self.state, serial_number = self.serial_number, hist = self.hist.copy(), property = self.property, partner_serial_number=self.partner_serial_number, agent=self.agent)
+        new_copy = Ident(self.matrix_index, self.list_index, self.world, color = self.color, state = self.state, serial_number = self.serial_number, hist = self.hist.copy(), property = self.property, agent=self.agent)
         return new_copy
     
 
@@ -903,16 +875,6 @@ class Hex:
     
     ##########################################################################################################
 
-    def contains_portal(self):
-        '''If the given hex contains any portal idents, returns the first one found; else returns None'''
-        for ident in self.idents:
-            if ident.is_portal():
-                return ident
-            
-        return None
-    
-    ##########################################################################################################
-
     # TODO: Could also clear other idents?
     def make_wall(self, world, list_to_append):
         '''Gives the designated hex a wall identity'''
@@ -944,7 +906,10 @@ class Hex:
     ##########################################################################################################
 
     def contains_direction(self, dir: int):
-        '''Checks if a hex contains an ident heading in the given directon and returns that ident; else returns None'''
+        '''
+        Checks if a hex contains an ident heading in the given directon and returns that ident; else returns None
+        NOTE: This could cause bugs if a hex contains multuple idents with the same direction
+        '''
 
         # TODO: What if the hex contains multiple idents with that state?
         for ident in self.idents:
@@ -956,14 +921,12 @@ class Hex:
     ##########################################################################################################
     
     def contains_stationary(self):
-        '''# Checks if a hex contains a stationary, non-portal ident and returns that ident; else returns None'''
+        '''
+        Checks if a hex contains a stationary ident and returns that ident; else returns None
+        NOTE: This could cause bugs if a hex contains multiple stationary idents
+        '''
 
-        # TODO: What if the hex contains multiple stationary idents?
-        for ident in self.idents:
-            if (ident.state == -1) and (not ident.is_portal()):
-                return ident
-
-        return None
+        return self.contains_direction(-1)
     
     ##########################################################################################################
     @staticmethod
@@ -995,16 +958,11 @@ class Hex:
         # Create a hex to store our updates
         corrected_hex = Hex(self.matrix_index, self.list_index)
 
-        # If hex is a portal, preserve said ident
-        portal = self.contains_portal()
-        if portal:
-            corrected_hex.idents.append(portal)
-
         # Create sorted list of moving idents in hex (including the ident we're checking)
         # TODO: What if there are multiple idents of the same state? (Could that even happen?)
         moving_idents = [None]*6
         for ident in self.idents:
-            if (ident.state >= 0) and (not ident.is_portal()):
+            if ident.state >= 0:
                 moving_idents[ident.state] = ident
         
         # And create a list of moving idents without null spacers
@@ -1017,7 +975,7 @@ class Hex:
             print("hex with mixed superimposition")
             
             # If said stationary hex is the ident we're checking:
-            if (ident_to_check.state == -1) and (not ident_to_check.is_portal()):
+            if ident_to_check.state == -1:
                 
                 # and if there is only one moving ident in the hex, take its state and make it stationary, pushing its newly stationary self to the checkable list
                 if len(condensed_list) == 1:
@@ -1383,22 +1341,6 @@ class World:
                
             # Add ident to hex
             self.hex_matrix[matrix_index][list_index].idents.append(new_ident)
-        elif command == "portal" or command == "portal\n":
-            # TODO: Replace string property tag with int (easier to compair)
-            new_ident_1 = Ident(matrix_index, list_index, self, color = (75, 4, 122), state = -1, property = "portal")
-             
-            pair_matrix_index = int(line_parts[3])
-            pair_list_index = int(line_parts[4])
-               
-            new_ident_2 = Ident(pair_matrix_index, pair_list_index, self, color = (75, 4, 122), state = -1, property = "portal", partner_serial_number = new_ident_1.serial_number)
-            new_ident_1.partner_serial_number = new_ident_2.serial_number
-
-            # Add idents to hexes and lists
-            self.hex_matrix[matrix_index][list_index].idents.append(new_ident_1)
-            self.ident_list.append(new_ident_1)
-
-            self.hex_matrix[pair_matrix_index][pair_list_index].idents.append(new_ident_2)
-            self.ident_list.append(new_ident_2)
 
         elif command == "agent" or command == "agent\n":
             # NOTE: This is currently only equipped to create one agent
@@ -1455,96 +1397,6 @@ class World:
         for hex_list in self.hex_matrix:
             for hex in hex_list:
                 hex.draw(self.screen)
-
-    ##########################################################################################################
-
-    def __handle_portals(self):
-        '''Moves other idents stored in the same hex as this portal ident to its paired location'''
-
-        # Set up temp storage for idents to be moved
-        # TODO: There must be a better way to initialize this
-        updated_portal_idents = []
-        
-        # TODO: Use portal list instead of ident list?
-        for i in range(len(self.ident_list)):
-            sub_list = []
-            updated_portal_idents.append(sub_list)
-
-
-        # Fill temp storage
-        for i in range(len(self.ident_list)):
-            # If not a portal, do nothing
-            if not self.ident_list[i].is_portal():
-                continue
-
-            portal = self.ident_list[i]
-
-            origin_hex = self.hex_matrix[portal.matrix_index][portal.list_index]
-            assert(origin_hex)
-
-            sub_list_temp = updated_portal_idents[i]
-
-            # Pass all non-portal idents in the hex to temp storage
-            for ident in origin_hex.idents:
-                if not ident.is_portal():
-                    sub_list_temp.append(ident)
-
-        # Clear out existing idents
-        for i in range(len(self.ident_list)):
-            if not self.ident_list[i].is_portal():
-                continue
-
-            portal = self.ident_list[i]
-
-            origin_hex = self.hex_matrix[portal.matrix_index][portal.list_index]
-            assert(origin_hex)
-
-            # Remove all non-portal idents from the origin hex
-            origin_hex.idents.clear()
-
-            # Sanity checking
-            assert(len(origin_hex.idents) == 0)
-
-            # Re-assign portal identity
-            origin_hex.idents.append(portal)
-
-            # Throw error if the origin_hex still contains any non-portal identities (debugging)
-            assert(len(origin_hex.idents) == 1)
-            assert(origin_hex.idents[0].is_portal())
-
-        '''# Checking length of idents lists
-        for coords in portal_list:
-            hex_to_check = hex_matrix_new[coords[0]][coords[1]]
-            assert(len(hex_matrix_new[coords[0]][coords[1]].idents)==1)
-            assert(len(hex_to_check.idents)==1)'''
-
-        # Move idents from temp storage into destination hexes
-        for i in range(len(self.ident_list)):
-            if not self.ident_list[i].is_portal():
-                continue            
-
-            portal = self.ident_list[i]
-
-            # Find the destination portal ident
-            portal_partner = None
-            #TODO: More efficient way to access portal partner
-            for ident in self.ident_list:
-                if ident.serial_number == portal.partner_serial_number:
-                    portal_partner = ident
-                    break
-
-            assert (portal_partner)
-
-            # TODO: Will have to change this depending on how portals are copied
-            destination_hex = self.hex_matrix[portal_partner.matrix_index][portal_partner.list_index]
-
-            # Pass idents from temp storage to destination hex
-            
-            for ident in updated_portal_idents[i]:
-                ident.matrix_index = destination_hex.matrix_index
-                ident.list_index = destination_hex.list_index
-                destination_hex.idents.append(ident)
-
 
     ##########################################################################################################
 
@@ -1641,10 +1493,6 @@ class World:
             print("appending new ident with serial number " + str(new_ident.serial_number) + " and state " + str(new_ident.state))
 
             self.ident_list.append(new_ident)
-        
-        # Move idents between portals
-        # TODO: Maintain separate portal list?
-        self.__handle_portals()
 
         self.frames_created += 1
 
