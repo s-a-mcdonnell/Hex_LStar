@@ -448,6 +448,16 @@ class Teacher:
     ##########################################################################################################
 
     @staticmethod
+    def stationary_ident(ident):
+        '''
+        Returns a boolean indicating if the given ident represents a stationary ident or not
+        :param ident: a list of three (decimal) numbers representing a three-char string representing an ident
+        '''
+        return ident[2] == 1 or ident[2] == 8 or ident[2] == 15
+
+    ##########################################################################################################
+
+    @staticmethod
     def less_than(ident_1 : str, ident_2 : str, agent : str):
         '''
         Returns a boolean indicating if ident_1 is strictly "less than" ident_2 according to the following rules:
@@ -492,8 +502,8 @@ class Teacher:
             return distance_1[0] < distance_2[0]
         else:
             # Idents at the same distance from the agent where only one is stationary
-            if (id_1.state == -1) != (id_2.state == -1):
-                return id_1.state == -1
+            if (Teacher.stationary_ident(id_1)) != (Teacher.stationary_ident(id_2)):
+                return Teacher.stationary_ident(id_1)
         
             # Idents at the same distance from the agent where one is more directly on its current path
             elif abs(distance_1[1]) != abs(distance_2[1]):

@@ -96,7 +96,7 @@ class Learner:
         :param wb: workbook in Excel that data should be written to IF APPLICABLE if accuracy checks are performed
         :param test_id: this is for labeling the Excel files as well (differing between Sheets within the Workbook)
         '''
-
+                
         self.solved = False
         # Intialize alphabet
         self.alphabet = alphabet
