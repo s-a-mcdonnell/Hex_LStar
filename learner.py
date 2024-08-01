@@ -595,7 +595,7 @@ class Tree:
 
     def size(self, root):
         '''
-        A recursive method finding the size of the tree
+        A recursive method returning the size of the tree
         :param root: the root of the tree or subtree
         '''
         if root == None:
