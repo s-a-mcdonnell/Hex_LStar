@@ -1527,14 +1527,9 @@ class World:
             print()
             print("SIM OVER, WE HIT GOAL")
             self.screen.fill((200, 200, 200))
-
-            # Draw a small red square
-            # TODO: Draw something more interesting (insert an image --> cat?)
-            pygame.draw.rect(self.screen, (255, 0, 0), pygame.Rect(10, 10, 20, 20))
             
             print()   
             print("It took " + str(self.frames_created) + " frames to get into the goal.")
-            # TODO: add more info to this ALSO GENERAL INFO PAGE: something about where the goal was located (matrix coords) and which hex went into it? (ident/color)
             pygame.display.update()
             while(self.goalEnd):
                 for event in pygame.event.get():
