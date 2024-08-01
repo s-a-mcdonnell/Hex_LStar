@@ -32,7 +32,7 @@ class Ident:
         :param serial_number: int serial number (to check against accidental cloning)
         :param hist: the history of the ident (for backstepping)
         :param property: a string representing the special property of the ident, if any (ex. "goal," "portal")
-        :param parter_serial_number: int representing the derial number of a portal's destinatin Ident
+        :param parter_serial_number: int representing the derial number of a portal's destination Ident
         '''
 
 
