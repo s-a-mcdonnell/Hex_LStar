@@ -149,7 +149,8 @@ class Ident:
         Helper method for resolve_collisions()
         Takes the hex in which the ident is located and the direcs list of other idents in that hex.
         Returns the direcs list with pairs of idents which cancel out removed
-        TODO: Describe params
+        :param dir: int, state of Ident from which method was called
+        :param directions: list of Idents in the same Hex as Ident from which method was called
         '''
         direcs = directions.copy()
 
@@ -1245,7 +1246,7 @@ class World:
         self.corrected_hexes = []
         self.corrected_idents = []
 
-        # Default agent to None
+        # Default agent to None (will be assigned a value in __read_line if one exists)
         self.agents = []
 
         # set up goalpost list
