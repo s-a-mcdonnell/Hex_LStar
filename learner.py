@@ -2,7 +2,6 @@ from teacher import Teacher
 
 import itertools as it
 import matplotlib.pyplot as plt
-import networkx as nx
 from movement_teacher import Movement_Teacher
 from direction_teacher import Direction_Teacher
 
@@ -103,6 +102,8 @@ class Learner:
 
         # Whether or not to draw the graphs
         self.graphs = display_graphs
+        if self.graphs:
+            import networkx as nx
 
         # Whether or not to do accuracy checks with every iteration of M_hat
         self.accuracy_checks = accuracy_checks
