@@ -31,7 +31,7 @@ class Learner:
 
     def draw_graph(self):
         '''
-        Draws current a graph representing the current DFA M_Hat using Networkx.   
+        Draws current, a graph representing the current DFA M_Hat using Networkx.   
         Graphs are set off to default but can be enabled with a command line prompt when running any of the testing files
         '''
 
@@ -356,9 +356,6 @@ class Learner:
     
     ##########################################################################################################
 
-    # input: gamma (a counterexample generated from an equivalence query) and our tree T (from self)
-    # output: Edits T to update it (returns nothing)
-    # NOTE: remember to SET THE PARENT of a new node when you declare it
     def update_tree(self, gamma):
         '''
         takes in a counterexaple and edits the Classification Tree T to update it with the new string and sift all other affected strings
@@ -457,7 +454,6 @@ class Learner:
 
     ##########################################################################################################
 
-    # output: hypothesis M_hat constructed from T
     def construct_hypothesis(self):
         '''
         Constructs a hypothesized DFA M_Hat from the classification tree self.t.
@@ -545,8 +541,6 @@ class Learner:
 
     ##########################################################################################################
 
-    # input: s is the string being sifted and T is our tree
-    # output: access string in T for the state of M accessed by s
     def __sift(self, s):
         '''
         Returns the access string from tree T associated with the state of M accessed by string s.
@@ -565,6 +559,12 @@ class Node:
     ##########################################################################################################
 
     def __init__(self, value : str, parent, level):
+        '''
+        Node constructor
+        :param value: the string stored in the node
+        :param parent: the Node that is self's parent
+        :param level: an int representing the level of the Node in T (root = 0)
+        '''
         self.value = value
 
         self.parent = parent
@@ -585,11 +585,19 @@ class Tree:
     ##########################################################################################################
 
     def __init__(self, root: Node):
+        '''
+        Tree constructor
+        :param root: the Node that is the root of the tree
+        '''
         self.root = root
 
     ##########################################################################################################
 
     def size(self, root):
+        '''
+        A recursive method finding the size of the tree
+        :param root: the root of the tree or subtree
+        '''
         if root == None:
             return 0
         
@@ -598,9 +606,12 @@ class Tree:
 
         return 1 + l + r
 
+    ##########################################################################################################
 
-    # other methods go here ie sorting stuff
     def print_tree(self):
+        '''
+        Prints the tree to terminal
+        '''
         stack = []
         stack.append(self.root)
         while stack:
