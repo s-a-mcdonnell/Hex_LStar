@@ -358,14 +358,12 @@ class Teacher:
         # Deal with ident in the same location as the agent
         if mi_dist == 0 and li_dist == 0:
             
-            # TODO: Return a direction other than 0? (0 also has another meaning --> straight ahead)
             if id[0] >= 2 and id[0] <= 7:
                 abs_angle = id[0] - 2
             elif id[0] >= 9 and id[0] <= 14:
                 abs_angle = id[0] - 9
             else:
                 assert (id[0] == 0 or id[0] == 1 or id[0] == 8 or id[0] == 15)
-                # TODO: Return a direction other than 0? (0 also has another meaning --> straight ahead)
                 return [total_dist, 0] 
 
         # Deal with ident on a straight northwest/southeast line
@@ -493,9 +491,12 @@ class Teacher:
         if distance_1[0] != distance_2[0]:
             return distance_1[0] < distance_2[0]
         else:
-            
+            # Idents at the same distance from the agent where only one is stationary
+            if (id_1.state == -1) != (id_2.state == -1):
+                return id_1.state == -1
+        
             # Idents at the same distance from the agent where one is more directly on its current path
-            if abs(distance_1[1]) != abs(distance_2[1]):
+            elif abs(distance_1[1]) != abs(distance_2[1]):
                 return abs(distance_1[1]) < abs(distance_2[1])
             
             # Idents at the same distance from the agent where both are symmetrically at angles to the agent's direction of motion
