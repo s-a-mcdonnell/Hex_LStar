@@ -1187,7 +1187,12 @@ class Hex:
 # while loop for running game goes in World
 class World:
 
-    def __init__(self, automatic_walls=True, read_file=True, display_window=True):
+    def __init__(self, automatic_walls=True, display_window=True):
+        '''
+        World constructor
+        :param automatic_walls=True: boolean, whether or not walls will be included around the displayed area
+        :param display_window=True: boolean, whether or not to show graphics
+        '''
 
         self.goalEnd = False
 
@@ -1240,46 +1245,11 @@ class World:
         self.corrected_hexes = []
         self.corrected_idents = []
 
-        # Default agent to None (will be assigned a value in __read_line if one exists)
+        # Default agent to None
         self.agents = []
 
         # set up goalpost list
         self.goals = []
-
-
-        # reading the intial state of the hex board from a file
-        __location__ = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__)))
-        if read_file:
-            file = open(os.path.join(__location__, "initial_state.txt"), "r")
-            for line in file:
-                self.__read_line(line)
-
-            # reading the decisions of the agent from the provided file
-            # NOTE: This would not be part of the final project, but is helpful for demonstration/testing
-            if len(self.agents) > 0:
-                agent_file = open(os.path.join(__location__, "agent_choices.txt"), "r")
-                
-                # Initialize arrays with information about agents
-                # agent_step_indices stores the index in the row of influences which is currently effecting the agent
-                self.agent_step_indices = []
-                # agent_choices stores the row of potential influences in list form for easy access
-                self.agent_choices = []
-                for agent in self.agents:
-                    self.agent_step_indices.append(0)
-
-                    empty_list = []
-                    self.agent_choices.append(empty_list)
-                
-                row_counter = 0
-                for agent_line in agent_file:
-
-                    # Sanity checker that we haven't provided more instructions than we have agents for
-                    if row_counter >= len(self.agents):
-                        break
-
-                    self.__read_agent_line(row_counter, agent_line)
-                    row_counter += 1
-
         
         # Create walls around the edges, if requested
         if automatic_walls:
@@ -1321,7 +1291,11 @@ class World:
     ##########################################################################################################
     
     def swap_agents(self, agent_to_remove, agent_to_append):
-        '''Swaps out one agent for another in the agent list'''
+        '''
+        Swaps out one agent for another in the agent list
+        :param agent_to_remove:
+        :param agent_to_append:
+        '''
         assert agent_to_remove.serial_number == agent_to_append.serial_number
         self.agents.remove(agent_to_remove)
         self.agents.append(agent_to_append)
@@ -1330,7 +1304,10 @@ class World:
     
     @classmethod
     def __get_color(self, color_text):
-        '''Returns color corresponding to passed string'''
+        '''
+        Returns color corresponding to passed string
+        :param color_text: string color name
+        '''
 
         if color_text == "YELLOW" or color_text == "YELLOW\n":
             return (255, 255, 102)
@@ -1354,90 +1331,6 @@ class World:
             return (166, 129, 85)
         else:
             return (100, 100, 100)
-
-    ##########################################################################################################
-
-    def __read_line(self, line):
-        '''Parses a line of the initial state text file'''
-        line_parts = line.split(" ")
-        
-        matrix_index = int(line_parts[0])
-        list_index = int(line_parts[1])
-        command = line_parts[2]
-
-        if command == "move":
-            direction = int(line_parts[4])
-            color_text = line_parts[3]
-            color = World.__get_color(color_text)
-            new_ident = Ident(matrix_index, list_index, self, color = color, state = direction)
-            
-            # Add ident to ident list
-            self.ident_list.append(new_ident)
-            
-            # Add ident to hex
-            self.hex_matrix[matrix_index][list_index].idents.append(new_ident)
-        elif command == "occupied":
-            color_text = line_parts[3]
-            color = World.__get_color(color_text)
-            new_ident = Ident(matrix_index, list_index, self, color = color)
-            
-            # Add ident to ident list
-            self.ident_list.append(new_ident)
-            
-            # Add ident to hex
-            self.hex_matrix[matrix_index][list_index].idents.append(new_ident)
-        elif command == "wall" or command == "wall\n":
-            new_ident = Ident(matrix_index, list_index, self, color = (0,0,0), state = -2)
-            
-            # Add wall ident to wall list instead of ident list
-            self.wall_list.append(new_ident)     
-               
-            # Add ident to hex
-            self.hex_matrix[matrix_index][list_index].idents.append(new_ident)
-
-        elif command == "agent" or command == "agent\n":
-            # NOTE: This is currently only equipped to create one agent
-            
-            direction = int(line_parts[4])
-            color_text = line_parts[3]
-            color = World.__get_color(color_text)
-            
-            if len(line_parts) == 6:
-                if line_parts[5] == 'astar' or line_parts[5] == 'astar\n':
-                    new_agent = Ident(matrix_index, list_index, self, color = color, state = direction, serial_number = -1, hist = None, property = "agent", agent="astar")
-
-            else:
-                new_agent = Ident(matrix_index, list_index, self, color = color, state = direction, serial_number = -1, hist = None, property = "agent", agent="keyboard")
-
-            # Add ident to ident list
-            print(f"appending agent {new_agent}")
-            self.ident_list.append(new_agent)
-            
-            # Add ident to hex
-            self.hex_matrix[matrix_index][list_index].idents.append(new_agent)
-
-            # Store ident as agent
-            self.agents.append(new_agent)
-
-        elif command == "goal" or command == "goal\n":
-            goal_ident = Ident(matrix_index, list_index, self, color = (247, 173, 45), state = -1, serial_number = -1, hist = None, property = "goal")
-            self.hex_matrix[matrix_index][list_index].idents.append(goal_ident)
-            self.goals.append(goal_ident)
-                
-        # Print error message
-        else:
-            print("Command " + command + " invalid.")
-    ##########################################################################################################
-
-    def __read_agent_line(self, agent_num, line):
-        '''Parses a line of the agent choices text file'''
-
-        print("Reading agent line " + str(agent_num))
-
-        line_parts = line.split(" ")
-        
-        for direction in line_parts:
-            self.agent_choices[agent_num].append(int(direction))
 
     ##########################################################################################################
     
