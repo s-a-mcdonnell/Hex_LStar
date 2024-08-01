@@ -11,6 +11,7 @@ Process of the game:
 2. Resolve collisions. For hexes that contain multiple idents...
    a: If it has an ident of opposite direction in that hex, bounce off/reverse direction
    b: Else, take the average of all other idents EXCEPT SELF, but break ties by using the opposite ident of self
+3. Resolve idents moved into a different hex during step 2
 '''
 
 # for storing information about a particular moving hex
@@ -74,8 +75,12 @@ class Ident:
 
 
     def __get_neighbor(self, matrix, dir):
-        '''Returns the neighboring hex in the given direction in the given matrix.
-        If that hex does not exist, returns None'''
+        '''
+        Returns the neighboring hex in the given direction in the given matrix.
+        If that hex does not exist, returns None
+        :param matrix: the hex matrix that includes the ident
+        :param dir: an int representing the direction of interest
+        '''
         
         if dir == 0:
             # print("neighbor 0")
