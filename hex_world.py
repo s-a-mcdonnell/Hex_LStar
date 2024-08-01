@@ -246,17 +246,14 @@ class Ident:
             return
         
         # now we have determined that the ident has other idents with it
-        # TODO: I think we can do this without getting index (just only append to directions if ident is not self)
-        '''my_index = hex.get_ident_index(self)'''
-        dir = self.state
 
+        dir = self.state
 
         # Store all idents in self's hex except for self
         directions = []
         for ident in hex.idents:
             if ident.serial_number != self.serial_number:
                 directions.append(ident)
-                # TODO: Add some kind of check for multiple stationary idents if this is not fixed by check_superimposition()
 
         
         if not hex.contains_stationary():
@@ -316,7 +313,6 @@ class Ident:
 
                 # If there are no idents left in directions, remain stationary
                 if len(directions) == 0:
-                    # TODO: Is copying necessary?
                     my_copy = self.__copy()
                     write_to_hex.idents.append(my_copy)
                     w.ident_list.append(my_copy)
@@ -330,7 +326,6 @@ class Ident:
                     self.rotate_adopt(write_to_hex, w.ident_list, dir_final = directions[0].state)
             
                 elif len(directions) == 2:
-                    # TODO: Note that this is copied directly from above --> how can we restructure?
                         # if the other two are at 120 degrees to each other, take the value in between
                     if (directions[0].state + 2)%6 == directions[1].state:
                         print("rotate call a")
@@ -340,14 +335,12 @@ class Ident:
                         self.rotate_adopt(write_to_hex, w.ident_list, dir_final = (directions[0].state - 1)%6)
                     
                     # if the other two cohabitants are adjacent to one another (60 degrees), take one of the states (arbitrary formula)
-                    # TODO: ^^ Note that this is an arbitrary decision ^^
+                    # NOTE: ^^ This is an arbitrary decision ^^
                     else:
-                        # TODO: Note that this runs into issues when there is superimposition of multiple stationary idents
                         assert(directions[0].state != -1 and directions[1].state != -1)
 
                         assert(((directions[0].state + 1)%6 == directions[1].state) or ((directions[0].state - 1)%6 == directions[1].state))
                         
-                        # TODO: Change decision-making for which state to take?
                         state_to_take = directions[0].state
                         if (directions[0].state - directions[1].state)%6 > 2:
                             state_to_take = directions[1].state
@@ -362,7 +355,6 @@ class Ident:
                     
                     # Symmetrical case --> stationary hex does not move
                     if (directions[0].find_offset(directions[1]) == 2 and directions[1].find_offset(directions[2]) == 2):
-                        # TODO: Is copying necessary?
                         my_copy = self.__copy()
                         write_to_hex.idents.append(my_copy)
                         w.ident_list.append(my_copy)
@@ -372,9 +364,6 @@ class Ident:
                     
                     # Adjacent case (the three moving idents are clumped together) --> stationary hex is bumped in the direction of the middle ident
                     else:
-
-                        # TODO: Add assertion here?
-
                         
                         direc_0_1_offset = directions[0].find_offset(directions[1])
                         direc_1_2_offset = directions[1].find_offset(directions[2])
@@ -382,17 +371,14 @@ class Ident:
                         
                         # If directions[0] has the middle state, take that state
                         if direc_0_1_offset == 1 and direc_0_2_offset == 1:
-                            # TODO: Is copying necessary?
                             self.rotate_adopt(write_to_hex, w.ident_list, dir_final = directions[0].state)
                         
                         # If directions[1] has the middle state, take that state
                         elif direc_1_2_offset == 1 and direc_0_1_offset == 1:
-                            # TODO: Is copying necessary?
                             self.rotate_adopt(write_to_hex, w.ident_list, dir_final = directions[1].state)
 
                         # If directions[2] has the middle state, take that state
                         elif direc_0_2_offset == 1 and direc_1_2_offset == 1:
-                            # TODO: Is copying necessary?
                             self.rotate_adopt(write_to_hex, w.ident_list, dir_final = directions[2].state)
 
                         else:
@@ -499,8 +485,6 @@ class Ident:
                             to_become.state = (self.state + 1) % 6
 
                             to_write_to = w.hex_matrix[right_neighbor.matrix_index][right_neighbor.list_index]
-                            # TODO note to self, might also have to remove the other version of this ident from the ident_list in the world (not ident list new)
-                            # to_write_to.idents.clear()
                             to_write_to.idents.append(to_become)
 
                             trouble = next((Ident for Ident in w.ident_list if (Ident.serial_number == to_become.serial_number) and (Ident.state == -1)), None)
@@ -600,7 +584,6 @@ class Ident:
 
         if future_ident_list == self.world.corrected_idents:
             # Don't double-up on idents with the same serial number in the corrected list
-            # TODO: What to do about doubling-up within the hex.idents lists?
             ident.remove_repeats(future_ident_list)
 
         future_ident_list.append(ident)
@@ -793,9 +776,6 @@ class Ident:
         if n_left is not None:
             distances[n_left] = agent.find_closest_goal(n_left)
 
-        # TODO: special case if none of the neighbors we are looking for exist/are valid/are not walls???
-        # MAKE SURE NOT TO SEND THE AGENT INTO A WALL PLS
-
         assert distances is not None
         assert len(distances.values()) != 0
 
@@ -823,8 +803,8 @@ class Ident:
 
         influence = Ident.find_next_move(agent)
 
-        # TODO: why is this self??? :C
-        # TODO: What if the agent is currently stationary? (Currently, does nothing)
+
+        # NOTE: If the agent is currently stationary, it cannot act
         if agent.state >= 0:
             agent.state += influence
             agent.state %= 6
@@ -848,7 +828,6 @@ class Hex:
         :param to_find: the Ident to check for
         '''
 
-        # TODO: What if the hex contains multiple idents with that state?
         for i in range(len(self.idents)):
             if self.idents[i] == to_find:
                 return i
@@ -886,7 +865,6 @@ class Hex:
         self.coordinates = Hex.__create_coor(self.x, self.y)
 
        
-        # TODO: Move arrows and smaller hexagon to idents? (maybe)
         # Create arrows for later use
         #pivot is the center of the hexagon
         pivot = pygame.Vector2(self.x + 20, self.y + 35)
@@ -953,7 +931,6 @@ class Hex:
         NOTE: This could cause bugs if a hex contains multiple idents with the same direction
         '''
 
-        # TODO: What if the hex contains multiple idents with that state?
         for ident in self.idents:
             if ident.state == dir:
                 return ident
@@ -1007,7 +984,6 @@ class Hex:
         corrected_hex = Hex(self.matrix_index, self.list_index)
 
         # Create sorted list of moving idents in hex (including the ident we're checking)
-        # TODO: What if there are multiple idents of the same state? (Could that even happen?)
         moving_idents = [None]*6
         for ident in self.idents:
             if ident.state >= 0:
@@ -1017,8 +993,6 @@ class Hex:
         condensed_list = Hex.condense(moving_idents)
 
         # If the hex contains a mix of stationary and moving idents, handle it
-        # TODO: What if the hex contains multiple stationary idents?
-        # TODO: Decide what to do here and implement it
         if self.contains_stationary():
             print("hex with mixed superimposition")
             
@@ -1029,7 +1003,6 @@ class Hex:
                 if len(condensed_list) == 1:
                     
                     # Make moving hex stationary and push it to be dealt with
-                    # TODO: What matrix to pass to get_neighbor here? I (Skyler) have passed hex_matrix to get its current value, but we need to check if that causes issues with the iterative calls to check_superimposition
                     moving_hex_of_origin = condensed_list[0].get_neighbor(world.hex_matrix, (condensed_list[0].state + 3)%6)
                     modified_ident = condensed_list[0].rotate_adopt(moving_hex_of_origin, world.corrected_idents, dir_final=-1)
                     world.double_check.append([moving_hex_of_origin, modified_ident])
@@ -1042,7 +1015,6 @@ class Hex:
                     return
             
             # Else bounce the ident we're checking off of the stationary hex
-            # TODO: Do we need to bounce anything else?
             else:
                 ident_to_check.rotate_adopt(corrected_hex, world.corrected_idents)
 
@@ -1051,7 +1023,6 @@ class Hex:
         else:
             
             # If the hex contains opposite pairs of idents, remove said pairs from the moving_idents list
-            # TODO: Refactor to use same code as in resolve_collisions?
             for i in range(3):
                 if moving_idents[i] and moving_idents[i+3]:
 
@@ -1079,7 +1050,6 @@ class Hex:
             remaining_idents = len(condensed_list)
             
             # If there is only one ident remaining, preserve it
-            # TODO: is copying really necessary here?
 
             if remaining_idents == 1:
                 my_copy = condensed_list[0].copy()     
@@ -1090,13 +1060,12 @@ class Hex:
                 corrected_hex.idents.append(my_copy)
                 
                 # Don't double-up on idents with the same serial number in the corrected list
-                # TODO: What to do about doubling-up within the hex.idents lists?
                 my_copy.remove_repeats(world.corrected_idents)
 
                 world.corrected_idents.append(my_copy)
 
-            # TODO: For everything in check_superimposition from here on down, we need to account for ident_to_check either being or not being involved in the potential collision
-            # TODO: If ident_to_check is involved, deal with it. Otherwise, leave it be (it's already been handled, and messing with it would only undo that work)
+            # For everything in check_superimposition from here on down, we need to account for ident_to_check either being or not being involved in the potential collision
+            # If ident_to_check is involved, deal with it. Otherwise, leave it be (it's already been handled, and messing with it would only undo that work)
             elif remaining_idents == 3:
                 # There are three idents remaining
                 
@@ -1115,13 +1084,11 @@ class Hex:
                             moving_idents[(i+2)%6].rotate_adopt(corrected_hex, world.corrected_idents, dir_final = moving_idents[i].state)
 
                             # The middle ident is preserved
-                            # TODO: is copying really necessary here?
                             middle_copy = moving_idents[(i+1)%6].copy()
                             middle_copy.remove_repeats(corrected_hex.idents)
                             corrected_hex.idents.append(middle_copy)
 
                             # Don't double-up on idents with the same serial number in the corrected list
-                            # TODO: What to do about doubling-up within the hex.idents lists?
                             my_copy.remove_repeats(world.corrected_idents)
 
                             world.corrected_idents.append(middle_copy)
@@ -1348,7 +1315,6 @@ class World:
         '''Advances world by one frame'''
 
         # Clear list of hexes to double-check for superimposed idents
-        # TODO: We should be able to delete this, as the while loop that checks for superimposition pops until this list is empty
         self.double_check.clear()
 
         # Clear lists of corrected hexes and idents
@@ -1424,12 +1390,10 @@ class World:
             check_hex.check_superimposition(self, check_ident)
         
         # Substitute in corrected hexes and idents
-        # TODO: Will waiting to swap these in cause issues in iteratively calling check_superimposition()?
         for hex in self.corrected_hexes:
             print("swap in corrected hex")
             self.hex_matrix[hex.matrix_index][hex.list_index] = hex
 
-        # TODO: Merge the two for-loops going through self.corrected_idents?
         for new_ident in self.corrected_idents:
             new_ident.remove_repeats(self.ident_list)
         
@@ -1450,7 +1414,6 @@ class World:
         # Because the code is deterministic, the next step will be re-calculated the same way.
         
         # Only take any steps if there is history left to be shown
-        # TODO: This is a pretty janky way to check if there is space to step back
         if (len(self.ident_list) > 0) and (len(self.ident_list[0].hist) > 0):
         
             # First, clear the matrix and list
@@ -1562,14 +1525,9 @@ class World:
             print()
             print("SIM OVER, WE HIT GOAL")
             self.screen.fill((200, 200, 200))
-
-            # Draw a small red square
-            # TODO: Draw something more interesting (insert an image --> cat?)
-            pygame.draw.rect(self.screen, (255, 0, 0), pygame.Rect(10, 10, 20, 20))
             
             print()   
             print("It took " + str(self.frames_created) + " frames to get into the goal.")
-            # TODO: add more info to this ALSO GENERAL INFO PAGE: something about where the goal was located (matrix coords) and which hex went into it? (ident/color)
             pygame.display.update()
             while(self.goalEnd):
                 for event in pygame.event.get():

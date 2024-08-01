@@ -309,7 +309,6 @@ class Learner:
         success_tally = 0
 
         total_queries = 500
-        # TODO: Determine if 500 is a reasonable number of membership queries to make for this check
         for i in range(0, total_queries):
             test_string = self.my_teacher.generate_string()
 
