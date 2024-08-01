@@ -578,8 +578,6 @@ class Ident:
         # Calculate final direction if none is given
         if dir_final == -3:
             dir_final = (self.state + dir_offset)%6
-        
-        # print("Rotating ident " + str(self.serial_number) + " from state " + str(self.state) + " to " + str(dir_final))
 
         ident = self.__copy()
         ident.state = dir_final
@@ -588,7 +586,6 @@ class Ident:
         ident.matrix_index = future_hex.matrix_index
         ident.list_index = future_hex.list_index
 
-        # TODO: Is this a valid way of checking if two lists are the same?
         if future_ident_list == self.world.corrected_idents:
             # Don't double-up on idents with the same serial number in the corrected list
             # TODO: What to do about doubling-up within the hex.idents lists?
@@ -806,7 +803,7 @@ class Ident:
 
         influence = Ident.find_next_move(agent)
 
-
+        # TODO: why is this self??? :C
         # TODO: What if the agent is currently stationary? (Currently, does nothing)
         if self.state >= 0:
             self.state += influence

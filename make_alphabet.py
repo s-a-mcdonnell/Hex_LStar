@@ -23,6 +23,8 @@ def check_validity(input):
     if (y <= 5) or (y >= 11):
         return False
     
+    '''The below commented out code is for a full hexgrid as seen in our HexSimulator repository'''
+
     # y needs to be... greater than 6 - i...
     # and less than 15 - i if x is odd, but less than 14 - i if x is even
 
@@ -50,7 +52,7 @@ def write_alphabet():
     # Writing to a text file according to this tutorial: https://www.w3schools.com/python/python_file_write.asp
 
     # Overwrite text in alphabet file with the empty string
-    # TODO: Deal with case where file doesn't exist
+    # "w" (write only) access mode createts a new file in the folder if it does not already exist (if it already exists, the file gets overwritten)
     f = open("alphabet.txt", "w")
     f.write("")
     f.close()

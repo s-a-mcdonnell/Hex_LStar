@@ -7,6 +7,7 @@ from direction_teacher import Direction_Teacher
 
 import time
 import functools
+import networkx as nx
 
 ##############################################################################################################
     
@@ -385,7 +386,6 @@ class Learner:
             loop_d = node_sift.parent.value if node_sift.parent else ""
 
             # Accessing dictionary key from value according to these instructions: https://www.geeksforgeeks.org/python-get-key-from-value-in-dictionary/#
-            # TODO: This is a janky way to be using a dictionary. Is this the best-suited ADT for our purposes?
             row_in_m_hat = self.m_hat.index(Teacher.final_state(strng, self.m_hat, self.alphabet))
             my_dict = self.access_string_reference
             access_string_m_hat = list(my_dict.keys())[list(my_dict.values()).index(row_in_m_hat)]
