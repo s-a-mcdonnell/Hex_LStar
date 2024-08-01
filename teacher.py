@@ -56,7 +56,7 @@ class Teacher:
             self.m = premade_dfa
         
         # Create empty world with space for idents
-        self.world = World(read_file=False, display_window=False)
+        self.world = World(display_window=False)
 
         # There is enough space for all regular idents and all goals in the ident list
         # TODO: Add space for agents?
