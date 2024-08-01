@@ -1,5 +1,3 @@
-import cProfile
-import pstats
 import time
 import random
 
@@ -69,62 +67,48 @@ def run_solver(mem_per_eq:int, show_graphs:bool, accuracy_checks:bool, wb:Workbo
     :param wb: the name of the Excel workbook accuracy values would be written to if applicable
     :param test_id: a number to add to the name of the sheet within the Excel workbook, if applicable
     '''
+    alphabet = []
 
-    # runs the Profiler when running tests via solver to assess funtion runtime disparity
+    print("start")
 
-    # profiler information -> https://docs.python.org/3/library/profile.html#pstats.Stats
-    with cProfile.Profile() as profile:
-        alphabet = []
+    # reading the alphabet from a file
+    __location__ = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__)))
+    file = open(os.path.join(__location__, "alphabet.txt"), "r")
+    for line in file:
+        __read_line(line, alphabet)
 
-        print("start")
+    print("ALPHABET PARSED")
 
-        # reading the alphabet from a file
-        __location__ = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__)))
-        file = open(os.path.join(__location__, "alphabet.txt"), "r")
-        for line in file:
-            __read_line(line, alphabet)
+    total_start = time.time()
 
-        print("ALPHABET PARSED")
+    # Create learners:
+    # 0 -> movement teacher, 1 -> direction teacher
+    movement_learner = Learner(mem_per_eq, alphabet=alphabet, teacher_type=0, display_graphs=show_graphs, accuracy_checks=accuracy_checks, wb=wb, test_id=test_id)
+    direction_learner = Learner(mem_per_eq, alphabet=alphabet, teacher_type=1, display_graphs=show_graphs, accuracy_checks=accuracy_checks, wb=wb, test_id=test_id)
 
-        total_start = time.time()
+    print("DFAs INITIALIZED")
+    print()
 
-        # Create learners:
-        # 0 -> movement teacher, 1 -> direction teacher
-        movement_learner = Learner(mem_per_eq, alphabet=alphabet, teacher_type=0, display_graphs=show_graphs, accuracy_checks=accuracy_checks, wb=wb, test_id=test_id)
-        direction_learner = Learner(mem_per_eq, alphabet=alphabet, teacher_type=1, display_graphs=show_graphs, accuracy_checks=accuracy_checks, wb=wb, test_id=test_id)
+    # Learn movement teacher using L*
+    movement_DFA = movement_learner.lstar_algorithm()
+    print("FIRST DFA => MOVEMENT => IS DONE")
 
-        print("DFAs INITIALIZED")
-        print()
+    # write first DFA to a file for ease of access
+    __location__ = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__)))
 
-        # Learn movement teacher using L*
-        movement_DFA = movement_learner.lstar_algorithm()
-        print("FIRST DFA => MOVEMENT => IS DONE")
-
-        # write first DFA to a file for ease of access
-        __location__ = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__)))
-
-        __write_dfa_to_file(movement_DFA, __location__, "movement_dfa.txt")
+    __write_dfa_to_file(movement_DFA, __location__, "movement_dfa.txt")
 
 
-        # Learn direction teacher using L*
-        direction_DFA = direction_learner.lstar_algorithm()
-        print("SECOND DFA => DIRECTION => IS DONE")
+    # Learn direction teacher using L*
+    direction_DFA = direction_learner.lstar_algorithm()
+    print("SECOND DFA => DIRECTION => IS DONE")
 
-        # write direction teacher to a file
-        __write_dfa_to_file(direction_DFA, __location__, "direction_dfa.txt")
+    # write direction teacher to a file
+    __write_dfa_to_file(direction_DFA, __location__, "direction_dfa.txt")
 
     # NOTE: use test_points.py to test the results of the DFAs generated in this solver.py file
     total_end = time.time()
     print("end")
-
-    results = pstats.Stats(profile)
-    results.sort_stats(pstats.SortKey.TIME)
-
-    results.print_stats() 
-    # NOTE: uncomment thr above if you want to have the stats printed into the terminal
-
-
-    results.dump_stats("results.prof")    # NOTE: the above allows the tuna package "pip install tuna" to provide a visual representation of function time using "tuna results.prof"
 
     print(f"OVERALL TIME: {total_end - total_start}")
 
