@@ -25,7 +25,7 @@ test_num = 0
 # NOTE: You can set your own number of membership queries per equivalence query
 # For example, to test one solve each with 20, 50, and 100, use: 
 '''for mem_in_eq in [20, 50, 100]:'''
-for mem_in_eq in [20]:
+for mem_in_eq in [10]:
     print(f"\nRunning test with {mem_in_eq} membershup queries per equivalence query\n")
     
     try:
