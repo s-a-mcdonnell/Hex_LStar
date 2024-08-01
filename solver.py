@@ -77,7 +77,7 @@ def run_solver(mem_per_eq:int, show_graphs:bool, accuracy_checks:bool, wb:Workbo
     for line in file:
         __read_line(line, alphabet)
 
-    print("ALPHABET PARSED")
+        print("Alphabet parsed")
 
     total_start = time.time()
 
@@ -86,9 +86,8 @@ def run_solver(mem_per_eq:int, show_graphs:bool, accuracy_checks:bool, wb:Workbo
     movement_learner = Learner(mem_per_eq, alphabet=alphabet, teacher_type=0, display_graphs=show_graphs, accuracy_checks=accuracy_checks, wb=wb, test_id=test_id)
     direction_learner = Learner(mem_per_eq, alphabet=alphabet, teacher_type=1, display_graphs=show_graphs, accuracy_checks=accuracy_checks, wb=wb, test_id=test_id)
 
-    print("DFAs INITIALIZED")
-    print()
-
+    print("Learners initialized")
+    
     # Learn movement teacher using L*
     movement_DFA = movement_learner.lstar_algorithm()
     print("FIRST DFA => MOVEMENT => IS DONE")
@@ -103,14 +102,13 @@ def run_solver(mem_per_eq:int, show_graphs:bool, accuracy_checks:bool, wb:Workbo
     direction_DFA = direction_learner.lstar_algorithm()
     print("SECOND DFA => DIRECTION => IS DONE")
 
-    # write direction teacher to a file
+    # write DFA learned by direction teacher to a file
     __write_dfa_to_file(direction_DFA, __location__, "direction_dfa.txt")
 
-    # NOTE: use test_points.py to test the results of the DFAs generated in this solver.py file
     total_end = time.time()
     print("end")
 
-    print(f"OVERALL TIME: {total_end - total_start}")
+    print(f"Total runtime: {total_end - total_start} seconds")
 
 if __name__ == "__main__":
     # Parse command-line arguments

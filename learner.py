@@ -31,7 +31,7 @@ class Learner:
 
     def draw_graph(self):
         '''
-        Draws current a graph representing the current DFA M_Hat using Networkx.   
+        Draws current, a graph representing the current DFA M_Hat using Networkx.   
         Graphs are set off to default but can be enabled with a command line prompt when running any of the testing files
         '''
 
@@ -82,7 +82,7 @@ class Learner:
     
     ##########################################################################################################
 
-    def __init__(self, mem_per_eq, alphabet = ['0','1'], teacher_type=-1, num_states = -1, seed = -1, premade_dfa = None, display_graphs = False, accuracy_checks=False, wb=None, test_id = None):
+    def __init__(self, mem_per_eq=100, alphabet = ['0','1'], teacher_type=-1, num_states = -1, seed = -1, premade_dfa = None, display_graphs = False, accuracy_checks=False, wb=None, test_id = None):
         '''
         Initializes the learner
         :param mem_per_eq: the number of equivalence queries performed during a single membership query by the teacher associated with this learner
@@ -156,10 +156,6 @@ class Learner:
             for entry in row:
                 assert entry >= 0
         
-        # print("m_hat at end of initialization: " + str(self.m_hat))
-
-        print(f"Learner type {teacher_type} initialization complete")
-
     ##########################################################################################################
 
     def init_t_m_hat(self):
@@ -203,18 +199,11 @@ class Learner:
             self.draw_graph()
     
         # equivalence query on initial M_hat
-        print("calling equivalence query from learner.init_t_m_hat()")
         gamma = self.my_teacher.equivalent(self.m_hat)
-        print(f"gamma returned is {gamma}")
 
         # If there is no counterexample, we have solved the DFA
         if not gamma:
             print("We are done. DFA is the trivial DFA.")
-            if self.my_teacher.member(""):
-                # empty string accepted
-                print("all accepted")
-            else:
-                print("all rejected")
             self.solved = True
         
         # Else put counterexample gamma into our tree T
@@ -246,7 +235,7 @@ class Learner:
 
         # Print debugging information if trying to clobber a pre-existing key:
         if key in self.access_string_reference.keys():
-            print("trying to clobber key " + key)
+            print("Error: Trying to clobber key " + key)
             self.__sift(key)
             #exit(1)
             assert not key in self.access_string_reference.keys()
@@ -257,9 +246,7 @@ class Learner:
 
     def lstar_algorithm(self):
         '''runs Anlguin's L-Star algorithm and prints the learned DFA and its tree upon completion'''
-        print("running l-star")
-
-        runs = 0
+        print("Running L*")
 
         while not self.solved:
 
@@ -287,16 +274,6 @@ class Learner:
                 # If no counterexample is provided, the DFA has been solved
                 self.solved = True
 
-            end = time.time()
-
-            # TODO: Delete debugging print statements
-            print()
-            runs += 1
-            print("LOOP COMPLETE IN L STAR ==> " + str(runs))
-            print("Tree size is... " + str(self.t.size(self.t.root)))
-            print("M hat size is..." + str(len(self.m_hat)))
-            print("Time for this loop..." + str(end - start))
-            
             # Check and print accuracy if desired
             if self.accuracy_checks:
                 success_rate = self.__test_accuracy()
@@ -307,11 +284,7 @@ class Learner:
                 self.sheet.write(len(self.m_hat), 1, f'{success_rate}')
 
 
-
-            print()
-
         # If we have exited the loop, we have solved the DFA
-        # if yes we are done
         print("DFA solved!")
         print(f"Learned DFA with {len(self.m_hat)} states:")
         for i in range(len(self.m_hat)):
@@ -383,9 +356,6 @@ class Learner:
     
     ##########################################################################################################
 
-    # input: gamma (a counterexample generated from an equivalence query) and our tree T (from self)
-    # output: Edits T to update it (returns nothing)
-    # NOTE: remember to SET THE PARENT of a new node when you declare it
     def update_tree(self, gamma):
         '''
         takes in a counterexaple and edits the Classification Tree T to update it with the new string and sift all other affected strings
@@ -484,7 +454,6 @@ class Learner:
 
     ##########################################################################################################
 
-    # output: hypothesis M_hat constructed from T
     def construct_hypothesis(self):
         '''
         Constructs a hypothesized DFA M_Hat from the classification tree self.t.
@@ -572,8 +541,6 @@ class Learner:
 
     ##########################################################################################################
 
-    # input: s is the string being sifted and T is our tree
-    # output: access string in T for the state of M accessed by s
     def __sift(self, s):
         '''
         Returns the access string from tree T associated with the state of M accessed by string s.
@@ -592,6 +559,12 @@ class Node:
     ##########################################################################################################
 
     def __init__(self, value : str, parent, level):
+        '''
+        Node constructor
+        :param value: the string stored in the node
+        :param parent: the Node that is self's parent
+        :param level: an int representing the level of the Node in T (root = 0)
+        '''
         self.value = value
 
         self.parent = parent
@@ -612,11 +585,19 @@ class Tree:
     ##########################################################################################################
 
     def __init__(self, root: Node):
+        '''
+        Tree constructor
+        :param root: the Node that is the root of the tree
+        '''
         self.root = root
 
     ##########################################################################################################
 
     def size(self, root):
+        '''
+        A recursive method returning the size of the tree
+        :param root: the root of the tree or subtree
+        '''
         if root == None:
             return 0
         
@@ -625,9 +606,12 @@ class Tree:
 
         return 1 + l + r
 
+    ##########################################################################################################
 
-    # other methods go here ie sorting stuff
     def print_tree(self):
+        '''
+        Prints the tree to terminal
+        '''
         stack = []
         stack.append(self.root)
         while stack:
