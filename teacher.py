@@ -164,7 +164,6 @@ class Teacher:
         
     ##########################################################################################################
 
-    # TODO: Create option not to read agent file?
     def _create_world(self, s):
         '''
         Creates an iteration of World from hexv2.py with the arrangement specified in s.
@@ -469,12 +468,16 @@ class Teacher:
     ##########################################################################################################
 
     @staticmethod
-    # Returns a boolean indicating if ident_1 is less than ident_2 according to the following rules:
-    # First, sort by the second hexadecimal character (matrix index)
-    # Second, sort by the third hexadecimal character (list index)
-    # Finally, sort by the first hexadecimal character (property)
-    #TODO: document this method
     def less_than(ident_1 : str, ident_2 : str, agent : str):
+        '''
+        Returns a boolean indicating if ident_1 is strictly "less than" ident_2 according to the following rules:
+        First, sort by distance from agent
+        Second, sort by angle relative to agent's angle
+        Finally, sort by the first hexadecimal character (property)
+        :param ident_1: a string representing an ident
+        :param ident_2: a string representing an ident
+        :param agent: a string representing the agent from whose perspective the sorting is being done
+        '''
 
         # Ensure that we are comparing two idents of valid string length
         assert len(ident_1) == 3
