@@ -50,7 +50,6 @@ def write_alphabet():
     # Writing to a text file according to this tutorial: https://www.w3schools.com/python/python_file_write.asp
 
     # Overwrite text in alphabet file with the empty string
-    # TODO: Deal with case where file doesn't exist
     f = open("alphabet.txt", "w")
     f.write("")
     f.close()

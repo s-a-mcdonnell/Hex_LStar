@@ -308,7 +308,6 @@ class Learner:
         success_tally = 0
 
         total_queries = 500
-        # TODO: Determine if 500 is a reasonable number of membership queries to make for this check
         for i in range(0, total_queries):
             test_string = self.my_teacher.generate_string()
 
@@ -385,7 +384,6 @@ class Learner:
             loop_d = node_sift.parent.value if node_sift.parent else ""
 
             # Accessing dictionary key from value according to these instructions: https://www.geeksforgeeks.org/python-get-key-from-value-in-dictionary/#
-            # TODO: This is a janky way to be using a dictionary. Is this the best-suited ADT for our purposes?
             row_in_m_hat = self.m_hat.index(Teacher.final_state(strng, self.m_hat, self.alphabet))
             my_dict = self.access_string_reference
             access_string_m_hat = list(my_dict.keys())[list(my_dict.values()).index(row_in_m_hat)]

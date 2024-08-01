@@ -59,12 +59,11 @@ class Teacher:
         self.world = World(display_window=False)
 
         # There is enough space for all regular idents and all goals in the ident list
-        # TODO: Add space for agents?
+        # NOTE: May need to add space here if allowing multiple agents to be created
         self.ident_list = []
         for i in range(Teacher.MAX_NUM_IDENTS + Teacher.MAX_NUM_GOALS):
             self.ident_list.append(Ident(matrix_index=-1, list_index=-1, world=self.world))
        
-        # TODO: How many agents to allow?
         self.agents = [Ident(matrix_index=-1, list_index=-1, world=self.world, property="agent")]*10
         
         self.goal_list = [Ident(matrix_index=-1, list_index=-1, world=self.world, property="goal")]*Teacher.MAX_NUM_GOALS
@@ -75,7 +74,6 @@ class Teacher:
 
         self.wall_list = []
 
-        # TODO: Manage walls? Differentiate between ring and freestanding walls?
         ''' walls just for the test case where things are a 5x5 square'''
         # NOTE: Remove these walls and expand the number of valid characters in the alphabet to enable worlds larger thatn 5x5
         for i in range(5, 12):
@@ -103,7 +101,7 @@ class Teacher:
         self.surrounding_walls : int = len(self.wall_list)
         self.valid_walls : int = self.surrounding_walls
 
-        # TODO: Adjust to max number of other (non-ring) walls
+        # NOTE: This may need to be adjusted depending on the number of other (non-ring) walls allowed to be created
         for i in range (50):
             self.wall_list.append(Ident(matrix_index=-1, list_index=-1, world=self.world, state=-2))
 
@@ -180,7 +178,6 @@ class Teacher:
         # Assert that the length of the world-string is valid
         assert(len(s) % 3 == 0)
 
-        # TODO: Find a less memory-intensive way of swapping this
         for hex_row in self.world.hex_matrix:
             for hex in hex_row:
                 hex.idents.clear()
@@ -200,7 +197,6 @@ class Teacher:
 
             # 0 => wall
             if property == 0:
-                # TODO: Check that this works (not tested because testing was done on simpler world-strings)
                 new_ident = self.wall_list[self.valid_walls]
 
                 new_ident.matrix_index = mi
@@ -214,8 +210,6 @@ class Teacher:
             # If not a wall, it goes on the ident list
             # (It already is on the ident list, but we iterate to indicate that it is valid)
             else:
-                # self.world.ident_list.append(new_ident, self.valid_idents)
-                # TODO: How to not repeat ident when working with goals for example
                 new_ident = self.ident_list[self.valid_idents]
 
                 new_ident.matrix_index = mi
@@ -293,7 +287,6 @@ class Teacher:
         returns a boolean indicating whether s is accepted or rejected by the given DFA
         '''
 
-        # TODO: is self.m ever not None for hex world?
         if not dfa:
             dfa = self.m
         
@@ -311,7 +304,6 @@ class Teacher:
 
     @staticmethod
     # NOTE: This distance calculation overlaps with a method Allison wrote in World
-    # TODO: document this method and determine if it is necessary (I don't think it hurts to have it - Allison)
     def __get_distance(id_1:list[int], id_2:list[int]):
         '''
         Calculates and returns the distance between two idents (in number of hexes)
@@ -330,7 +322,6 @@ class Teacher:
         if abs(li_dist) > total_dist:
             total_dist = abs(li_dist)
         # If the partial distances are both positive or both negative, the total distance is the sum of their absolute values
-        # TODO: Will there be any issues here if mi_dist and/or li_dist == 0?
         if ((mi_dist > 0) == (li_dist > 0)) and ((mi_dist < 0) == (li_dist < 0)):
             total_dist = abs(mi_dist) + abs(li_dist)
         
@@ -368,7 +359,6 @@ class Teacher:
         if mi_dist == 0 and li_dist == 0:
             
             # TODO: Return a direction other than 0? (0 also has another meaning --> straight ahead)
-            # return [total_dist, 0]
             if id[0] >= 2 and id[0] <= 7:
                 abs_angle = id[0] - 2
             elif id[0] >= 9 and id[0] <= 14:
@@ -383,27 +373,21 @@ class Teacher:
             assert mi_dist != 0
 
             abs_angle = 2 if mi_dist > 0 else 5
-
-            # TODO: Check how direction is determined here
-            # return [total_dist, ]
         
         # Deal with ident on a straight vertical line
         elif mi_dist == 0:
             assert li_dist != 0
 
             abs_angle = 3 if li_dist > 0 else 0
-
-            # TODO: Check how direction is determined here
-            # return [total_dist, 3 if mi_dist > 0 else 0]
         
         # Deal with ident on a straight northeast/southwest line
         elif mi_dist == -li_dist:
             abs_angle = 1 if mi_dist > li_dist else 4
         
-        # TODO: Deal with all other cases (not straight lines)
+        # Deal with all other cases (not straight lines)
         else:
             # To find angle:
-            # TODO: Find the hex on the same concentric ring which is one of the the 6 straight lines and is the closest to the desired ident but counter-clockwise from it
+            # Find the hex on the same concentric ring which is one of the the 6 straight lines and is the closest to the desired ident but counter-clockwise from it
             if mi_dist > 0 and li_dist < 0:
                 if abs(li_dist) > abs(mi_dist):
                     ref_angle = 0
@@ -422,7 +406,7 @@ class Teacher:
                 assert mi_dist < 0 and li_dist < 0
                 ref_angle = 5
 
-            # TODO: Get the distance from said reference hex to the desired ident. We can do this with a call to __get_distance_and_direction because it will be a straight line (not infinite recursion)
+            # Get the distance from said reference hex to the desired ident. We can do this with a call to __get_distance_and_direction because it will be a straight line (not infinite recursion)
             match ref_angle:
                 case 0:
                     offset = Teacher.__get_distance([ag[0], ag[1], ag[2] - total_dist], id)
@@ -445,7 +429,6 @@ class Teacher:
             # = angle of reference hex + (distance from ref hex to desired ident)/(total_dist)
             abs_angle = ref_angle + offset/total_dist
 
-        # TODO: Check how relative angle is calculated
         # Calculate relative angle (relationship between absolute angle and the agent's direction)
         if abs(abs_angle - agent_dir) <= 3:
             relative_angle = abs_angle - agent_dir
@@ -455,7 +438,6 @@ class Teacher:
         else:
             
             assert abs_angle - agent_dir > 0
-            # TODO: Check this relative angle case specifically
 
             assert abs_angle - agent_dir > 3
 
@@ -523,7 +505,6 @@ class Teacher:
             # Two idents are in the same location
             else:
                 # Compare 1st hexadecimal character (property)
-                # TODO: Do I need to convert into decimal?
                 if ident_1[0] < ident_2[0]:
                     return True
                 elif ident_1[0] > ident_2[0]:
@@ -553,7 +534,6 @@ class Teacher:
             agent_dir = random.randint(9, 14)
             agent_mi = random.randint(0, 15)
             agent_li = random.randint(0, 15)
-            # TODO: Check that this hex method correctly converts and returns a string
             my_agent += hex(agent_dir)[2] + hex(agent_mi)[2] + hex(agent_li)[2]
 
         assert my_agent
@@ -570,7 +550,6 @@ class Teacher:
                 my_goal = ""
                 goal_mi = random.randint(0, 15)
                 goal_li = random.randint(0, 15)
-                # TODO: Check that this hex method correctly converts and returns a string
                 my_goal += "f" + hex(goal_mi)[2] + hex(goal_li)[2]
 
             assert my_goal
@@ -580,7 +559,6 @@ class Teacher:
             if not len(goals):
                 goals.append(my_goal)
             
-            # TODO: Finish sorting in multiple goals then add them to string
             # Add the final ident in other_idents in smaller than the new_ident, add at the back
             elif Teacher.less_than(goals[len(goals) - 1], my_goal, my_agent):
                 goals.append(my_goal)
@@ -613,11 +591,9 @@ class Teacher:
                 new_ident = ""
                 # breakpoint()
                 # NOTE: the new idents cannot be goals
-                # TODO: Only create valid idents (rather than creating potentially invalid idents and then fixing them)
                 ident_prop = random.randint(0, 14)
                 ident_mi = random.randint(0, 15)
                 ident_li = random.randint(0, 15)
-                # TODO: Check that this hex method correctly converts and returns a string
                 new_ident += hex(ident_prop)[2] + hex(ident_mi)[2] + hex(ident_li)[2]
 
             assert new_ident
