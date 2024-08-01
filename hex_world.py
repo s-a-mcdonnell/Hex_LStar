@@ -22,7 +22,20 @@ class Ident:
     ##########################################################################################################
     
     def __init__(self, matrix_index, list_index, world, color=(255, 255, 255), state: int = -1, serial_number = -1, hist = None, property = None, partner_serial_number = -1):
-        
+        '''
+        Ident constructor
+        :param matrix_index: an int representing the index of the list in the world.hex_matrix in which the Ident is located
+        :param list_index: an int representing the index of the Hex in world.hex_matrix[matrix_ident] in which the Ident is located
+        :param world: the World in which the Ident is located
+        :param color: the color of the Ident
+        :param state: an int representing the state (wall, stationary, or direction) of the Ident
+        :param serial_number: int serial number (to check against accidental cloning)
+        :param hist: the history of the ident (for backstepping)
+        :param property: a string representing the special property of the ident, if any (ex. "goal," "portal")
+        :param parter_serial_number: int representing the derial number of a portal's destinatin Ident
+        '''
+
+
         if hist is None:
             hist = []
         self.color = color
