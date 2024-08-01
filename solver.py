@@ -77,8 +77,6 @@ def run_solver(mem_per_eq:int, show_graphs:bool, accuracy_checks:bool, wb:Workbo
     for line in file:
         __read_line(line, alphabet)
 
-        print("Alphabet parsed")
-
     total_start = time.time()
 
     # Create learners:
